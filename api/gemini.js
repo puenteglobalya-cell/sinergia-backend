@@ -1,6 +1,7 @@
-import { GoogleGenAI } from '@google/generative-ai';
+const { GoogleGenAI } = require('@google/generative-ai');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+  // Configuración de CORS obligatoria para que responda a GitHub Pages
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,11 +16,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Inicialización según la última especificación SDK
+    // Inicialización clásica garantizada para entornos Serverless
     const ai = new GoogleGenAI({ apiKey: apiKey });
     
     const { action, level, textInput, currentPrompt, systemInfo } = req.body || {};
 
+    // --- ACCIÓN A: GENERAR ESCENARIO SORPRESA ---
     if (action === "generate_scenario") {
       const promptSistema = `Sos un personaje interactivo para un juego de rol educativo en inglés. 
       Generá una situación o escenario adaptado para un nivel de inglés: [${level || 'Initial'}].
@@ -39,6 +41,7 @@ export default async function handler(req, res) {
       return res.status(200).json(JSON.parse(jsonLimpio));
     }
 
+    // --- ACCIÓN B: EVALUAR LA VOZ DEL USUARIO ---
     if (action === "evaluate_voice") {
       const promptEvaluacion = `Contexto del rol: ${systemInfo || ''}. Frase del personaje AI: "${currentPrompt || ''}".
       El usuario respondió esto de forma hablada: "${textInput || ''}".
@@ -56,7 +59,8 @@ export default async function handler(req, res) {
       });
       
       const text = response.text.trim();
-      const jsonLimpio = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const jsonLimpio = text.replace(/```json/g, "").replace(/
+```/g, "").trim();
       return res.status(200).json(JSON.parse(jsonLimpio));
     }
 
@@ -65,4 +69,4 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+};
