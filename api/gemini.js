@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require('@google/generative-ai');
 
 module.exports = async function (req, res) {
-  // Habilitar CORS para que GitHub Pages pueda comunicarse sin bloqueos
+  // Habilitar CORS para comunicación directa con tu GitHub Pages
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -16,11 +16,13 @@ module.exports = async function (req, res) {
   }
 
   try {
-    // Inicialización estándar del SDK
+    // Inicialización oficial según especificación de entorno Node.js tradicional
     const ai = new GoogleGenAI({ apiKey: apiKey });
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
     const { action, level, textInput, currentPrompt, systemInfo } = req.body || {};
 
-    // --- ACCIÓN: GENERAR ESCENARIO ---
+    // --- ACCIÓN: GENERAR ESCENARIO SORPRESA ---
     if (action === "generate_scenario") {
       const promptSistema = `Sos un personaje interactivo para un juego de rol educativo en inglés. 
       Generá una situación o escenario adaptado para un nivel de inglés: [${level || 'Initial'}].
@@ -30,12 +32,9 @@ module.exports = async function (req, res) {
         "ai_opening": "La frase de apertura que dice tu personaje en inglés para iniciar el juego"
       }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: promptSistema,
-      });
+      const result = await model.generateContent(promptSistema);
+      const text = result.response.text().trim();
       
-      const text = response.text.trim();
       const jsonLimpio = text.replace(/```json/g, "").replace(/```/g, "").trim();
       return res.status(200).json(JSON.parse(jsonLimpio));
     }
@@ -52,19 +51,15 @@ module.exports = async function (req, res) {
         "xp": 50
       }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: promptEvaluacion,
-      });
+      const result = await model.generateContent(promptEvaluacion);
+      const text = result.response.text().trim();
       
-      const text = response.text.trim();
       const jsonLimpio = text.replace(/```json/g, "").replace(/
 ```/g, "").trim();
       return res.status(200).json(JSON.parse(jsonLimpio));
     }
 
-    // Si entran por GET al link de diagnóstico, les tiramos este mensaje controlado para saber que está vivo
-    return res.status(200).json({ status: "Servidor Sinergia activo y escuchando peticiones de la familia" });
+    return res.status(200).json({ status: "Servidor Sinergia activo y escuchando" });
 
   } catch (error) {
     return res.status(500).json({ error: error.message });
