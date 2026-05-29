@@ -1,9 +1,8 @@
 {
   "name": "sinergia-backend",
   "version": "1.0.0",
-  "description": "Backend para Sinergia Familiar con Gemini Flash",
+  "description": "Backend estable para Sinergia Familiar",
   "main": "api/gemini.js",
-  "type": "module",
   "dependencies": {
     "@google/generative-ai": "^0.1.1"
   }
