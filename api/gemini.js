@@ -1,66 +1,73 @@
 import { GoogleGenAI } from '@google/generative-ai';
 
-export default async function handler(request, response) {
-    // Configuración segura de cabeceras CORS para permitir la conexión desde tu GitHub Pages
-    response.setHeader('Access-Control-Allow-Credentials', true);
-    response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    response.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+export default async function handler(req, res) {
+  // 1. Manejo del puente de comunicación (CORS) para que GitHub Pages pueda entrar
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Responder de inmediato a las peticiones de control de navegador (Preflight)
-    if (request.method === 'OPTIONS') {
-        return response.status(200).end();
+  // Si es una petición de control (OPTIONS), respondemos rápido y salimos
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // 2. Verificar que la clave secreta que guardamos en Vercel esté disponible
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: "Falta configurar la variable GEMINI_API_KEY en Vercel." });
+  }
+
+  try {
+    // 3. Inicializar el motor de Google
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    // Extraer los datos que envía la página web
+    const { action, level, textInput, currentPrompt, systemInfo } = req.body || {};
+
+    // --- ACCIÓN A: GENERAR ESCENARIO SORPRESA ---
+    if (action === "generate_scenario") {
+      const promptSistema = `Sos un personaje interactivo para un juego de rol educativo en inglés. 
+      Generá una situación o escenario adaptado para un nivel de inglés: [${level || 'Initial'}].
+      Devolvé ÚNICAMENTE un objeto JSON con dos propiedades, sin formatos Markdown ni textos extras:
+      {
+        "setup_title": "Título corto del escenario en castellano (ej: Café en París)",
+        "ai_opening": "La frase de apertura que dice tu personaje en inglés para iniciar el juego"
+      }`;
+
+      const result = await model.generateContent(promptSistema);
+      const text = result.response.text().trim();
+      
+      // Limpiar posibles bloques de código markdown que meta Gemini por error
+      const jsonLimpio = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      return res.status(200).json(JSON.parse(jsonLimpio));
     }
 
-    // Restringir el backend únicamente a peticiones seguras de tipo POST
-    if (request.method !== 'POST') {
-        return response.status(405).json({ error: 'Method not allowed' });
+    // --- ACCIÓN B: EVALUAR LA VOZ DEL USUARIO ---
+    if (action === "evaluate_voice") {
+      const promptEvaluacion = `Contexto del rol: ${systemInfo || ''}. Frase del personaje AI: "${currentPrompt || ''}".
+      El usuario respondió esto de forma hablada: "${textInput || ''}".
+      Analizá la gramática y coherencia para un nivel [${level || 'Initial'}].
+      Devolvé ÚNICAMENTE un objeto JSON con tres propiedades, sin formatos de código adicionales:
+      {
+        "reply": "Tu respuesta en inglés continuando la conversación de rol de forma amigable",
+        "correction": "Un consejo muy breve en castellano sobre su frase, o felicitación si estuvo perfecto",
+        "xp": 50
+      }`;
+
+      const result = await model.generateContent(promptEvaluacion);
+      const text = result.response.text().trim();
+      
+      const jsonLimpio = text.replace(/```json/g, "").replace(/
+```/g, "").trim();
+      return res.status(200).json(JSON.parse(jsonLimpio));
     }
 
-    try {
-        // Inicialización del motor de Google utilizando la variable encriptada en el servidor de Vercel
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        const { action, textInput, level, systemInfo, currentPrompt } = request.body;
+    // Si mandan una acción desconocida
+    return res.status(400).json({ error: "Acción no válida" });
 
-        // ACCIÓN A: Orquestación y simulación del Gemini Surprise Topic
-        if (action === 'generate_scenario') {
-            const matrixTemasOcultos = [
-                "Expat compound community administration interaction, requesting structural villa revisions.",
-                "Premium metro transit network, requesting high-tier luxury family gold carriage card routing.",
-                "International schooling coordinator presentation, analyzing core curriculum structures.",
-                "Liquefied distributions high-level meeting, discussing pipeline management operations and strict risk-mitigation pricing baselines."
-            ];
-            const temaSecreto = matrixTemasOcultos[Math.floor(Math.random() * matrixTemasOcultos.length)];
-
-            const geminiResponse = await ai.models.generateContent({
-                model: 'gemini-1.5-flash',
-                contents: `Context framework: ${temaSecreto}. User current experience profile: ${level}. Design an advanced starting dialogue line or question for an interactive English simulation. Return strictly a raw valid JSON object with keys: "setup_title" and "ai_opening". Do not include markdown formatting, markdown code blocks, or backticks. Strict corporate setting orientation.`,
-                config: { responseMimeType: "application/json" }
-            });
-
-            return response.status(200).json(JSON.parse(geminiResponse.text));
-        }
-
-        // ACCIÓN B: Procesamiento gramatical y feedback de voz real interactiva
-        if (action === 'evaluate_voice') {
-            // Aplicar un sesgo estrictamente crítico y analítico para niveles avanzados
-            let strictness = level === 'Advanced' 
-                ? 'Apply a strictly critical, rigorous, and conservative grading bias. Keep target scores low, between 15-30 XP max, focusing heavily on syntax accuracy.' 
-                : 'Be encouraging and supportive, grading performance between 35-50 XP.';
-
-            const promptFinal = `Character dialogue context line was: "${currentPrompt}". User physically replied via native voice input: "${textInput}". Perform a comprehensive grammar and structural fluency evaluation. Environment framework: ${systemInfo}. ${strictness}. Return strictly a raw valid JSON object string with keys: "reply" (your next conversational narrative sentence staying strictly in character), "correction" (constructive, highly specific language tip in English), and "xp" (the exact score integer gained). Do not include markdown formatting, backticks, or code blocks.`;
-
-            const geminiResponse = await ai.models.generateContent({
-                model: 'gemini-1.5-flash',
-                contents: promptFinal,
-                config: { responseMimeType: "application/json" }
-            });
-
-            return response.status(200).json(JSON.parse(geminiResponse.text));
-        }
-
-    } catch (error) {
-        console.error("Vercel Server Error:", error);
-        return response.status(500).json({ error: "Internal server processing failed" });
-    }
+  } catch (error) {
+    // Si algo falla dentro de Gemini, devolvemos el error amigable para no congelar el servidor
+    return res.status(500).json({ error: error.message });
+  }
 }
