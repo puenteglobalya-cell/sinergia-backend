@@ -4,6 +4,6 @@
   "description": "Backend estable para Sinergia Familiar",
   "main": "api/gemini.js",
   "dependencies": {
-    "@google/generative-ai": "^0.1.1"
+    "@google/generative-ai": "^0.21.0"
   }
 }
