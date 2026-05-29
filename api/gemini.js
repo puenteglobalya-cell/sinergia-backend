@@ -16,7 +16,7 @@ module.exports = async function (req, res) {
   }
 
   try {
-    // Inicialización oficial según especificación de entorno Node.js tradicional
+    // Inicialización nativa del SDK de Google AI Studio
     const ai = new GoogleGenAI({ apiKey: apiKey });
     const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
