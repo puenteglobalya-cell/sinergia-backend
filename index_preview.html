@@ -293,6 +293,18 @@
     </div>
 </div>
 
+<!-- ═══ GLOSARIO PERSONAL MODAL ═══ -->
+<div id="glosario-overlay" class="fixed inset-0 flex flex-col z-[150]" style="background:rgba(15,23,42,0.98);display:none;">
+    <div class="flex items-center justify-between px-4 py-4 border-b border-slate-700 flex-shrink-0">
+        <h2 id="glosario-title" class="text-white font-extrabold text-lg">⭐ Glosario</h2>
+        <button onclick="document.getElementById('glosario-overlay').style.display='none'" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-800 transition-colors">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-2" id="glosario-list"></div>
+    <div class="px-4 py-4 border-t border-slate-700 flex-shrink-0">
+        <button onclick="if(confirm('¿Borrar todo el glosario?')){localStorage.removeItem(glosarioKey(window.perfilActualId));mostrarGlosario();}" class="w-full bg-rose-900/50 hover:bg-rose-900 text-rose-400 font-bold py-3 rounded-2xl text-sm transition-all active:scale-95">🗑 Borrar todo el glosario</button>
+    </div>
+</div>
+
 <!-- ═══ KIDS INTERFACE ═══ -->
 <div id="vista-infantil" class="flex-1 flex flex-col p-4 md:p-6 hidden"
      style="background: linear-gradient(135deg,#e0f2fe 0%,#fef9c3 50%,#fce7f3 100%);">
@@ -469,6 +481,9 @@
                     </button>
                     <button onclick="iniciarStoryteller()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
                         📖 Storyteller
+                    </button>
+                    <button onclick="mostrarGlosario()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95 border border-slate-600">
+                        ⭐ Glosario
                     </button>
                 </div>
             </div>
@@ -1131,6 +1146,49 @@ const bancoEscenariosFijos = {
 
 function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
 
+// ── Personal Glossary ─────────────────────────────────────────────────────────
+function glosarioKey(perfilId) { return `sinergia_glosario_${perfilId}`; }
+function cargarGlosario(perfilId) { try { return JSON.parse(localStorage.getItem(glosarioKey(perfilId)) || '[]'); } catch(e) { return []; } }
+function guardarGlosario(perfilId, items) { localStorage.setItem(glosarioKey(perfilId), JSON.stringify(items)); }
+
+window.guardarEnGlosario = function(perfilId, texto, btnContainerId) {
+    const items = cargarGlosario(perfilId);
+    const entry = { texto, fecha: new Date().toLocaleDateString('es-AR'), nivel: window.familia[perfilId]?.nivel || '' };
+    items.unshift(entry);
+    if (items.length > 100) items.pop();
+    guardarGlosario(perfilId, items);
+    // Visual confirmation
+    const btn = document.querySelector(`#${btnContainerId}`)?.nextElementSibling;
+    if (btn) { btn.textContent = '✅'; setTimeout(() => { btn.textContent = '⭐'; }, 1200); }
+};
+
+window.mostrarGlosario = function() {
+    const p     = window.familia[window.perfilActualId];
+    const items = cargarGlosario(p.id);
+    const overlay = document.getElementById('glosario-overlay');
+    const list    = document.getElementById('glosario-list');
+    const title   = document.getElementById('glosario-title');
+    title.textContent = `⭐ Glosario de ${p.nombre}`;
+    list.innerHTML = items.length === 0
+        ? '<p class="text-slate-400 text-sm text-center py-8">Aún no guardaste ningún término.<br>Tocá ⭐ en el feedback de una conversación.</p>'
+        : items.map((it,i) => `
+            <div class="bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700 flex justify-between items-start gap-3">
+                <div>
+                    <p class="text-white text-sm font-semibold leading-relaxed">${it.texto}</p>
+                    <p class="text-slate-500 text-xs mt-1">${it.nivel} · ${it.fecha}</p>
+                </div>
+                <button onclick="eliminarDeGlosario('${p.id}',${i})" class="text-slate-600 hover:text-rose-400 text-lg flex-shrink-0 transition-colors active:scale-125">✕</button>
+            </div>`).join('');
+    overlay.style.display = 'flex';
+};
+
+window.eliminarDeGlosario = function(perfilId, idx) {
+    const items = cargarGlosario(perfilId);
+    items.splice(idx, 1);
+    guardarGlosario(perfilId, items);
+    window.mostrarGlosario();
+};
+
 function obtenerPregunta(idTema, temaIdx) {
     const banco = MISIONES[idTema];
     const tier  = (temaIdx >= 4) ? banco.tier2 : banco.tier1;
@@ -1453,13 +1511,8 @@ function verificarAutoNivelacion(p) {
     if (msg) msg.innerText = `${p.nombre} ahora practica en nivel "${nuevoNivel}". ¡Sigue así!`;
     if (icon) icon.innerText = p.tipo === 'infantil' ? '🌟' : '🚀';
     document.getElementById('nivel-up-overlay').classList.remove('hidden');
-    if (p.tipo === 'adulto') {
-        document.getElementById('subtitulo-adulto').innerText = `${p.nombre} · ${p.nivel}`;
-        actualizarNivelAdulto(p);
-    } else {
-        document.getElementById('nivel-nena-tag').innerText = `Level: ${p.nivel}`;
-        document.getElementById('racha-nena').innerText = 0;
-    }
+    // Full UI redraw so the new level is reflected immediately in all views
+    window.cambiarPerfil(p.id);
 }
 
 function inicializarReconocimientoVoz() {
@@ -1906,9 +1959,20 @@ function cargarTextoEnStoryteller(text) {
 }
 
 // tooltip state
-let _stTooltip = null;
+let _stTooltip     = null;
+let _stResumeMarker = null; // span previously marked as resume point
 window.stWordTap = async function(el, word, idx) {
     hablarNativo(word, window._storySpeed || 0.85);
+
+    // Set resume point for storytellerPlay()
+    _storyResumeIdx = idx;
+    // Clear previous resume marker
+    if (_stResumeMarker && _stResumeMarker !== el) {
+        _stResumeMarker.style.outline = '';
+    }
+    el.style.outline = '2px solid #38bdf8';
+    _stResumeMarker = el;
+
     // remove previous tooltip
     if (_stTooltip) { _stTooltip.remove(); _stTooltip = null; }
     // build tooltip
@@ -1975,18 +2039,34 @@ window.setStorySpeed = function(rate) {
     }
 };
 
+// _storyResumeIdx: word index from which Play should start (set by tapping a word)
+let _storyResumeIdx = -1;
+
 window.storytellerPlay = function() {
     if (!_storyText) return;
     storytellerStop();
-    const u = new SpeechSynthesisUtterance(_storyText);
+
+    // If user tapped a word to set resume point, slice the text from that word
+    const wordTokens = _storyWords.filter(d => d.isWord);
+    let textToSpeak = _storyText;
+    let charOffset   = 0;
+    if (_storyResumeIdx >= 0) {
+        const resumeToken = _storyWords.find(d => d.idx === _storyResumeIdx);
+        if (resumeToken) {
+            textToSpeak = _storyText.slice(resumeToken.start);
+            charOffset  = resumeToken.start;
+        }
+        _storyResumeIdx = -1;
+    }
+
+    const u = new SpeechSynthesisUtterance(textToSpeak);
     const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
     if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
     u.lang = 'en-US';
     u.rate = window._storySpeed || 1.0;
-    const wordTokens = _storyWords.filter(d => d.isWord);
     u.onboundary = e => {
         if (e.name !== 'word') return;
-        const found = wordTokens.find(d => e.charIndex >= d.start && e.charIndex < d.start + d.token.length);
+        const found = wordTokens.find(d => (e.charIndex + charOffset) >= d.start && (e.charIndex + charOffset) < d.start + d.token.length);
         if (!found) return;
         if (_storyActive >= 0) {
             const prev = document.getElementById(`st-${_storyActive}`);
@@ -2020,6 +2100,7 @@ window.storytellerStop = function() {
         _storyActive = -1;
     }
     _storyUtter = null;
+    // keep _storyResumeIdx so user can still hit Play from tapped word
 };
 
 window.cerrarStoryteller = function() {
@@ -2077,7 +2158,15 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 systemInfo: window.escenarioAdultoActivo.systemInfo
             })
         });
-        const data = await res.json();
+        // Frontend Markdown guard: extract JSON even if wrapped in ```json ... ```
+        let data;
+        try {
+            const raw = await res.text();
+            const jsonMatch = raw.match(/\{[\s\S]*\}/);
+            data = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+        } catch(parseErr) {
+            throw new Error('Response parse error: ' + parseErr.message);
+        }
         if (data.error) throw new Error(data.error);
 
         // Update XP and streak
@@ -2092,16 +2181,19 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         actualizarNivelAdulto(p);
         verificarAutoNivelacion(p);
 
+        const correctionId = 'corr-' + Date.now();
         evalDiv.innerHTML = `
             <p class="font-medium leading-relaxed cursor-pointer select-none"
                onclick="this.nextElementSibling.classList.toggle('hidden')"
                title="Tap to translate">
-                ${data.reply} <span class="text-blue-300 text-[10px]">🌐</span>
+                ${data.reply} <span class="text-blue-300 text-xs">🌐</span>
             </p>
             <p class="text-slate-400 text-xs italic mt-1 px-1 hidden">${data.translation || ''}</p>
             <div class="mt-2 pt-2 border-t border-blue-100 space-y-1.5">
-                <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-                    <p class="text-amber-700 text-xs font-bold">✏️ ${data.correction}</p>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-start justify-between gap-2">
+                    <p id="${correctionId}" class="text-amber-700 text-xs font-bold flex-1">✏️ ${data.correction}</p>
+                    <button onclick="guardarEnGlosario('${p.id}',\`${(data.correction||'').replace(/`/g,"'")}\`,'${correctionId}')"
+                        class="text-lg leading-none flex-shrink-0 transition-transform active:scale-125" title="Guardar en glosario">⭐</button>
                 </div>
                 <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP${p.racha >= 2 ? ` · 🔥 ${p.racha} streak!` : ''}</p>
             </div>`;
