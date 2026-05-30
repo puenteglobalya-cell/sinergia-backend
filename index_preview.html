@@ -170,27 +170,51 @@
     <main class="flex-1 max-w-lg mx-auto w-full">
 
         <!-- Topic selector -->
-        <div id="panel-tematicas" class="space-y-5">
+        <div id="panel-tematicas" class="space-y-4">
             <div class="text-center">
                 <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
                 <p class="text-slate-500 text-sm mt-1">Tap a topic to start</p>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="seleccionarTematica('greetings')" class="group bg-gradient-to-br from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">👋</div>
-                    <div class="font-extrabold text-lg">Greetings</div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="seleccionarTematica('greetings')" class="group bg-gradient-to-br from-blue-400 to-blue-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
+                    <div class="font-extrabold text-base">Greetings</div>
                 </button>
-                <button onclick="seleccionarTematica('numbers')" class="group bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🔢</div>
-                    <div class="font-extrabold text-lg">Numbers</div>
+                <button onclick="seleccionarTematica('numbers')" class="group bg-gradient-to-br from-amber-400 to-orange-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🔢</div>
+                    <div class="font-extrabold text-base">Numbers</div>
                 </button>
-                <button onclick="seleccionarTematica('colors')" class="group bg-gradient-to-br from-rose-400 to-pink-600 hover:from-rose-500 hover:to-pink-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">🎨</div>
-                    <div class="font-extrabold text-lg">Colours</div>
+                <button onclick="seleccionarTematica('colors')" class="group bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎨</div>
+                    <div class="font-extrabold text-base">Colours</div>
                 </button>
-                <button onclick="seleccionarTematica('travel')" class="group bg-gradient-to-br from-emerald-400 to-teal-600 hover:from-emerald-500 hover:to-teal-700 p-6 rounded-3xl shadow-lg text-center space-y-2 transition-all active:scale-95 text-white">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-200">✈️</div>
-                    <div class="font-extrabold text-lg">Travel</div>
+                <button onclick="seleccionarTematica('travel')" class="group bg-gradient-to-br from-emerald-400 to-teal-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">✈️</div>
+                    <div class="font-extrabold text-base">Travel</div>
+                </button>
+                <button onclick="seleccionarTematica('animals')" class="group bg-gradient-to-br from-lime-400 to-green-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐾</div>
+                    <div class="font-extrabold text-base">Animals</div>
+                </button>
+                <button onclick="seleccionarTematica('food')" class="group bg-gradient-to-br from-yellow-400 to-orange-400 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🍕</div>
+                    <div class="font-extrabold text-base">Food</div>
+                </button>
+                <button onclick="seleccionarTematica('clothes')" class="group bg-gradient-to-br from-fuchsia-400 to-purple-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👗</div>
+                    <div class="font-extrabold text-base">Clothes</div>
+                </button>
+                <button onclick="seleccionarTematica('weather')" class="group bg-gradient-to-br from-sky-400 to-cyan-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🌦️</div>
+                    <div class="font-extrabold text-base">Weather</div>
+                </button>
+                <button onclick="seleccionarTematica('family')" class="group bg-gradient-to-br from-pink-400 to-rose-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👨‍👩‍👧</div>
+                    <div class="font-extrabold text-base">Family</div>
+                </button>
+                <button onclick="seleccionarTematica('feelings')" class="group bg-gradient-to-br from-violet-400 to-indigo-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
+                    <div class="font-extrabold text-base">Feelings</div>
                 </button>
             </div>
         </div>
@@ -312,6 +336,142 @@ const SCENARIO_STYLES = {
     restaurant: { icon:'🍽️', bg:'bg-rose-50 hover:bg-rose-100 border-rose-200',   active:'bg-rose-100 border-rose-500 text-rose-700 border-2' },
     taxi:       { icon:'🚕', bg:'bg-emerald-50 hover:bg-emerald-100 border-emerald-200', active:'bg-emerald-100 border-emerald-500 text-emerald-700 border-2' }
 };
+
+// ── New topics ───────────────────────────────────────────────────────────────
+Object.assign(MISIONES, {
+    animals: {
+        tier1: [
+            { pregunta:"Which one says meow? 🐾", audioText:"Which animal says meow?",
+              opciones:[{texto:"🐶 Dog",correcta:false},{texto:"🐱 Cat",correcta:true}] },
+            { pregunta:"This animal has a long neck 🦒", audioText:"Which animal has a very long neck?",
+              opciones:[{texto:"🐘 Elephant",correcta:false},{texto:"🦒 Giraffe",correcta:true}] },
+            { pregunta:"Which one can fly? ✈️", audioText:"Which animal can fly?",
+              opciones:[{texto:"🐟 Fish",correcta:false},{texto:"🦋 Butterfly",correcta:true}] },
+            { pregunta:"This animal lives in the sea 🌊", audioText:"Which animal lives in the sea?",
+              opciones:[{texto:"🐇 Rabbit",correcta:false},{texto:"🐬 Dolphin",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"The biggest land animal is…", audioText:"What is the biggest land animal?",
+              opciones:[{texto:"🦁 Lion",correcta:false},{texto:"🐘 Elephant",correcta:true},{texto:"🐆 Cheetah",correcta:false}] },
+            { pregunta:"Which animal is known for being very fast? 💨", audioText:"Which animal is the fastest?",
+              opciones:[{texto:"🐢 Turtle",correcta:false},{texto:"🐆 Cheetah",correcta:true},{texto:"🐘 Elephant",correcta:false}] },
+            { pregunta:"Baby cat = …", audioText:"What is a baby cat called?",
+              opciones:[{texto:"Puppy 🐶",correcta:false},{texto:"Kitten 🐱",correcta:true},{texto:"Cub 🐻",correcta:false}] },
+            { pregunta:"Which animal sleeps all winter? ❄️", audioText:"Which animal sleeps all winter long?",
+              opciones:[{texto:"🐦 Bird",correcta:false},{texto:"🐻 Bear",correcta:true},{texto:"🐠 Fish",correcta:false}] },
+        ]
+    },
+    food: {
+        tier1: [
+            { pregunta:"Which one is a fruit? 🍎", audioText:"Which one is a fruit?",
+              opciones:[{texto:"🥕 Carrot",correcta:false},{texto:"🍓 Strawberry",correcta:true}] },
+            { pregunta:"You drink this in the morning ☕", audioText:"What do you drink in the morning?",
+              opciones:[{texto:"🍕 Pizza",correcta:false},{texto:"🥛 Milk",correcta:true}] },
+            { pregunta:"This is sweet and cold 🍦", audioText:"What is sweet and cold?",
+              opciones:[{texto:"🥦 Broccoli",correcta:false},{texto:"🍦 Ice cream",correcta:true}] },
+            { pregunta:"Which one is a vegetable? 🥗", audioText:"Which one is a vegetable?",
+              opciones:[{texto:"🍇 Grapes",correcta:false},{texto:"🥦 Broccoli",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"You eat this for breakfast with milk 🥣", audioText:"What do you eat for breakfast with milk?",
+              opciones:[{texto:"🍕 Pizza",correcta:false},{texto:"🥣 Cereal",correcta:true},{texto:"🍔 Burger",correcta:false}] },
+            { pregunta:"This Italian food has tomato sauce 🍝", audioText:"What Italian food has tomato sauce and noodles?",
+              opciones:[{texto:"🍣 Sushi",correcta:false},{texto:"🍝 Pasta",correcta:true},{texto:"🌮 Taco",correcta:false}] },
+            { pregunta:"How do you ask for food politely? 🙏", audioText:"How do you ask for food politely?",
+              opciones:[{texto:"Give me food!",correcta:false},{texto:"Can I have some please? 🙏",correcta:true},{texto:"I want!",correcta:false}] },
+            { pregunta:"At a restaurant you tell the waiter…", audioText:"At a restaurant how do you order food?",
+              opciones:[{texto:"I'd like the pasta, please 🍝",correcta:true},{texto:"Give pasta now!",correcta:false},{texto:"Pasta! Pasta!",correcta:false}] },
+        ]
+    },
+    clothes: {
+        tier1: [
+            { pregunta:"It's cold ❄️ You wear a…", audioText:"It is very cold outside. What do you wear?",
+              opciones:[{texto:"👙 Swimsuit",correcta:false},{texto:"🧥 Jacket",correcta:true}] },
+            { pregunta:"You wear this on your feet 👟", audioText:"What do you wear on your feet?",
+              opciones:[{texto:"🧤 Gloves",correcta:false},{texto:"👟 Shoes",correcta:true}] },
+            { pregunta:"It's raining 🌧️ You need a…", audioText:"It is raining. What do you need?",
+              opciones:[{texto:"☂️ Umbrella",correcta:true},{texto:"🕶️ Sunglasses",correcta:false}] },
+            { pregunta:"You wear this on your head 🎩", audioText:"What do you wear on your head?",
+              opciones:[{texto:"🧣 Scarf",correcta:false},{texto:"🎩 Hat",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"It's very hot ☀️ You should wear…", audioText:"It is very hot. What should you wear?",
+              opciones:[{texto:"🧥 Coat",correcta:false},{texto:"👕 T-shirt",correcta:true},{texto:"🧣 Scarf",correcta:false}] },
+            { pregunta:"You wear these in a pool 🏊", audioText:"What do you wear to go swimming?",
+              opciones:[{texto:"👔 Shirt",correcta:false},{texto:"👙 Swimsuit",correcta:true},{texto:"🧥 Jacket",correcta:false}] },
+            { pregunta:"At school you carry your books in a…", audioText:"What do you carry your books in at school?",
+              opciones:[{texto:"🎩 Hat",correcta:false},{texto:"🎒 Backpack",correcta:true},{texto:"👟 Shoe",correcta:false}] },
+            { pregunta:"Your hands are cold ❄️ You wear…", audioText:"Your hands are cold. What do you put on?",
+              opciones:[{texto:"🧢 Cap",correcta:false},{texto:"🧤 Gloves",correcta:true},{texto:"👗 Dress",correcta:false}] },
+        ]
+    },
+    weather: {
+        tier1: [
+            { pregunta:"☀️ The weather is…", audioText:"Look at the sun. What is the weather like?",
+              opciones:[{texto:"Rainy 🌧️",correcta:false},{texto:"Sunny ☀️",correcta:true}] },
+            { pregunta:"You need an umbrella. It is…", audioText:"You need an umbrella. What is the weather?",
+              opciones:[{texto:"Raining 🌧️",correcta:true},{texto:"Sunny ☀️",correcta:false}] },
+            { pregunta:"❄️ White stuff falls from the sky. It's…", audioText:"White fluffy stuff falls from the sky. What is it?",
+              opciones:[{texto:"Rain 🌧️",correcta:false},{texto:"Snow ❄️",correcta:true}] },
+            { pregunta:"💨 The trees are moving. It is…", audioText:"The trees are moving. What is the weather?",
+              opciones:[{texto:"Windy 💨",correcta:true},{texto:"Snowy ❄️",correcta:false}] },
+        ],
+        tier2: [
+            { pregunta:"How do you ask about the weather? 🌤️", audioText:"How do you ask someone about the weather?",
+              opciones:[{texto:"What is the weather like today? 🌤️",correcta:true},{texto:"Give me the weather!",correcta:false},{texto:"Weather, weather!",correcta:false}] },
+            { pregunta:"It is 30°C outside. You say…", audioText:"It is thirty degrees outside. How do you describe it?",
+              opciones:[{texto:"It's freezing! 🥶",correcta:false},{texto:"It's boiling hot! 🥵",correcta:true},{texto:"It's windy! 💨",correcta:false}] },
+            { pregunta:"A storm is coming ⛈️ You say…", audioText:"A storm is coming. What do you say?",
+              opciones:[{texto:"It's going to storm! ⛈️",correcta:true},{texto:"It's sunny today!",correcta:false},{texto:"Let's go swimming!",correcta:false}] },
+            { pregunta:"After rain comes…", audioText:"What often appears in the sky after rain?",
+              opciones:[{texto:"Snow ❄️",correcta:false},{texto:"Rainbow 🌈",correcta:true},{texto:"Wind 💨",correcta:false}] },
+        ]
+    },
+    family: {
+        tier1: [
+            { pregunta:"Your mum's mum is your…", audioText:"Your mum's mum. What do you call her?",
+              opciones:[{texto:"Aunt 👩",correcta:false},{texto:"Grandma 👵",correcta:true}] },
+            { pregunta:"Your dad's brother is your…", audioText:"Your dad's brother. What do you call him?",
+              opciones:[{texto:"Uncle 👨",correcta:true},{texto:"Cousin 🧒",correcta:false}] },
+            { pregunta:"You and your sister are…", audioText:"You and your sister. What are you?",
+              opciones:[{texto:"Friends 👫",correcta:false},{texto:"Siblings 👧👦",correcta:true}] },
+            { pregunta:"Baby brother or sister = …", audioText:"What do you call a baby brother or sister?",
+              opciones:[{texto:"Friend 👫",correcta:false},{texto:"Sibling 👶",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"How do you introduce your family? 👨‍👩‍👧", audioText:"How do you introduce your family?",
+              opciones:[{texto:"This is my family! 👨‍👩‍👧",correcta:true},{texto:"Hello family!",correcta:false},{texto:"Give me family!",correcta:false}] },
+            { pregunta:"Your mum's sister is your…", audioText:"Your mum's sister. What do you call her?",
+              opciones:[{texto:"Grandma 👵",correcta:false},{texto:"Aunt 👩",correcta:true},{texto:"Cousin 🧒",correcta:false}] },
+            { pregunta:"My dad's dad = My …", audioText:"Your dad's dad. What do you call him?",
+              opciones:[{texto:"Uncle 👨",correcta:false},{texto:"Grandpa 👴",correcta:true},{texto:"Brother 👦",correcta:false}] },
+            { pregunta:"How many people are in YOUR family? 🤔", audioText:"Think about your family. How do you say the number in English?",
+              opciones:[{texto:"I don't know",correcta:false},{texto:"There are ___ people in my family 👨‍👩‍👧",correcta:true},{texto:"Family is big",correcta:false}] },
+        ]
+    },
+    feelings: {
+        tier1: [
+            { pregunta:"😊 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Sad 😢",correcta:false},{texto:"Happy 😊",correcta:true}] },
+            { pregunta:"😢 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Happy 😊",correcta:false},{texto:"Sad 😢",correcta:true}] },
+            { pregunta:"😴 You feel this at night…", audioText:"You feel this when you want to sleep. What is it?",
+              opciones:[{texto:"Hungry 🍽️",correcta:false},{texto:"Sleepy 😴",correcta:true}] },
+            { pregunta:"😠 This face is…", audioText:"Look at this face. How does it feel?",
+              opciones:[{texto:"Angry 😠",correcta:true},{texto:"Happy 😊",correcta:false}] },
+        ],
+        tier2: [
+            { pregunta:"How do you say you are happy in English? 😊", audioText:"How do you say you are happy?",
+              opciones:[{texto:"I am happy! 😊",correcta:true},{texto:"I am sad!",correcta:false},{texto:"I am angry!",correcta:false}] },
+            { pregunta:"You got a surprise gift 🎁 You feel…", audioText:"You got a surprise gift. How do you feel?",
+              opciones:[{texto:"Bored 😑",correcta:false},{texto:"Excited! 🎉",correcta:true},{texto:"Angry 😠",correcta:false}] },
+            { pregunta:"Your favourite song plays 🎵 You feel…", audioText:"Your favourite song plays. How do you feel?",
+              opciones:[{texto:"Scared 😨",correcta:false},{texto:"Happy and excited! 🎵",correcta:true},{texto:"Sleepy 😴",correcta:false}] },
+            { pregunta:"A friend is sad 😢 You say…", audioText:"Your friend is sad. What do you say?",
+              opciones:[{texto:"Are you okay? 🤗",correcta:true},{texto:"Goodbye!",correcta:false},{texto:"I am happy!",correcta:false}] },
+        ]
+    }
+});
 
 // ── Sentence Builder bank ────────────────────────────────────────────────────
 const SENTENCE_BANK = [
