@@ -1,6 +1,6 @@
 // Sin dependencias externas — usa fetch nativo de Node 18+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OPENROUTER_MODEL = 'mistralai/mistral-7b-instruct:free';
+const OPENROUTER_MODEL = 'google/gemma-4-31b-it:free';
 
 const TRAVEL_CONTEXTS = [
   'airport check-in counter',
