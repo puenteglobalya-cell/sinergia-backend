@@ -1,7 +1,27 @@
 // Sin dependencias externas — usa fetch nativo de Node 18+
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
-const TRAVEL_CONTEXTS = [
+const SYSTEM_IDENTITY = `You are the central AI engine for "Sinergia Familiar Language Hub", a high-speed serverless language immersion application. Your sole objective is to process backend requests and return ultra-precise responses without syntax failures.
+
+Adopt an analytical, critical and conservative profile: under no circumstances invent fields, add plain text, greetings, or Markdown code blocks (such as \`\`\`json ... \`\`\`) outside the expected JSON object. Any deviation will break the client's JSON.parse().
+
+Critical validation rules:
+- Never use improperly escaped special characters that could break the JSON string.
+- Ensure all Markdown formatting is removed before emitting the response.
+- Return ONLY the raw JSON object, nothing else.`;
+
+const KIDS_CONTEXTS = [
+  'a pet shop looking at animals',
+  'a birthday party choosing food',
+  'a playground with new friends',
+  'a classroom learning colours',
+  'a supermarket picking fruit',
+  'a zoo watching animals',
+  'a toy shop choosing a toy',
+  'a beach building a sandcastle'
+];
+
+const ADULT_CONTEXTS = [
   'airport check-in counter',
   'hotel reception desk',
   'taxi ride from the airport to the city',
@@ -12,33 +32,41 @@ const TRAVEL_CONTEXTS = [
   'tourist information desk',
   'lost luggage counter at the airport',
   'rooftop bar ordering drinks',
-  'museum ticket counter',
   'currency exchange counter',
   'asking a local for directions on the street',
   'hotel concierge asking for restaurant tips',
-  'supermarket checkout with a friendly cashier'
+  'corporate logistics briefing with an international partner',
+  'energy market risk assessment meeting',
+  'international retail inventory control session'
 ];
 
 const LEVEL_GUIDE = {
-  'Starter':           'Use ONLY single words or max 2-word phrases. Very slow. Ultra friendly.',
-  'Elementary':        'Short simple sentences (max 6 words). Speak slowly. Very common vocabulary.',
+  'Starter':           'Use ONLY single words or max 2-word phrases. Very slow. Ultra friendly. Visual and playful.',
+  'Elementary':        'Short simple sentences (max 6 words). Speak slowly. Very common vocabulary. Encouraging.',
   'Pre-Intermediate':  'Moderate pace. Common travel phrases. Patient and encouraging.',
   'Intermediate':      'Normal conversational pace. Standard vocabulary.',
-  'Upper-Intermediate':'Natural pace with occasional idioms.',
-  'Advanced':          'Native speed. Rich vocabulary and idioms. No simplification.'
+  'Upper-Intermediate':'Natural pace with occasional idioms. Some complexity expected.',
+  'Advanced':          'Native speed. Rich vocabulary, idioms, and nuance. No simplification. Demand structural precision.'
 };
+
+const IS_KIDS_LEVEL = level => ['Starter', 'Elementary'].includes(level);
 
 function extraerJSON(text) {
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('No JSON found in Gemini response: ' + text.slice(0, 100));
+  if (!match) throw new Error('No JSON found in Gemini response: ' + text.slice(0, 200));
   return JSON.parse(match[0]);
 }
 
-async function llamarGemini(apiKey, prompt) {
+async function llamarGemini(apiKey, systemPrompt, userPrompt) {
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ parts: [{ text: userPrompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+  };
   const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    body: JSON.stringify(body)
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
@@ -64,27 +92,36 @@ module.exports = async function (req, res) {
     const { action, level, textInput, currentPrompt, systemInfo } = req.body || {};
     const levelKey   = level || 'Pre-Intermediate';
     const levelGuide = LEVEL_GUIDE[levelKey] || LEVEL_GUIDE['Pre-Intermediate'];
+    const isKids     = IS_KIDS_LEVEL(levelKey);
 
     if (action === 'generate_scenario') {
-      const context = TRAVEL_CONTEXTS[Math.floor(Math.random() * TRAVEL_CONTEXTS.length)];
-      const prompt = `You are roleplaying as a staff member or local in this setting: ${context}.
-The traveler's English level is ${levelKey}. Language guide: ${levelGuide}
-Open the scene with one natural line.
-Reply ONLY with this JSON, no extra text:
-{"setup_title": "short title in Spanish", "ai_opening": "your opening line in English", "ai_opening_translation": "traducción al español de ai_opening"}`;
+      const pool    = isKids ? KIDS_CONTEXTS : ADULT_CONTEXTS;
+      const context = pool[Math.floor(Math.random() * pool.length)];
+      const prompt  = isKids
+        ? `Setting: ${context}. You are a friendly character in this simple, visual scene.
+The child's English level is ${levelKey}. ${levelGuide}
+Open the scene with ONE very short, friendly line (max 6 words). Simple and fun.
+Reply ONLY with this raw JSON object:
+{"setup_title": "título corto en español", "ai_opening": "your short opening in English", "ai_opening_translation": "traducción al español"}`
+        : `Setting: ${context}. You are a professional in this high-speed real-world scenario.
+The user's English level is ${levelKey}. ${levelGuide}
+Open the scene with ONE natural, professional line adapted to the level.
+Reply ONLY with this raw JSON object:
+{"setup_title": "título corto en español", "ai_opening": "your opening line in English", "ai_opening_translation": "traducción al español"}`;
 
-      const text = await llamarGemini(apiKey, prompt);
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
       return res.status(200).json(extraerJSON(text));
     }
 
     if (action === 'generate_shadowing') {
-      const context = TRAVEL_CONTEXTS[Math.floor(Math.random() * TRAVEL_CONTEXTS.length)];
-      const prompt = `Generate a realistic short conversation in this travel setting: ${context}.
-The traveler's English level is ${levelKey}. Language guide: ${levelGuide}
+      const pool    = isKids ? KIDS_CONTEXTS : ADULT_CONTEXTS;
+      const context = pool[Math.floor(Math.random() * pool.length)];
+      const prompt  = `Generate a realistic short conversation in this setting: ${context}.
+The traveler's English level is ${levelKey}. ${levelGuide}
 Write exactly 6 lines alternating: staff first, then traveler, then staff, etc.
 Keep traveler lines natural and achievable for level ${levelKey}.
-Reply ONLY with this JSON, no extra text:
-{"title": "short title in Spanish", "context": "${context}", "lines": [
+Reply ONLY with this raw JSON object:
+{"title": "título corto en español", "context": "${context}", "lines": [
   {"role": "staff",    "text": "...", "translation": "traducción al español"},
   {"role": "traveler", "text": "...", "translation": "traducción al español"},
   {"role": "staff",    "text": "...", "translation": "traducción al español"},
@@ -92,7 +129,7 @@ Reply ONLY with this JSON, no extra text:
   {"role": "staff",    "text": "...", "translation": "traducción al español"},
   {"role": "traveler", "text": "...", "translation": "traducción al español"}
 ]}`;
-      const text = await llamarGemini(apiKey, prompt);
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
       return res.status(200).json(extraerJSON(text));
     }
 
@@ -100,26 +137,33 @@ Reply ONLY with this JSON, no extra text:
       const { expected } = req.body;
       const prompt = `The traveler (level ${levelKey}) was supposed to say: "${expected}"
 They actually said: "${textInput || ''}"
-Rate how close it was. Be encouraging.
+Rate phonetic accuracy and structural closeness. ${isKids ? 'Be very encouraging.' : 'Be constructive and precise.'}
 Score: 100 if perfect or very close, 70 if mostly right with small errors, 40 if partially correct, 10 if very different.
-Reply ONLY with this JSON, no extra text:
-{"score": 70, "feedback": "short encouraging comment in Spanish", "tip": "one word or phrase they should practice, or empty string if perfect"}`;
-      const text = await llamarGemini(apiKey, prompt);
+Reply ONLY with this raw JSON object:
+{"score": 70, "feedback": "comentario breve y alentador en español", "tip": "one word or phrase to practice, or empty string if perfect"}`;
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
       return res.status(200).json(extraerJSON(text));
     }
 
     if (action === 'evaluate_voice') {
-      const prompt = `Travel situation: ${systemInfo || 'international travel scenario'}.
-You said: "${currentPrompt || ''}".
-The traveler (level ${levelKey}) replied: "${textInput || ''}".
-Language guide: ${levelGuide}
-Continue with ONE natural follow-up line. Be encouraging in the feedback.
-XP: 75 if fluent and correct, 50 if understandable with small errors, 25 if very short or unclear.
-Also provide 3 short alternative phrases the traveler COULD have said better in this situation (in English, natural for level ${levelKey}). These are shown as suggestions to practice.
-Reply ONLY with this JSON, no extra text:
-{"reply": "your follow-up in English", "translation": "traducción al español de reply", "correction": "brief tip or compliment in Spanish", "xp": 50, "suggestions": ["phrase 1", "phrase 2", "phrase 3"]}`;
+      const strictness = isKids
+        ? 'Prioritise fluency and approximate phonetics. Be very encouraging. Accept near-correct answers.'
+        : levelKey === 'Advanced'
+          ? 'Demand structural precision, correct idiom usage, and native-level coherence. Be critical but constructive.'
+          : 'Evaluate grammar coherence and natural structure. Be encouraging but accurate.';
 
-      const text = await llamarGemini(apiKey, prompt);
+      const prompt = `Situation: ${systemInfo || 'international travel scenario'}.
+AI said: "${currentPrompt || ''}".
+User (level ${levelKey}) replied: "${textInput || ''}".
+${levelGuide}
+${strictness}
+Continue with ONE natural follow-up line. Analyse the interpreted phonetics, grammatical coherence and structure.
+XP scoring: 75 if fluent and structurally correct, 50 if understandable with minor errors, 25 if very short, unclear or off-topic.
+Also provide 3 short alternative phrases the user COULD have said more effectively (in English, appropriate for level ${levelKey}).
+Reply ONLY with this raw JSON object:
+{"reply": "your follow-up in English", "translation": "traducción al español de reply", "correction": "feedback crítico y breve en español sobre gramática o pronunciación interpretada", "xp": 50, "suggestions": ["phrase 1", "phrase 2", "phrase 3"]}`;
+
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
       return res.status(200).json(extraerJSON(text));
     }
 

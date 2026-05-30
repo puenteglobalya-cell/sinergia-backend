@@ -1040,6 +1040,19 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     setTimeout(() => hablarNativo(esc.prompt), 200);
 };
 
+window.resetearPerfil = function(id) {
+    const p = window.familia[id];
+    if (!confirm(`¿Resetear el progreso de ${p.nombre}? Se borrará todo su XP, racha y avance por tema.`)) return;
+    p.score       = 0;
+    p.racha       = 0;
+    p.misionIndex = 0;
+    p.temaProgress = {};
+    guardarEstado();
+    renderizarConfiguracionPerfiles();
+    if (window.perfilActualId === id) window.cambiarPerfil(id);
+    actualizarLeaderboardUI();
+};
+
 window.toggleConfigPanel    = function() { document.getElementById('config-panel').classList.toggle('hidden'); };
 window.cambiarVozSistema    = function() { window.voiceIndexSeleccionada = parseInt(document.getElementById('voice-selector').value)||0; };
 window.escucharEscenarioActual = function() { hablarNativo(window.escenarioAdultoActivo.prompt); };
@@ -1221,7 +1234,11 @@ function renderizarConfiguracionPerfiles() {
             </div>
             <select id="sel-handicap-${p.id}" class="w-full bg-white border p-1.5 rounded-lg text-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200">
                 ${niveles.map(n => `<option value="${n}" ${p.nivel===n?'selected':''}>${n}</option>`).join('')}
-            </select>`;
+            </select>
+            <div class="flex items-center justify-between pt-1">
+                <span class="text-slate-400 text-[10px]">Score: <strong>${p.score} XP</strong> · Racha: ${p.racha||0}</span>
+                <button onclick="resetearPerfil('${p.id}')" class="text-[10px] font-bold text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2 py-1 rounded-lg transition-colors">↺ Reset</button>
+            </div>`;
         container.appendChild(card);
         document.getElementById(`sel-handicap-${p.id}`).onchange = function() {
             window.familia[p.id].nivel = this.value;
