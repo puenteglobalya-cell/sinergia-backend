@@ -1,5 +1,5 @@
 // Sin dependencias externas — usa fetch nativo de Node 18+
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const TRAVEL_CONTEXTS = [
   'airport check-in counter',
