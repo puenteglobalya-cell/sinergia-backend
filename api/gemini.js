@@ -35,25 +35,33 @@ function extraerJSON(text) {
   return JSON.parse(match[0]);
 }
 
-async function llamarGemini(apiKey, prompt) {
-  const res = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': 'https://fliaezquieta.github.io',
-      'X-Title': 'Sinergia Familiar'
-    },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(JSON.stringify(data.error));
-  const choice = data.choices && data.choices[0];
-  if (!choice || !choice.message) throw new Error('No response from OpenRouter: ' + JSON.stringify(data));
-  return choice.message.content.trim();
+async function llamarGemini(apiKey, prompt, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://fliaezquieta.github.io',
+        'X-Title': 'Sinergia Familiar'
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) {
+      if (data.error.code === 429 && i < retries - 1) {
+        await new Promise(r => setTimeout(r, (i + 1) * 2000));
+        continue;
+      }
+      throw new Error(JSON.stringify(data.error));
+    }
+    const choice = data.choices && data.choices[0];
+    if (!choice || !choice.message) throw new Error('No response from OpenRouter: ' + JSON.stringify(data));
+    return choice.message.content.trim();
+  }
 }
 
 module.exports = async function (req, res) {
