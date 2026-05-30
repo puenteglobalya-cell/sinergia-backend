@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sinergia Familiar - Language Hub</title>
     <!-- PWA -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1795,7 +1795,7 @@ window.mostrarHistorialSesiones = function() {
 
 // ── PWA & Notifications ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
         console.log('SW registered:', reg.scope);
     }).catch(e => console.warn('SW registration failed:', e));
 }
@@ -2122,23 +2122,88 @@ window.stWordTap = async function(el, word, idx) {
     setTimeout(() => { if (tip.isConnected) tip.remove(); if (_stTooltip === tip) _stTooltip = null; }, 2500);
 };
 
-window.mostrarBiblioteca = function() {
+// ── Custom texts (user-uploaded) ──────────────────────────────────────────────
+function cargarTextosCustom() {
+    try { return JSON.parse(localStorage.getItem('sinergia_textos_custom') || '[]'); } catch(e) { return []; }
+}
+function guardarTextosCustom(arr) { localStorage.setItem('sinergia_textos_custom', JSON.stringify(arr)); }
+
+window.mostrarBiblioteca = function(abrirStoryteller = false) {
+    if (abrirStoryteller) {
+        showEl('storyteller-overlay');
+        if (!window._storyText) cargarNuevoStory && cargarNuevoStory();
+    }
     const p    = window.familia[window.perfilActualId];
     const list = document.getElementById('library-list');
-    list.innerHTML = '';
     const NIVEL_IDX = { 'Starter':0,'Elementary':1,'Pre-Intermediate':2,'Intermediate':3,'Upper-Intermediate':4,'Advanced':5 };
     const userIdx   = NIVEL_IDX[p.nivel] || 0;
-    const available = STORY_LIBRARY.filter(s => NIVEL_IDX[s.nivel] <= userIdx + 1);
-    available.forEach(story => {
+
+    // Curated stories
+    const curated = STORY_LIBRARY.filter(s => NIVEL_IDX[s.nivel] <= userIdx + 1);
+    // Custom stories (all shown regardless of level)
+    const custom  = cargarTextosCustom();
+
+    list.innerHTML = '';
+
+    // Upload form (always visible at top)
+    const uploadDiv = document.createElement('div');
+    uploadDiv.style.cssText = 'background:#1e3a5f;border:1.5px solid #2563eb;border-radius:1rem;padding:14px;margin-bottom:4px;';
+    uploadDiv.innerHTML = `
+        <p style="color:#93c5fd;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">➕ Agregar texto propio</p>
+        <input id="custom-title-input" placeholder="Título (ej: Mi artículo de BBC)" maxlength="80"
+            style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 10px;color:#f1f5f9;font-size:0.85rem;margin-bottom:8px;box-sizing:border-box;outline:none;">
+        <textarea id="custom-text-input" placeholder="Pegá o escribí el texto en inglés aquí…" rows="4"
+            style="width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 10px;color:#f1f5f9;font-size:0.85rem;resize:vertical;box-sizing:border-box;outline:none;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+            <label style="flex:1;background:#1d4ed8;color:white;font-weight:700;font-size:0.75rem;padding:10px;border-radius:8px;text-align:center;cursor:pointer;">
+                📂 Subir .txt
+                <input type="file" accept=".txt" style="display:none;" onchange="cargarArchivoTexto(this)">
+            </label>
+            <button onclick="agregarTextoCustom()" style="flex:2;background:#2563eb;color:white;font-weight:700;font-size:0.8rem;padding:10px;border-radius:8px;cursor:pointer;">✓ Guardar en Biblioteca</button>
+        </div>`;
+    list.appendChild(uploadDiv);
+
+    // Custom entries
+    if (custom.length > 0) {
+        const sepCustom = document.createElement('p');
+        sepCustom.style.cssText = 'color:#64748b;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;padding:4px 2px;';
+        sepCustom.textContent = '📝 Mis textos';
+        list.appendChild(sepCustom);
+        custom.forEach((story, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:14px;cursor:pointer;position:relative;';
+            div.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div style="flex:1;min-width:0;">
+                        <p style="color:#94a3b8;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">📝 Texto propio · ${story.fecha||''}</p>
+                        <p style="color:#f1f5f9;font-weight:700;font-size:0.95rem;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${story.titulo}</p>
+                        <p style="color:#64748b;font-size:0.72rem;line-height:1.4;">${story.text.slice(0,80)}…</p>
+                    </div>
+                    <button onclick="event.stopPropagation();eliminarTextoCustom(${idx})" style="color:#ef4444;font-size:1.1rem;margin-left:8px;flex-shrink:0;background:none;border:none;cursor:pointer;">✕</button>
+                </div>`;
+            div.onclick = () => {
+                document.getElementById('storyteller-category').innerText = '📝 Texto propio';
+                document.getElementById('storyteller-title').innerText    = story.titulo;
+                cargarTextoEnStoryteller(story.text);
+                cerrarBiblioteca();
+            };
+            list.appendChild(div);
+        });
+    }
+
+    // Curated separator
+    const sepCurated = document.createElement('p');
+    sepCurated.style.cssText = 'color:#64748b;font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;padding:4px 2px;margin-top:8px;';
+    sepCurated.textContent = '📚 Biblioteca clásica';
+    list.appendChild(sepCurated);
+
+    curated.forEach(story => {
         const div = document.createElement('div');
-        div.className = 'rounded-2xl p-4 cursor-pointer active:scale-95 transition-all border';
-        div.style.cssText = 'background:#1e293b;border-color:#334155;';
+        div.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:14px;cursor:pointer;';
         div.innerHTML = `
-            <div class="flex justify-between items-start mb-1">
-                <span style="color:#94a3b8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${story.categoria} · ${story.nivel}</span>
-            </div>
-            <p style="color:#f1f5f9;font-weight:700;font-size:1rem;margin-bottom:6px;">${story.titulo}</p>
-            <p style="color:#64748b;font-size:0.75rem;line-height:1.4;">${story.text.slice(0,80)}…</p>`;
+            <p style="color:#94a3b8;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${story.categoria} · ${story.nivel}</p>
+            <p style="color:#f1f5f9;font-weight:700;font-size:0.95rem;margin-bottom:4px;">${story.titulo}</p>
+            <p style="color:#64748b;font-size:0.72rem;line-height:1.4;">${story.text.slice(0,80)}…</p>`;
         div.onclick = () => {
             document.getElementById('storyteller-category').innerText = story.categoria + ' · ' + story.nivel;
             document.getElementById('storyteller-title').innerText    = story.titulo;
@@ -2147,10 +2212,49 @@ window.mostrarBiblioteca = function() {
         };
         list.appendChild(div);
     });
+
     showEl('library-overlay');
 };
 
+// Called from top bar "📚 Cuentos" — opens storyteller + library together
+window.abrirBibliotecaDirecta = function() {
+    showEl('storyteller-overlay');
+    window.mostrarBiblioteca(false);
+};
+
 window.cerrarBiblioteca = function() { hideEl('library-overlay'); };
+
+window.agregarTextoCustom = function() {
+    const titulo = (document.getElementById('custom-title-input')?.value || '').trim();
+    const texto  = (document.getElementById('custom-text-input')?.value  || '').trim();
+    if (!titulo || !texto) { alert('Completá el título y el texto.'); return; }
+    const custom = cargarTextosCustom();
+    custom.unshift({ titulo, text: texto, fecha: new Date().toLocaleDateString('es-AR') });
+    if (custom.length > 50) custom.pop();
+    guardarTextosCustom(custom);
+    document.getElementById('custom-title-input').value = '';
+    document.getElementById('custom-text-input').value  = '';
+    window.mostrarBiblioteca(false); // refresh list
+};
+
+window.cargarArchivoTexto = function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('custom-text-input').value = e.target.result;
+        document.getElementById('custom-title-input').value = file.name.replace(/\.txt$/i,'');
+    };
+    reader.readAsText(file, 'UTF-8');
+};
+
+window.eliminarTextoCustom = function(idx) {
+    if (!confirm('¿Eliminar este texto?')) return;
+    const custom = cargarTextosCustom();
+    custom.splice(idx, 1);
+    guardarTextosCustom(custom);
+    window.mostrarBiblioteca(false);
+};
 
 window._storySpeed = 1.0;
 
