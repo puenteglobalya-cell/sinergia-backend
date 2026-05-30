@@ -99,7 +99,7 @@ Language guide: ${levelGuide}
 Continue with ONE natural follow-up line. Be encouraging in the feedback.
 XP: 75 if fluent and correct, 50 if understandable with small errors, 25 if very short or unclear.
 Reply ONLY with this JSON, no extra text:
-{"reply": "your follow-up in English", "correction": "brief tip or compliment in Spanish", "xp": 50}`;
+{"reply": "your follow-up in English", "translation": "traducción al español de reply", "correction": "brief tip or compliment in Spanish", "xp": 50}`;
 
       const text = await llamarGemini(apiKey, prompt);
       return res.status(200).json(extraerJSON(text));
