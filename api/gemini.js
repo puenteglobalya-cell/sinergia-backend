@@ -77,6 +77,37 @@ Reply ONLY with this JSON, no extra text:
       return res.status(200).json(extraerJSON(text));
     }
 
+    if (action === 'generate_shadowing') {
+      const context = TRAVEL_CONTEXTS[Math.floor(Math.random() * TRAVEL_CONTEXTS.length)];
+      const prompt = `Generate a realistic short conversation in this travel setting: ${context}.
+The traveler's English level is ${levelKey}. Language guide: ${levelGuide}
+Write exactly 6 lines alternating: staff first, then traveler, then staff, etc.
+Keep traveler lines natural and achievable for level ${levelKey}.
+Reply ONLY with this JSON, no extra text:
+{"title": "short title in Spanish", "context": "${context}", "lines": [
+  {"role": "staff",    "text": "...", "translation": "traducción al español"},
+  {"role": "traveler", "text": "...", "translation": "traducción al español"},
+  {"role": "staff",    "text": "...", "translation": "traducción al español"},
+  {"role": "traveler", "text": "...", "translation": "traducción al español"},
+  {"role": "staff",    "text": "...", "translation": "traducción al español"},
+  {"role": "traveler", "text": "...", "translation": "traducción al español"}
+]}`;
+      const text = await llamarGemini(apiKey, prompt);
+      return res.status(200).json(extraerJSON(text));
+    }
+
+    if (action === 'evaluate_shadowing') {
+      const { expected } = req.body;
+      const prompt = `The traveler (level ${levelKey}) was supposed to say: "${expected}"
+They actually said: "${textInput || ''}"
+Rate how close it was. Be encouraging.
+Score: 100 if perfect or very close, 70 if mostly right with small errors, 40 if partially correct, 10 if very different.
+Reply ONLY with this JSON, no extra text:
+{"score": 70, "feedback": "short encouraging comment in Spanish", "tip": "one word or phrase they should practice, or empty string if perfect"}`;
+      const text = await llamarGemini(apiKey, prompt);
+      return res.status(200).json(extraerJSON(text));
+    }
+
     if (action === 'evaluate_voice') {
       const prompt = `Travel situation: ${systemInfo || 'international travel scenario'}.
 You said: "${currentPrompt || ''}".
