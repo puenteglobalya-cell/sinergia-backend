@@ -93,6 +93,24 @@
     </div>
 </div>
 
+<!-- ═══ SENTENCE BUILDER MODAL ═══ -->
+<div id="sb-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
+    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop">
+        <div class="text-center space-y-1">
+            <div class="text-4xl">🧩</div>
+            <h2 class="text-xl font-extrabold text-slate-800">Sentence Builder!</h2>
+            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tap the words in the right order</p>
+        </div>
+        <div id="sb-built" class="min-h-[48px] bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-3 py-2 flex flex-wrap gap-2 items-center justify-center"></div>
+        <div id="sb-words" class="flex flex-wrap gap-2 justify-center"></div>
+        <div class="flex gap-2">
+            <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl text-sm transition-all">🔊 Listen</button>
+            <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl text-sm transition-all">↩ Reset</button>
+        </div>
+        <div id="sb-feedback" class="hidden text-center font-bold text-sm py-2 rounded-2xl"></div>
+    </div>
+</div>
+
 <!-- ═══ WORD MATCH MODAL ═══ -->
 <div id="wordmatch-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
     <div id="wordmatch-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 wm-pop">
@@ -294,6 +312,100 @@ const SCENARIO_STYLES = {
     restaurant: { icon:'🍽️', bg:'bg-rose-50 hover:bg-rose-100 border-rose-200',   active:'bg-rose-100 border-rose-500 text-rose-700 border-2' },
     taxi:       { icon:'🚕', bg:'bg-emerald-50 hover:bg-emerald-100 border-emerald-200', active:'bg-emerald-100 border-emerald-500 text-emerald-700 border-2' }
 };
+
+// ── Sentence Builder bank ────────────────────────────────────────────────────
+const SENTENCE_BANK = [
+    { words:['Good','morning!','How','are','you?'],        sentence:'Good morning! How are you?' },
+    { words:['Water','please,','thank','you!'],             sentence:'Water please, thank you!' },
+    { words:['Where','is','the','bathroom?'],               sentence:'Where is the bathroom?' },
+    { words:['I','have','two','bags.'],                     sentence:'I have two bags.' },
+    { words:['Excuse','me,','can','you','help','me?'],      sentence:'Excuse me, can you help me?' },
+    { words:['I','am','very','happy','today!'],             sentence:'I am very happy today!' },
+    { words:['The','sky','is','blue.'],                     sentence:'The sky is blue.' },
+    { words:['I','want','a','window','seat','please.'],     sentence:'I want a window seat please.' },
+    { words:['My','name','is','Juliana.'],                  sentence:'My name is Juliana.' },
+    { words:['I','do','not','understand.'],                 sentence:'I do not understand.' },
+    { words:['Can','you','speak','slowly','please?'],       sentence:'Can you speak slowly please?' },
+    { words:['I','love','cats','and','dogs!'],              sentence:'I love cats and dogs!' },
+];
+
+// ── Sentence Builder state ────────────────────────────────────────────────────
+let sbState = { sentence: null, built: [], remaining: [] };
+
+window.mostrarSentenceBuilder = function() {
+    const pick = SENTENCE_BANK[Math.floor(Math.random() * SENTENCE_BANK.length)];
+    sbState = { sentence: pick, built: [], remaining: [...pick.words].sort(() => Math.random() - 0.5) };
+    sbRender();
+    document.getElementById('sb-feedback').classList.add('hidden');
+    document.getElementById('sb-overlay').classList.remove('hidden');
+    hablarNativo('Sentence Builder! Put the words in the right order!');
+};
+
+function sbRender() {
+    const builtDiv = document.getElementById('sb-built');
+    const wordsDiv = document.getElementById('sb-words');
+    builtDiv.innerHTML = sbState.built.length === 0
+        ? '<span class="text-slate-300 text-xs">Tap words below…</span>'
+        : sbState.built.map((w,i) => `<span onclick="sbRemove(${i})" class="bg-blue-100 border border-blue-300 text-blue-800 font-bold text-sm px-2 py-1 rounded-xl cursor-pointer hover:bg-blue-200">${w}</span>`).join('');
+    wordsDiv.innerHTML = '';
+    sbState.remaining.forEach((w, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'bg-white border-2 border-violet-200 hover:border-violet-400 text-slate-800 font-bold text-sm px-3 py-2 rounded-2xl transition-all active:scale-95';
+        btn.innerText = w;
+        btn.onclick = () => sbAddWord(i);
+        wordsDiv.appendChild(btn);
+    });
+}
+
+window.sbAddWord = function(idx) {
+    const word = sbState.remaining.splice(idx, 1)[0];
+    sbState.built.push(word);
+    sbRender();
+    if (sbState.remaining.length === 0) sbCheck();
+};
+
+window.sbRemove = function(idx) {
+    const word = sbState.built.splice(idx, 1)[0];
+    sbState.remaining.push(word);
+    sbRender();
+    document.getElementById('sb-feedback').classList.add('hidden');
+};
+
+window.sbReset = function() {
+    sbState.remaining = [...sbState.built, ...sbState.remaining].sort(() => Math.random() - 0.5);
+    sbState.built = [];
+    sbRender();
+    document.getElementById('sb-feedback').classList.add('hidden');
+};
+
+window.sbListen = function() { hablarNativo(sbState.sentence.sentence); };
+
+function sbCheck() {
+    const attempt = sbState.built.join(' ');
+    const correct = sbState.sentence.sentence;
+    const fb = document.getElementById('sb-feedback');
+    fb.classList.remove('hidden','bg-emerald-50','text-emerald-700','bg-rose-50','text-rose-700');
+    if (attempt === correct) {
+        fb.innerText = '🏆 Perfect sentence!';
+        fb.classList.add('bg-emerald-50','text-emerald-700');
+        hablarNativo('Perfect! ' + correct);
+        const p = window.familia[window.perfilActualId];
+        p.score += 100;
+        guardarEstado();
+        document.getElementById('puntos-nena').innerText = p.score + ' XP';
+        actualizarLeaderboardUI();
+        setTimeout(() => {
+            document.getElementById('sb-overlay').classList.add('hidden');
+            window.volverATematicas();
+        }, 2500);
+    } else {
+        fb.innerText = '🔍 Not quite — try again!';
+        fb.classList.add('bg-rose-50','text-rose-700');
+        document.getElementById('sb-card').classList.add('wrong-shake');
+        setTimeout(() => document.getElementById('sb-card').classList.remove('wrong-shake'), 400);
+        setTimeout(() => sbReset(), 800);
+    }
+}
 
 const WORD_MATCH_BANK = [
     {en:'hello',        es:'hola'},
@@ -736,7 +848,8 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         hablarNativo(p.misionIndex % 4 === 0 ? 'Brilliant! Get ready for the bonus game!' : 'Brilliant! Well done!');
 
         if (p.misionIndex % 4 === 0) {
-            setTimeout(() => window.mostrarWordMatch(), 2200);
+            const juego = Math.random() < 0.5 ? window.mostrarWordMatch : window.mostrarSentenceBuilder;
+            setTimeout(() => juego(), 2200);
         } else {
             setTimeout(() => window.seleccionarTematica(idTema), 1900);
         }
