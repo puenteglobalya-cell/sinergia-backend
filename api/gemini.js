@@ -1,6 +1,5 @@
 // Sin dependencias externas — usa fetch nativo de Node 18+
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OPENROUTER_MODEL = 'google/gemma-4-31b-it:free';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const TRAVEL_CONTEXTS = [
   'airport check-in counter',
@@ -35,33 +34,20 @@ function extraerJSON(text) {
   return JSON.parse(match[0]);
 }
 
-async function llamarGemini(apiKey, prompt, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    const res = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://fliaezquieta.github.io',
-        'X-Title': 'Sinergia Familiar'
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    if (data.error) {
-      if (data.error.code === 429 && i < retries - 1) {
-        await new Promise(r => setTimeout(r, (i + 1) * 2000));
-        continue;
-      }
-      throw new Error(JSON.stringify(data.error));
-    }
-    const choice = data.choices && data.choices[0];
-    if (!choice || !choice.message) throw new Error('No response from OpenRouter: ' + JSON.stringify(data));
-    return choice.message.content.trim();
+async function llamarGemini(apiKey, prompt) {
+  const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const candidate = data.candidates && data.candidates[0];
+  if (!candidate || !candidate.content) {
+    const reason = candidate && candidate.finishReason ? candidate.finishReason : 'NO_CANDIDATE';
+    throw new Error('Gemini did not return content. Reason: ' + reason);
   }
+  return candidate.content.parts[0].text.trim();
 }
 
 module.exports = async function (req, res) {
@@ -71,8 +57,8 @@ module.exports = async function (req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Missing OPENROUTER_API_KEY in Vercel environment.' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'Missing GEMINI_API_KEY in Vercel environment.' });
 
   try {
     const { action, level, textInput, currentPrompt, systemInfo } = req.body || {};
