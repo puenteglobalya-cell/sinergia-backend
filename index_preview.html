@@ -680,13 +680,13 @@ window.flipCard = function() {
     const inner = document.getElementById('fc-card-inner');
     const card  = fcState.deck[fcState.idx];
     if (!fcState.flipped) {
-        hablarNativo(card.word, 0.75);
+        hablarNativo(card.word, 0.9);
         document.getElementById('fc-hint').textContent = '👆 Tocá para ver la palabra';
     } else {
         inner.style.transform = inner.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
         if (inner.style.transform === 'rotateY(180deg)') {
             document.getElementById('fc-hint').textContent = '✅ ¡' + card.word + '! Siguiente ▶';
-            hablarNativo(card.word, 0.75);
+            hablarNativo(card.word, 0.9);
         } else {
             document.getElementById('fc-hint').textContent = '👆 Tocá para ver la palabra';
         }
@@ -2273,19 +2273,50 @@ window.setStorySpeed = function(rate) {
 // _storyResumeIdx: word index from which Play should start (set by tapping a word)
 let _storyResumeIdx = -1;
 
+let _storyTimers = []; // fallback timer IDs for browsers without onboundary
+
+function stHighlight(idx) {
+    if (_storyActive >= 0) {
+        const prev = document.getElementById(`st-${_storyActive}`);
+        if (prev) { prev.style.background=''; prev.style.color='#e2e8f0'; prev.style.fontWeight=''; prev.style.borderRadius=''; }
+    }
+    _storyActive = idx;
+    const el = document.getElementById(`st-${idx}`);
+    if (el) {
+        el.style.background   = '#fde047';
+        el.style.color        = '#0f172a';
+        el.style.fontWeight   = '800';
+        el.style.borderRadius = '4px';
+        el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+}
+
+function stClearHighlight() {
+    if (_storyActive >= 0) {
+        const el = document.getElementById(`st-${_storyActive}`);
+        if (el) { el.style.background=''; el.style.color='#e2e8f0'; el.style.fontWeight=''; el.style.borderRadius=''; }
+        _storyActive = -1;
+    }
+    _storyTimers.forEach(clearTimeout);
+    _storyTimers = [];
+}
+
 window.storytellerPlay = function() {
     if (!_storyText) return;
     storytellerStop();
 
-    // If user tapped a word to set resume point, slice the text from that word
+    // Resume from tapped word if set
     const wordTokens = _storyWords.filter(d => d.isWord);
     let textToSpeak = _storyText;
-    let charOffset   = 0;
+    let charOffset  = 0;
+    let startTokenIdx = 0;
     if (_storyResumeIdx >= 0) {
         const resumeToken = _storyWords.find(d => d.idx === _storyResumeIdx);
         if (resumeToken) {
-            textToSpeak = _storyText.slice(resumeToken.start);
-            charOffset  = resumeToken.start;
+            textToSpeak   = _storyText.slice(resumeToken.start);
+            charOffset    = resumeToken.start;
+            startTokenIdx = wordTokens.findIndex(d => d.idx === _storyResumeIdx);
+            if (startTokenIdx < 0) startTokenIdx = 0;
         }
         _storyResumeIdx = -1;
     }
@@ -2295,41 +2326,46 @@ window.storytellerPlay = function() {
     if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
     u.lang = 'en-US';
     u.rate = window._storySpeed || 1.0;
+
+    let boundaryFired = false;
+
+    // Primary: onboundary (Chrome desktop, Firefox)
     u.onboundary = e => {
         if (e.name !== 'word') return;
-        const found = wordTokens.find(d => (e.charIndex + charOffset) >= d.start && (e.charIndex + charOffset) < d.start + d.token.length);
-        if (!found) return;
-        if (_storyActive >= 0) {
-            const prev = document.getElementById(`st-${_storyActive}`);
-            if (prev) { prev.style.background=''; prev.style.color='#e2e8f0'; prev.style.fontWeight=''; }
-        }
-        _storyActive = found.idx;
-        const el = document.getElementById(`st-${_storyActive}`);
-        if (el) {
-            el.style.background = '#fde047';
-            el.style.color      = '#0f172a';
-            el.style.fontWeight = '700';
-            el.scrollIntoView({ behavior:'smooth', block:'nearest' });
-        }
+        boundaryFired = true;
+        const found = wordTokens.find(d =>
+            (e.charIndex + charOffset) >= d.start &&
+            (e.charIndex + charOffset) <  d.start + d.token.length
+        );
+        if (found) stHighlight(found.idx);
     };
-    u.onend = u.onerror = () => {
-        if (_storyActive >= 0) {
-            const prev = document.getElementById(`st-${_storyActive}`);
-            if (prev) { prev.style.background=''; prev.style.color='#e2e8f0'; prev.style.fontWeight=''; }
-            _storyActive = -1;
-        }
+
+    u.onstart = () => {
+        // Fallback: schedule highlights by estimated time per word
+        // fires only if onboundary doesn't work (Safari iOS, Chrome Android)
+        setTimeout(() => {
+            if (boundaryFired) return; // onboundary works — skip fallback
+            const rate      = window._storySpeed || 1.0;
+            const msPerChar = 65 / rate; // ~65ms per char at rate=1
+            const slice     = wordTokens.slice(startTokenIdx);
+            slice.forEach((token, i) => {
+                const relStart  = token.start - charOffset;
+                const delay     = Math.max(0, relStart * msPerChar);
+                const id = setTimeout(() => stHighlight(token.idx), delay);
+                _storyTimers.push(id);
+            });
+        }, 120);
     };
+
+    u.onend = u.onerror = () => { stClearHighlight(); };
+
     _storyUtter = u;
     window.speechSynthesis.speak(u);
 };
 
 window.storytellerStop = function() {
     window.speechSynthesis.cancel();
-    if (_storyActive >= 0) {
-        const prev = document.getElementById(`st-${_storyActive}`);
-        if (prev) { prev.style.background=''; prev.style.color='#e2e8f0'; prev.style.fontWeight=''; }
-        _storyActive = -1;
-    }
+    stClearHighlight();
     _storyUtter = null;
     // keep _storyResumeIdx so user can still hit Play from tapped word
 };
