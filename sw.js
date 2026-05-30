@@ -41,24 +41,35 @@ self.addEventListener('notificationclick', e => {
   e.waitUntil(clients.openWindow('/'));
 });
 
+let _reminderMensajes = [];
+let _reminderIdx = 0;
+
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'SCHEDULE_REMINDER') {
-    const { hour, minute, nombres } = e.data;
-    // Calculate ms until next occurrence
+    const { hour, minute, mensajes, nombres } = e.data;
+    // Support both new (mensajes array) and legacy (nombres string) format
+    _reminderMensajes = mensajes && mensajes.length ? mensajes : [`${nombres || 'Familia'} — tu sesión diaria te espera en Sinergia`];
+    _reminderIdx = 0;
+
     const now  = new Date();
     const next = new Date();
     next.setHours(hour, minute, 0, 0);
     if (next <= now) next.setDate(next.getDate() + 1);
     const delay = next - now;
-    setTimeout(() => {
+
+    setTimeout(function fireReminder() {
+      const body = _reminderMensajes[_reminderIdx % _reminderMensajes.length];
+      _reminderIdx++;
       self.registration.showNotification('¡Hora de practicar inglés! 🌍', {
-        body: `${nombres} — tu sesión diaria te espera en Sinergia`,
+        body,
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         tag: 'daily-reminder',
         renotify: true,
         actions: [{ action: 'open', title: '¡Vamos!' }]
       });
+      // Re-schedule for next day
+      setTimeout(fireReminder, 24 * 60 * 60 * 1000);
     }, delay);
   }
 });

@@ -18,6 +18,7 @@
 
         * { -webkit-tap-highlight-color: transparent; }
         body { overscroll-behavior: none; }
+        body.game-active { overscroll-behavior-y: contain; }
         /* iOS safe areas */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
@@ -163,10 +164,10 @@
                 <span id="spd-label" class="text-blue-400 text-xs font-bold">1×</span>
                 <span class="text-slate-400 text-xs">Rápido 🐇</span>
             </div>
-            <input id="story-speed-slider" type="range" min="0.4" max="1.4" step="0.05" value="1.0"
+            <input id="story-speed-slider" type="range" min="0.65" max="1.2" step="0.05" value="1.0"
                 oninput="setStorySpeed(parseFloat(this.value))"
                 class="w-full rounded-full appearance-none cursor-pointer"
-                style="height:20px;accent-color:#3b82f6;background:linear-gradient(to right,#3b82f6 43%,#334155 43%)">
+                style="height:20px;accent-color:#3b82f6;background:linear-gradient(to right,#3b82f6 64%,#334155 64%)">
         </div>
         <button onclick="cargarNuevoStory()" class="w-full font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all text-white" style="background:#7c3aed;">✨ IA: Nuevo cuento</button>
     </div>
@@ -221,7 +222,7 @@
 </div>
 
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
-<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4">
+<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4 touch-manipulation select-none">
     <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop mb-0 sm:mb-0">
         <div class="text-center space-y-1">
             <div class="text-4xl">🧩</div>
@@ -239,7 +240,7 @@
 </div>
 
 <!-- ═══ WORD MATCH MODAL ═══ -->
-<div id="wordmatch-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4">
+<div id="wordmatch-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4 touch-manipulation select-none">
     <div id="wordmatch-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 wm-pop">
         <div class="text-center space-y-1">
             <div class="text-4xl">🎮</div>
@@ -257,7 +258,7 @@
 </div>
 
 <!-- ═══ FLIP CARDS GAME ═══ -->
-<div id="flipcards-overlay" class="fixed inset-0 flex items-end sm:items-center justify-center z-[70] hidden p-4"
+<div id="flipcards-overlay" class="fixed inset-0 flex items-end sm:items-center justify-center z-[70] hidden p-4 touch-manipulation select-none"
      style="background:rgba(0,0,0,0.8);">
     <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
         <!-- Header -->
@@ -650,6 +651,7 @@ const FLIP_DECKS = {
 let fcState = { deck:[], idx:0, flipped:false };
 
 window.mostrarFlipCards = function(tema) {
+    document.body.classList.add('game-active');
     const base = FLIP_DECKS[tema] || FLIP_DECKS['Animals'];
     fcState.deck    = [...base].sort(() => Math.random() - 0.5).slice(0, 6);
     fcState.idx     = 0;
@@ -660,6 +662,7 @@ window.mostrarFlipCards = function(tema) {
 };
 
 window.cerrarFlipCards = function() {
+    document.body.classList.remove('game-active');
     document.getElementById('flipcards-overlay').classList.add('hidden');
     window.speechSynthesis.cancel();
 };
@@ -770,7 +773,7 @@ function sbCheck() {
         fb.classList.add('bg-emerald-50','text-emerald-700');
         hablarNativo('Perfect! ' + correct);
         const p = window.familia[window.perfilActualId];
-        p.score += 100;
+        p.score += 100; p.scoreSemanal = (p.scoreSemanal||0) + 100;
         guardarEstado();
         document.getElementById('puntos-nena').innerText = p.score + ' XP';
         actualizarLeaderboardUI();
@@ -1124,7 +1127,7 @@ function wmSelectES(idx) {
 
 function wmComplete() {
     const p = window.familia[window.perfilActualId];
-    p.score += 100;
+    p.score += 100; p.scoreSemanal = (p.scoreSemanal||0) + 100;
     guardarEstado();
     document.getElementById('puntos-nena').innerText = p.score + ' XP';
     actualizarLeaderboardUI();
@@ -1170,6 +1173,41 @@ const bancoEscenariosFijos = {
 
 function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
 
+// ── Liga Semanal ──────────────────────────────────────────────────────────────
+function getWeekNumber() {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    const w = new Date(d.getFullYear(), 0, 4);
+    return d.getFullYear() * 100 + Math.round(((d - w) / 86400000 - 3 + (w.getDay() + 6) % 7) / 7) + 1;
+}
+
+function verificarResetSemanal() {
+    const semanaActual = getWeekNumber();
+    const semanaGuardada = parseInt(localStorage.getItem('sinergia_lastWeek') || '0');
+    if (semanaActual !== semanaGuardada) {
+        // New week — reset scoreSemanal for all profiles (keep score histórico safe)
+        Object.values(window.familia).forEach(p => { p.scoreSemanal = 0; });
+        localStorage.setItem('sinergia_lastWeek', semanaActual);
+        guardarEstado();
+    }
+}
+
+function actualizarLeaderboardUI() {
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+    const sorted = Object.values(window.familia)
+        .sort((a,b) => (b.scoreSemanal||b.score) - (a.scoreSemanal||a.score));
+    list.innerHTML = sorted.map((p,i) => {
+        const medal = ['🥇','🥈','🥉','4️⃣'][i] || '';
+        const pts   = p.scoreSemanal !== undefined ? p.scoreSemanal : p.score;
+        return `<li class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">${medal} ${p.nombre.split(' ')[0]}</span>
+            <span class="text-blue-600 font-extrabold">${pts} XP</span>
+        </li>`;
+    }).join('');
+}
+
 // ── Personal Glossary ─────────────────────────────────────────────────────────
 function glosarioKey(perfilId) { return `sinergia_glosario_${perfilId}`; }
 function cargarGlosario(perfilId) { try { return JSON.parse(localStorage.getItem(glosarioKey(perfilId)) || '[]'); } catch(e) { return []; } }
@@ -1181,8 +1219,9 @@ window.guardarEnGlosario = function(perfilId, texto, btnContainerId) {
     items.unshift(entry);
     if (items.length > 100) items.pop();
     guardarGlosario(perfilId, items);
-    // Visual confirmation
-    const btn = document.querySelector(`#${btnContainerId}`)?.nextElementSibling;
+    // Visual confirmation — support both: sibling of a container, or direct button id
+    const btn = document.getElementById(`${btnContainerId}-btn`) ||
+                document.querySelector(`#${btnContainerId}`)?.nextElementSibling;
     if (btn) { btn.textContent = '✅'; setTimeout(() => { btn.textContent = '⭐'; }, 1200); }
 };
 
@@ -1472,14 +1511,19 @@ function inicializarVoces() {
     if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = cargarVoces;
 }
 
+let _ttsTimer = null;
 function hablarNativo(texto, rate = 0.85) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(texto);
-    const v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
-    u.lang = 'en-US'; u.rate = rate;
-    window.speechSynthesis.speak(u);
+    clearTimeout(_ttsTimer);
+    // 50ms micro-delay clears the OS audio thread before new utterance
+    _ttsTimer = setTimeout(() => {
+        const u = new SpeechSynthesisUtterance(texto);
+        const v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+        if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
+        u.lang = 'en-US'; u.rate = rate;
+        window.speechSynthesis.speak(u);
+    }, 50);
 }
 
 function playFX(tipo) {
@@ -1645,24 +1689,6 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
     actualizarLeaderboardUI();
 }
 
-function actualizarLeaderboardUI() {
-    const list = document.getElementById('leaderboard-list');
-    if (!list) return;
-    list.innerHTML = '';
-    const medals = ['🥇','🥈','🥉',''];
-    Object.values(window.familia).sort((a,b) => b.score - a.score).forEach((p,idx) => {
-        const li = document.createElement('li');
-        if (idx === 0) {
-            li.className = 'flex justify-between items-center bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-xl font-extrabold text-slate-800';
-            li.innerHTML = `<span>${medals[0]} ${p.nombre}</span><span class="text-yellow-600">${p.score} XP</span>`;
-        } else {
-            li.className = 'flex justify-between items-center px-2 py-1 text-slate-500';
-            li.innerHTML = `<span>${medals[idx]||((idx+1)+'.')} ${p.nombre}</span><span class="font-bold">${p.score} XP</span>`;
-        }
-        list.appendChild(li);
-    });
-}
-
 function renderizarConfiguracionPerfiles() {
     const container = document.getElementById('profiles-config-container');
     if (!container) return;
@@ -1730,6 +1756,7 @@ inicializarReconocimientoVoz();
 renderizarConfiguracionPerfiles();
 renderizarBotonesPerfil();
 renderizarSelectorEscenariosAdultos();
+verificarResetSemanal();
 window.cambiarPerfil('perfil1');
 
 // ── Session Timer ─────────────────────────────────────────────────────────────
@@ -1804,10 +1831,27 @@ window.solicitarNotificaciones = async function() {
     if (!('Notification' in window)) return alert('Tu navegador no soporta notificaciones.');
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') return;
-    const nombres = Object.values(window.familia).map(p => p.nombre.split(' ')[0]).join(', ');
+    const mensajes = Object.values(window.familia).map(p => {
+        const nombre = p.nombre.split(' ')[0];
+        if (p.tipo === 'infantil') {
+            const frases = [
+                `${nombre}, ¡los animales te esperan para jugar! 🦁`,
+                `${nombre}, ¿listo para aprender palabras nuevas hoy? 🌈`,
+                `${nombre}, ¡tu misión de inglés de hoy te espera! ⭐`,
+            ];
+            return frases[Math.floor(Math.random() * frases.length)];
+        } else {
+            const frases = [
+                `${nombre}, practicá inglés y prepará tu próxima conversación 🌍`,
+                `${nombre}, ¡tu sesión diaria de inglés te espera en Sinergia! 📚`,
+                `${nombre}, repasá vocabulario y subí tu nivel hoy 🚀`,
+            ];
+            return frases[Math.floor(Math.random() * frases.length)];
+        }
+    });
     if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
-            type: 'SCHEDULE_REMINDER', hour: 18, minute: 0, nombres
+            type: 'SCHEDULE_REMINDER', hour: 18, minute: 0, mensajes
         });
     }
     alert('¡Recordatorio diario activado! Recibirán una notificación a las 18:00 todos los días.');
@@ -1992,7 +2036,7 @@ function mostrarResultadoShadowing() {
     document.getElementById('shadow-result-area').classList.remove('hidden');
 
     const p = window.familia[window.perfilActualId];
-    p.score += Math.round(avg / 2);
+    p.score += Math.round(avg / 2); p.scoreSemanal = (p.scoreSemanal||0) + Math.round(avg / 2);
     guardarEstado();
     actualizarLeaderboardUI();
     hablarNativo(avg >= 80 ? 'Excellent! Perfect shadowing!' : 'Good job! Keep practicing!');
@@ -2265,7 +2309,7 @@ window.setStorySpeed = function(rate) {
     const slider = document.getElementById('story-speed-slider');
     if (slider) {
         slider.value = rate;
-        const pct = ((rate - 0.4) / (1.4 - 0.4) * 100).toFixed(1);
+        const pct = ((rate - 0.65) / (1.2 - 0.65) * 100).toFixed(1);
         slider.style.background = `linear-gradient(to right,#3b82f6 ${pct}%,#334155 ${pct}%)`;
     }
 };
@@ -2378,6 +2422,30 @@ window.cerrarStoryteller = function() {
 
 <!-- ═══ VERCEL CONNECTION ═══ -->
 <script type="text/javascript">
+// Fetch with 10s AbortController timeout
+async function geminiSafeFetch(body) {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 10000);
+    try {
+        const res = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(body), signal: ctrl.signal
+        });
+        const raw  = await res.text();
+        const m    = raw.match(/\{[\s\S]*\}/);
+        return JSON.parse(m ? m[0] : raw);
+    } catch(e) {
+        if (e.name === 'AbortError') throw new Error('timeout');
+        throw e;
+    } finally { clearTimeout(tid); }
+}
+
+const OFFLINE_FALLBACKS = {
+    evaluate_voice:    { reply:"Sorry, I'm having trouble connecting right now. Can you repeat that?", translation:"Lo siento, hay un problema de conexión. ¿Podés repetir?", correction:"Sin conexión — intentá de nuevo en un momento.", xp:0, suggestions:["Could you say that again?","I didn't catch that.","Please repeat."] },
+    generate_scenario: { setup_title:"Sala de espera", ai_opening:"Hello! How can I help you today?", ai_opening_translation:"¡Hola! ¿En qué puedo ayudarte hoy?" },
+    generate_story:    { title:"Sin conexión", text:"There is no internet connection right now. Please check your signal and try again." },
+};
+
 window.generarEscenarioSorpresaAI = async function() {
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
     limpiarHistorialChat();
@@ -2386,11 +2454,7 @@ window.generarEscenarioSorpresaAI = async function() {
     document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
     document.getElementById('suggestion-chips').classList.add('hidden');
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ action:'generate_scenario', level: window.familia[window.perfilActualId].nivel })
-        });
-        const data = await res.json();
+        const data = await geminiSafeFetch({ action:'generate_scenario', level: window.familia[window.perfilActualId].nivel });
         if (data.error) throw new Error(data.error);
         window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario', initialPrompt: data.ai_opening };
         window._lastAIReply = data.ai_opening;
@@ -2402,7 +2466,10 @@ window.generarEscenarioSorpresaAI = async function() {
             <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.ai_opening_translation || ''}</span>`;
         hablarNativo(data.ai_opening);
     } catch(e) {
-        document.getElementById('chat-prompt').innerText = 'Connection error — check Vercel deployment.';
+        const fb = OFFLINE_FALLBACKS.generate_scenario;
+        window.escenarioAdultoActivo = { titulo: fb.setup_title, prompt: fb.ai_opening, systemInfo:'offline', initialPrompt: fb.ai_opening };
+        window._lastAIReply = fb.ai_opening;
+        document.getElementById('chat-prompt').innerHTML = `<span class="text-amber-600 text-sm font-semibold">📡 ${e.message === 'timeout' ? 'Tiempo de espera agotado' : 'Sin conexión'} — ${fb.ai_opening}</span>`;
         console.error(e);
     }
 };
@@ -2417,27 +2484,15 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
     evalDiv.innerHTML = "<span class='text-blue-400 animate-pulse text-xs'>Analysing…</span>";
     evalWrapper.classList.remove('hidden');
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-                action:'evaluate_voice', textInput: textoVozReal,
-                level: p.nivel, currentPrompt: window.escenarioAdultoActivo.prompt,
-                systemInfo: window.escenarioAdultoActivo.systemInfo
-            })
+        const data = await geminiSafeFetch({
+            action:'evaluate_voice', textInput: textoVozReal,
+            level: p.nivel, currentPrompt: window.escenarioAdultoActivo.prompt,
+            systemInfo: window.escenarioAdultoActivo.systemInfo
         });
-        // Frontend Markdown guard: extract JSON even if wrapped in ```json ... ```
-        let data;
-        try {
-            const raw = await res.text();
-            const jsonMatch = raw.match(/\{[\s\S]*\}/);
-            data = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
-        } catch(parseErr) {
-            throw new Error('Response parse error: ' + parseErr.message);
-        }
         if (data.error) throw new Error(data.error);
 
         // Update XP and streak
-        p.score += data.xp;
+        p.score += data.xp; p.scoreSemanal = (p.scoreSemanal||0) + data.xp;
         if (data.xp >= 50) {
             p.racha = (p.racha || 0) + 1;
         } else {
@@ -2482,13 +2537,22 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             chips.classList.add('hidden');
         }
 
-        // Archive current user + eval to history before showing next prompt
+        // Archive current user + AI reply to history before showing next prompt
         const histDiv = document.getElementById('chat-history');
         const initials = p.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
         const userBubble = document.getElementById('user-transcript').innerText;
+        const prevReply  = window.escenarioAdultoActivo?.prompt || '';
+        const archiveId  = 'hist-' + Date.now();
         const archiveNode = document.createElement('div');
         archiveNode.className = 'space-y-2 opacity-60';
         archiveNode.innerHTML = `
+            ${prevReply ? `<div class="flex items-end gap-2">
+                <div class="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">AI</div>
+                <div class="bg-slate-100 text-slate-800 rounded-2xl rounded-bl-sm px-3 py-2 text-xs max-w-xs flex-1">${prevReply}
+                    <button onclick="guardarEnGlosario('${p.id}',\`${prevReply.replace(/`/g,"'")}\`,'${archiveId}')" id="${archiveId}-btn"
+                        class="ml-2 text-amber-400 hover:text-amber-500 transition-colors active:scale-125 leading-none" title="Guardar en glosario">⭐</button>
+                </div>
+            </div>` : ''}
             <div class="flex justify-end gap-2">
                 <div class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs max-w-xs">${userBubble}</div>
                 <div class="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">${initials}</div>
@@ -2507,7 +2571,10 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.translation || ''}</span>`;
         hablarNativo(data.reply);
     } catch(e) {
-        evalDiv.innerText = 'Server error — check Vercel logs.';
+        const fb = OFFLINE_FALLBACKS.evaluate_voice;
+        const isTimeout = e.message === 'timeout';
+        evalDiv.innerHTML = `<p class="text-amber-600 text-sm font-semibold">📡 ${isTimeout ? 'Tiempo agotado (10s)' : 'Sin conexión'}</p><p class="text-slate-500 text-xs mt-1">${fb.reply}</p>`;
+        hablarNativo(fb.reply);
         console.error(e);
     }
 };
