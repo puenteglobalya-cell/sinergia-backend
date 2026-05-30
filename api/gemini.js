@@ -171,6 +171,13 @@ Reply ONLY with this raw JSON object:
       return res.status(200).json(extraerJSON(text));
     }
 
+    if (action === 'translate_word') {
+      const { word } = req.body;
+      const prompt = `Translate the English word or short phrase "${word || ''}" to Spanish. Reply ONLY with this JSON: {"translation":"traducción aquí"}`;
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 128);
+      return res.status(200).json(extraerJSON(text));
+    }
+
     return res.status(200).json({ status: 'Servidor Sinergia activo y escuchando' });
 
   } catch (error) {

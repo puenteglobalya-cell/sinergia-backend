@@ -83,6 +83,8 @@
             <div class="space-y-2">
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">English Voice</label>
                 <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-xs p-2.5 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200"></select>
+                <div class="flex flex-wrap gap-1.5 mt-2" id="voice-preset-btns"></div>
+                <p class="text-[10px] text-slate-400 mt-1">Presets eligen la voz más cercana al acento disponible en tu dispositivo</p>
             </div>
             <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
                 <div>
@@ -1325,14 +1327,59 @@ window.repetirEscena = function() {
     hablarNativo(window.escenarioAdultoActivo.prompt);
 };
 
+// Accent presets: ordered name keywords → matched against available voice names
+const VOICE_PRESETS = [
+    { label:'🇺🇸 US ♀', keywords:['Samantha','Zira','Jenny','Aria','Microsoft Aria','en-US'], gender:'f', lang:'en-US' },
+    { label:'🇺🇸 US ♂', keywords:['Alex','Guy','Microsoft Guy','Ryan','en-US'], gender:'m', lang:'en-US' },
+    { label:'🇬🇧 British ♀', keywords:['Serena','Hazel','Kate','Microsoft Hazel','en-GB'], gender:'f', lang:'en-GB' },
+    { label:'🇬🇧 British ♂', keywords:['Daniel','George','Oliver','Microsoft George','en-GB'], gender:'m', lang:'en-GB' },
+    { label:'🇦🇺 AU ♀', keywords:['Karen','Catherine','Microsoft Catherine','en-AU'], gender:'f', lang:'en-AU' },
+    { label:'🇦🇺 AU ♂', keywords:['Lee','Microsoft Lee','en-AU'], gender:'m', lang:'en-AU' },
+];
+
+function encontrarVozPreset(preset, voces) {
+    // Try each keyword in order — first match wins
+    for (const kw of preset.keywords) {
+        const idx = voces.findIndex(v =>
+            v.name.toLowerCase().includes(kw.toLowerCase()) ||
+            v.lang === kw
+        );
+        if (idx >= 0) return idx;
+    }
+    // Fallback: any voice matching the lang
+    const idx = voces.findIndex(v => v.lang.startsWith(preset.lang.slice(0,5)));
+    return idx >= 0 ? idx : 0;
+}
+
 function inicializarVoces() {
     if (!('speechSynthesis' in window)) return;
     function cargarVoces() {
-        const sel = document.getElementById('voice-selector');
-        const v   = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-        sel.innerHTML = v.length === 0
+        const sel   = document.getElementById('voice-selector');
+        const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+        sel.innerHTML = voces.length === 0
             ? '<option value="0">Default English Voice</option>'
-            : v.map((v,i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+            : voces.map((v,i) => `<option value="${i}">${v.name} (${v.lang})</option>`).join('');
+
+        // Render preset buttons
+        const container = document.getElementById('voice-preset-btns');
+        if (!container) return;
+        container.innerHTML = '';
+        VOICE_PRESETS.forEach(preset => {
+            const btn = document.createElement('button');
+            btn.className = 'text-[10px] font-bold px-2 py-1 rounded-lg text-white active:scale-95 transition-all';
+            btn.style.background = '#334155';
+            btn.textContent = preset.label;
+            btn.onclick = () => {
+                const idx = encontrarVozPreset(preset, voces);
+                window.voiceIndexSeleccionada = idx;
+                sel.value = idx;
+                // highlight selected
+                container.querySelectorAll('button').forEach(b => b.style.background='#334155');
+                btn.style.background = '#3b82f6';
+                hablarNativo('Hello! This is my voice.', 0.9);
+            };
+            container.appendChild(btn);
+        });
     }
     cargarVoces();
     if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = cargarVoces;
@@ -1735,7 +1782,8 @@ async function evaluarLineaShadowing(said) {
             scoreEl.innerText = `${data.score >= 80 ? '✅' : data.score >= 50 ? '⚠️' : '🔄'} ${data.score}/100 — ${data.feedback}`;
             scoreEl.classList.remove('hidden');
         }
-        if (data.tip) hablarNativo(data.tip);
+        // Read the correct line aloud so the user hears how it should sound
+        setTimeout(() => hablarNativo(expected, 0.82), 300);
 
         document.getElementById('shadow-mic-area').classList.add('hidden');
         const btn = document.getElementById('shadow-mic-btn');
@@ -1743,7 +1791,7 @@ async function evaluarLineaShadowing(said) {
         btn.disabled = false;
 
         shadowState.currentLine++;
-        setTimeout(() => playNextShadowLine(), 1200);
+        setTimeout(() => playNextShadowLine(), 2400);
     } catch(e) {
         document.getElementById('shadow-mic-status').innerText = 'Error — try again';
         const btn = document.getElementById('shadow-mic-btn');
@@ -1845,11 +1893,38 @@ function cargarTextoEnStoryteller(text) {
     });
     container.innerHTML = _storyWords.map(d => {
         if (!d.isWord) return d.token.replace(/\n/g, '<br>');
-        const safe = d.token.replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-        return `<span id="st-${d.idx}" style="transition:background 0.07s;border-radius:3px;padding:0 2px;cursor:pointer;color:#e2e8f0;" onclick="hablarNativo('${safe}',0.8)">${d.token}</span>`;
+        const clean = d.token.replace(/[^a-zA-Z']/g,'');
+        const safe  = d.token.replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        return `<span id="st-${d.idx}" data-word="${clean}" style="transition:background 0.12s;border-radius:4px;padding:0 3px;cursor:pointer;color:#e2e8f0;" onclick="stWordTap(this,'${clean}',${d.idx})">${d.token}</span>`;
     }).join('');
     _storyActive = -1;
 }
+
+// tooltip state
+let _stTooltip = null;
+window.stWordTap = async function(el, word, idx) {
+    hablarNativo(word, window._storySpeed || 0.85);
+    // remove previous tooltip
+    if (_stTooltip) { _stTooltip.remove(); _stTooltip = null; }
+    // build tooltip
+    const tip = document.createElement('span');
+    tip.style.cssText = 'position:absolute;background:#fde047;color:#0f172a;font-size:0.72rem;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.35);pointer-events:none;z-index:9999;';
+    tip.textContent = '…';
+    el.style.position = 'relative';
+    el.appendChild(tip);
+    _stTooltip = tip;
+    // translate via Gemini
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'translate_word', word })
+        });
+        const data = await res.json();
+        if (tip.isConnected) tip.textContent = data.translation || word;
+    } catch(e) { if (tip.isConnected) tip.textContent = '—'; }
+    // auto-dismiss after 2.5s
+    setTimeout(() => { if (tip.isConnected) tip.remove(); if (_stTooltip === tip) _stTooltip = null; }, 2500);
+};
 
 window.mostrarBiblioteca = function() {
     const p    = window.familia[window.perfilActualId];
