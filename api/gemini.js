@@ -17,7 +17,6 @@ module.exports = async function (req, res) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // responseMimeType fuerza a Gemini a devolver JSON puro sin markdown
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       generationConfig: { responseMimeType: 'application/json' },
