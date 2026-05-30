@@ -786,9 +786,20 @@ function inicializarReconocimientoVoz() {
     window.reconocimientoVoz = new SR();
     window.reconocimientoVoz.lang = 'en-US';
     window.reconocimientoVoz.interimResults = false;
-    window.reconocimientoVoz.onresult = e => { if (window.dispatchGeminiVoz) window.dispatchGeminiVoz(e.results[0][0].transcript); };
-    window.reconocimientoVoz.onerror  = detenerMicUI;
-    window.reconocimientoVoz.onend    = detenerMicUI;
+    window.reconocimientoVoz.continuous = true;
+
+    let acumulado = '';
+    window.reconocimientoVoz.onresult = e => {
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            if (e.results[i].isFinal) acumulado += e.results[i][0].transcript + ' ';
+        }
+    };
+    window.reconocimientoVoz.onerror = detenerMicUI;
+    window.reconocimientoVoz.onend   = () => {
+        detenerMicUI();
+        if (acumulado.trim() && window.dispatchGeminiVoz) window.dispatchGeminiVoz(acumulado.trim());
+        acumulado = '';
+    };
 }
 
 window.alternarMic = function() {
