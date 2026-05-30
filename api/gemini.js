@@ -85,7 +85,7 @@ module.exports = async function (req, res) {
 The traveler's English level is ${levelKey}. Language guide: ${levelGuide}
 Open the scene with one natural line.
 Reply ONLY with this JSON, no extra text:
-{"setup_title": "short title in Spanish", "ai_opening": "your opening line in English"}`;
+{"setup_title": "short title in Spanish", "ai_opening": "your opening line in English", "ai_opening_translation": "traducción al español de ai_opening"}`;
 
       const text = await llamarGemini(apiKey, prompt);
       return res.status(200).json(extraerJSON(text));
