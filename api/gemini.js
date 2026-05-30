@@ -95,7 +95,10 @@ Reply ONLY with this JSON, no extra text:
     return res.status(200).json({ status: 'Servidor Sinergia activo y escuchando' });
 
   } catch (error) {
-    console.error('Sinergia backend error:', error.message);
+    const msg = error.message || String(error);
+    console.error('SINERGIA_ERR_START');
+    console.error(msg);
+    console.error('SINERGIA_ERR_END');
     return res.status(500).json({ error: error.message });
   }
 };
