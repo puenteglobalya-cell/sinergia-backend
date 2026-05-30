@@ -134,9 +134,15 @@
     <!-- Controls -->
     <div class="flex-shrink-0 border-t border-slate-700 px-5 py-4 space-y-3" style="background:#1e293b;">
         <div class="flex gap-2 justify-center flex-wrap">
-            <button onclick="storytellerPlay(1.0)" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5">▶ Play</button>
-            <button onclick="storytellerPlay(0.6)" class="text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5" style="background:#334155;">🐢 Lento</button>
+            <button onclick="storytellerPlay()" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5">▶ Play</button>
             <button onclick="storytellerStop()" class="text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5" style="background:#334155;">⏹ Stop</button>
+        </div>
+        <div class="flex gap-1.5 justify-center">
+            <span class="text-slate-400 text-xs self-center mr-1">Velocidad:</span>
+            <button id="spd-05" onclick="setStorySpeed(0.5)"  class="story-spd-btn text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all" style="background:#334155;">0.5×</button>
+            <button id="spd-075" onclick="setStorySpeed(0.75)" class="story-spd-btn text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all" style="background:#334155;">0.75×</button>
+            <button id="spd-1" onclick="setStorySpeed(1.0)"  class="story-spd-btn text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all" style="background:#3b82f6;">1×</button>
+            <button id="spd-125" onclick="setStorySpeed(1.25)" class="story-spd-btn text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all" style="background:#334155;">1.25×</button>
         </div>
         <div class="flex gap-2">
             <button onclick="cargarNuevoStory()" class="flex-1 font-bold py-2.5 rounded-xl text-sm active:scale-95 transition-all text-white" style="background:#7c3aed;">✨ IA: Nuevo cuento</button>
@@ -1706,14 +1712,24 @@ window.mostrarBiblioteca = function() {
 
 window.cerrarBiblioteca = function() { hideEl('library-overlay'); };
 
-window.storytellerPlay = function(rate) {
+window._storySpeed = 1.0;
+
+window.setStorySpeed = function(rate) {
+    window._storySpeed = rate;
+    document.querySelectorAll('.story-spd-btn').forEach(b => b.style.background = '#334155');
+    const map = {0.5:'spd-05', 0.75:'spd-075', 1.0:'spd-1', 1.25:'spd-125'};
+    const el = document.getElementById(map[rate]);
+    if (el) el.style.background = '#3b82f6';
+};
+
+window.storytellerPlay = function() {
     if (!_storyText) return;
     storytellerStop();
     const u = new SpeechSynthesisUtterance(_storyText);
     const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
     if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
     u.lang = 'en-US';
-    u.rate = rate || 1.0;
+    u.rate = window._storySpeed || 1.0;
     const wordTokens = _storyWords.filter(d => d.isWord);
     u.onboundary = e => {
         if (e.name !== 'word') return;

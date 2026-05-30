@@ -117,10 +117,11 @@ Reply ONLY with this raw JSON object:
       const pool    = isKids ? KIDS_CONTEXTS : ADULT_CONTEXTS;
       const context = pool[Math.floor(Math.random() * pool.length)];
       const prompt  = `Setting: ${context}. Level: ${levelKey}. ${levelGuide}
-Write a 6-line dialogue (staff/traveler alternating, staff first). Keep each line under 12 words. Translations must be brief.
+Write a 6-line dialogue (staff/traveler alternating, staff first). Keep each line under 12 words.
+IMPORTANT: "text" field must be in ENGLISH. "translation" field must be in SPANISH. "title" in Spanish.
 Return ONLY this JSON (no extra text):
-{"title":"título en español","context":"${context}","lines":[{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."},{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."},{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."}]}`;
-      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 4096);
+{"title":"título en español","context":"${context}","lines":[{"role":"staff","text":"English line here","translation":"traducción en español"},{"role":"traveler","text":"English line here","translation":"traducción en español"},{"role":"staff","text":"English line here","translation":"traducción en español"},{"role":"traveler","text":"English line here","translation":"traducción en español"},{"role":"staff","text":"English line here","translation":"traducción en español"},{"role":"traveler","text":"English line here","translation":"traducción en español"}]}`;
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 2048);
       return res.status(200).json(extraerJSON(text));
     }
 
