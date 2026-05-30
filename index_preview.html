@@ -323,7 +323,7 @@
                 <div class="flex items-end gap-3">
                     <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
                     <div class="slide-left max-w-xs md:max-w-sm">
-                        <div id="chat-prompt" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
+                        <div id="chat-prompt" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
                 </div>
                 <div id="user-transcript-wrapper" class="flex items-end justify-end gap-3 hidden">
@@ -336,7 +336,7 @@
                     <div class="flex items-end gap-3">
                         <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
                         <div class="slide-left max-w-xs md:max-w-sm">
-                            <div id="ai-evaluation" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
+                            <div id="ai-evaluation" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
                         </div>
                     </div>
                 </div>
@@ -359,6 +359,10 @@
 
 <!-- ═══ LOGIC ═══ -->
 <script type="text/javascript">
+
+function quitarEmojis(str) {
+    return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
+}
 
 const PROFILE_COLORS = {
     perfil1: 'from-pink-400 to-rose-500',
@@ -906,6 +910,11 @@ window.seleccionarTematica = function(idTema) {
     document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
     document.getElementById('feedback-nena').classList.add('hidden');
 
+    const qEl = document.getElementById('mision-pregunta-texto');
+    qEl.innerText  = tema.pregunta;
+    qEl.style.cursor = 'pointer';
+    qEl.onclick    = () => hablarNativo(tema.audioText);
+
     const contenedor = document.getElementById('contenedor-respuestas');
     contenedor.innerHTML = '';
     const cols    = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
@@ -914,9 +923,9 @@ window.seleccionarTematica = function(idTema) {
     tema.opciones.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'bg-white hover:scale-105 active:scale-95 p-5 rounded-3xl font-extrabold text-base shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800';
-        btn.innerText = opt.texto;
+        btn.innerText = quitarEmojis(opt.texto);
         btn.onclick   = () => {
-            hablarNativo(opt.texto.replace(/[^\w\s]/gi,''));
+            hablarNativo(quitarEmojis(opt.texto));
             setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), 600);
         };
         wrapper.appendChild(btn);
@@ -942,6 +951,7 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
 
     window.escenarioAdultoActivo = { titulo:esc.titulo, prompt:esc.prompt, systemInfo:esc.systemInfo };
+    window._lastAIReply = esc.prompt;
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
     document.getElementById('escenario-titulo').innerText = `${s.icon||''} ${esc.titulo}`;
     document.getElementById('chat-prompt').innerText = `"${esc.prompt}"`;
@@ -1344,6 +1354,7 @@ window.generarEscenarioSorpresaAI = async function() {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario' };
+        window._lastAIReply = data.ai_opening;
         document.getElementById('escenario-titulo').innerText = `🎲 ${data.setup_title}`;
         document.getElementById('chat-prompt').innerHTML = `
             <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
@@ -1390,6 +1401,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP earned!</p>
             </div>`;
         window.escenarioAdultoActivo.prompt = data.reply;
+        window._lastAIReply = data.reply;
         document.getElementById('chat-prompt').innerHTML = `
             <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
                 "${data.reply}" <span class="text-blue-300 text-[10px]">🌐</span>
