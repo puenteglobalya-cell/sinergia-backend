@@ -115,8 +115,9 @@ The traveler (level ${levelKey}) replied: "${textInput || ''}".
 Language guide: ${levelGuide}
 Continue with ONE natural follow-up line. Be encouraging in the feedback.
 XP: 75 if fluent and correct, 50 if understandable with small errors, 25 if very short or unclear.
+Also provide 3 short alternative phrases the traveler COULD have said better in this situation (in English, natural for level ${levelKey}). These are shown as suggestions to practice.
 Reply ONLY with this JSON, no extra text:
-{"reply": "your follow-up in English", "translation": "traducción al español de reply", "correction": "brief tip or compliment in Spanish", "xp": 50}`;
+{"reply": "your follow-up in English", "translation": "traducción al español de reply", "correction": "brief tip or compliment in Spanish", "xp": 50, "suggestions": ["phrase 1", "phrase 2", "phrase 3"]}`;
 
       const text = await llamarGemini(apiKey, prompt);
       return res.status(200).json(extraerJSON(text));

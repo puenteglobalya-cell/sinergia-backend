@@ -51,6 +51,12 @@
             75%       { transform: translateX(6px); }
         }
         .wrong-shake { animation: wrong-shake 0.35s ease-out; }
+
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up { animation: fade-in-up 0.3s ease-out; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
@@ -278,12 +284,22 @@
 
     <header class="max-w-4xl mx-auto w-full mb-5">
         <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="space-y-1.5">
-                <div class="flex items-center gap-2">
+            <div class="space-y-2 flex-1">
+                <div class="flex items-center gap-3">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
+                    <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
                 </div>
                 <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
+                <div id="adulto-nivel-progress" class="space-y-1 hidden">
+                    <div class="flex justify-between items-center">
+                        <span id="adulto-nivel-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-wide"></span>
+                        <span id="adulto-nivel-xp" class="text-[10px] font-bold text-blue-500"></span>
+                    </div>
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="adulto-nivel-fill" class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-700" style="width:0%"></div>
+                    </div>
+                </div>
             </div>
             <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-4 rounded-xl w-full md:w-72 shadow-sm">
                 <p class="font-extrabold text-slate-500 mb-3 uppercase tracking-widest text-[10px]">🏆 Family Leaderboard</p>
@@ -315,11 +331,15 @@
         <div id="zona-conversacion-adulto" class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hidden">
             <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3 flex justify-between items-center">
                 <h2 id="escenario-titulo" class="text-sm font-bold text-white tracking-wide">Scene</h2>
-                <button onclick="escucharEscenarioActual()" class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
-                    🔊 Listen
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="repetirEscena()" class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">↩ Try again</button>
+                    <button onclick="escucharEscenarioActual()" class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">🔊 Listen</button>
+                </div>
             </div>
-            <div class="p-5 space-y-4 bg-slate-50/60 min-h-[180px]">
+            <!-- Chat history (accumulated past turns) -->
+            <div id="chat-history" class="hidden max-h-52 overflow-y-auto px-5 pt-4 pb-2 space-y-3 border-b border-slate-100 bg-slate-50/30"></div>
+            <!-- Current exchange -->
+            <div class="p-5 space-y-4 bg-slate-50/60 min-h-[160px]">
                 <div class="flex items-end gap-3">
                     <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
                     <div class="slide-left max-w-xs md:max-w-sm">
@@ -335,13 +355,18 @@
                 <div id="ai-evaluation-wrapper" class="hidden">
                     <div class="flex items-end gap-3">
                         <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
-                        <div class="slide-left max-w-xs md:max-w-sm">
+                        <div class="slide-left max-w-xs md:max-w-sm w-full">
                             <div id="ai-evaluation" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
                         </div>
                     </div>
+                    <!-- Suggestion chips (shown when xp < 50) -->
+                    <div id="suggestion-chips" class="hidden mt-3 ml-11 space-y-2">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">💡 Try saying:</p>
+                        <div id="suggestion-list" class="flex flex-wrap gap-2"></div>
+                    </div>
                 </div>
             </div>
-            <div class="px-5 py-7 bg-white border-t border-slate-100 flex flex-col items-center gap-4">
+            <div class="px-5 py-6 bg-white border-t border-slate-100 flex flex-col items-center gap-4">
                 <div class="relative flex items-center justify-center h-24 w-24">
                     <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-red-400/20 hidden mic-wave"></div>
                     <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-red-400/15 hidden mic-wave-2"></div>
@@ -829,11 +854,16 @@ function wmComplete() {
 }
 
 window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
-    perfil1: { id:'perfil1', nombre:'Juliana',     tipo:'infantil', nivel:'Starter',            score:0, racha:0, misionIndex:0 },
-    perfil2: { id:'perfil2', nombre:'Emilia',      tipo:'infantil', nivel:'Elementary',         score:0, racha:0, misionIndex:0 },
-    perfil3: { id:'perfil3', nombre:'María Elena', tipo:'adulto',   nivel:'Pre-Intermediate',   score:0 },
-    perfil4: { id:'perfil4', nombre:'Maxi',        tipo:'adulto',   nivel:'Upper-Intermediate', score:0 }
+    perfil1: { id:'perfil1', nombre:'Juliana',     tipo:'infantil', nivel:'Starter',            score:0, racha:0, misionIndex:0, temaProgress:{} },
+    perfil2: { id:'perfil2', nombre:'Emilia',      tipo:'infantil', nivel:'Elementary',         score:0, racha:0, misionIndex:0, temaProgress:{} },
+    perfil3: { id:'perfil3', nombre:'María Elena', tipo:'adulto',   nivel:'Pre-Intermediate',   score:0, racha:0 },
+    perfil4: { id:'perfil4', nombre:'Maxi',        tipo:'adulto',   nivel:'Upper-Intermediate', score:0, racha:0 }
 };
+// Migrate old profiles that lack temaProgress / racha
+Object.values(window.familia).forEach(p => {
+    if (!p.temaProgress) p.temaProgress = {};
+    if (p.racha === undefined) p.racha = 0;
+});
 
 window.perfilActualId   = 'perfil1';
 window.voiceIndexSeleccionada = 0;
@@ -850,10 +880,49 @@ const bancoEscenariosFijos = {
 
 function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
 
-function obtenerPregunta(idTema, misionIndex) {
+function obtenerPregunta(idTema, temaIdx) {
     const banco = MISIONES[idTema];
-    const tier  = (misionIndex >= 4) ? banco.tier2 : banco.tier1;
-    return tier[misionIndex % tier.length];
+    const tier  = (temaIdx >= 4) ? banco.tier2 : banco.tier1;
+    return tier[temaIdx % tier.length];
+}
+
+const NIVEL_XP = { 'Starter':0, 'Elementary':200, 'Pre-Intermediate':500, 'Intermediate':1000, 'Upper-Intermediate':2000, 'Advanced':4000 };
+const NIVEL_KEYS = Object.keys(NIVEL_XP);
+function actualizarNivelAdulto(p) {
+    const badge = document.getElementById('adulto-racha-badge');
+    const rachaN = document.getElementById('adulto-racha-num');
+    if (badge && rachaN) {
+        rachaN.innerText = p.racha;
+        badge.classList.toggle('hidden', p.racha < 2);
+    }
+    const bar = document.getElementById('adulto-nivel-progress');
+    if (!bar) return;
+    const nivelIdx = NIVEL_KEYS.indexOf(p.nivel);
+    if (nivelIdx < 0) return;
+    bar.classList.remove('hidden');
+    const xpActual  = p.score;
+    const xpInicio  = NIVEL_XP[p.nivel] || 0;
+    const xpSig     = NIVEL_XP[NIVEL_KEYS[nivelIdx + 1]] || (xpInicio + 500);
+    const pct       = Math.min(100, Math.round((xpActual - xpInicio) / (xpSig - xpInicio) * 100));
+    document.getElementById('adulto-nivel-label').innerText = p.nivel + ' → ' + (NIVEL_KEYS[nivelIdx+1]||'Master');
+    document.getElementById('adulto-nivel-xp').innerText    = `${xpActual} / ${xpSig} XP`;
+    document.getElementById('adulto-nivel-fill').style.width = pct + '%';
+}
+
+function actualizarBadgesTemas(p) {
+    Object.keys(MISIONES).forEach(tema => {
+        const btn = document.querySelector(`[onclick="seleccionarTematica('${tema}')"]`);
+        if (!btn) return;
+        const idx = p.temaProgress[tema] || 0;
+        const badge = btn.querySelector('.tema-badge') || (() => {
+            const b = document.createElement('span');
+            b.className = 'tema-badge absolute top-1 right-1 text-xs';
+            btn.style.position = 'relative';
+            btn.appendChild(b);
+            return b;
+        })();
+        badge.innerText = idx >= 8 ? '👑' : idx >= 4 ? '⭐' : '';
+    });
 }
 
 function actualizarBarraProgreso(p) {
@@ -881,11 +950,13 @@ window.cambiarPerfil = function(id) {
         document.getElementById('saludo-nena').innerText  = `Hello, ${p.nombre}! 👋`;
         document.getElementById('nivel-nena-tag').innerText = `Level: ${p.nivel}`;
         actualizarBarraProgreso(p);
+        actualizarBadgesTemas(p);
         window.volverATematicas();
     } else {
         document.getElementById('vista-adultos').classList.remove('hidden');
         document.getElementById('subtitulo-adulto').innerText = `${p.nombre} · ${p.nivel}`;
         document.getElementById('zona-conversacion-adulto').classList.add('hidden');
+        actualizarNivelAdulto(p);
         window.cargarEscenarioFijoAdulto('airport');
     }
 
@@ -902,20 +973,24 @@ window.cambiarPerfil = function(id) {
 };
 
 window.seleccionarTematica = function(idTema) {
-    const p    = window.familia[window.perfilActualId];
-    const tema = obtenerPregunta(idTema, p.misionIndex);
+    const p      = window.familia[window.perfilActualId];
+    const temaIdx = p.temaProgress[idTema] || 0;
+    const tema   = obtenerPregunta(idTema, temaIdx);
 
     document.getElementById('panel-tematicas').classList.add('hidden');
-    document.getElementById('zona-mision').classList.remove('hidden');
-    document.getElementById('mision-categoria-titulo').innerText = idTema.toUpperCase() + (p.misionIndex >= 4 ? ' ⚡' : '');
-    document.getElementById('mision-pregunta-texto').innerText   = tema.pregunta;
-    document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
+    const zonaEl = document.getElementById('zona-mision');
+    zonaEl.classList.remove('hidden');
+    zonaEl.classList.add('fade-in-up');
+    setTimeout(() => zonaEl.classList.remove('fade-in-up'), 400);
+
+    document.getElementById('mision-categoria-titulo').innerText = idTema.toUpperCase() + (temaIdx >= 4 ? ' ⚡' : '');
     document.getElementById('feedback-nena').classList.add('hidden');
 
     const qEl = document.getElementById('mision-pregunta-texto');
-    qEl.innerText  = tema.pregunta;
+    qEl.innerText    = tema.pregunta;
     qEl.style.cursor = 'pointer';
-    qEl.onclick    = () => hablarNativo(tema.audioText);
+    qEl.onclick      = () => hablarNativo(tema.audioText);
+    document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
 
     const contenedor = document.getElementById('contenedor-respuestas');
     contenedor.innerHTML = '';
@@ -939,6 +1014,7 @@ window.seleccionarTematica = function(idTema) {
 window.volverATematicas = function() {
     document.getElementById('zona-mision').classList.add('hidden');
     document.getElementById('panel-tematicas').classList.remove('hidden');
+    actualizarBadgesTemas(window.familia[window.perfilActualId]);
 };
 
 window.cargarEscenarioFijoAdulto = function(idEsc) {
@@ -952,19 +1028,38 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     const active = document.getElementById(`btn-esc-${idEsc}`);
     if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
 
-    window.escenarioAdultoActivo = { titulo:esc.titulo, prompt:esc.prompt, systemInfo:esc.systemInfo };
+    window.escenarioAdultoActivo = { titulo:esc.titulo, prompt:esc.prompt, systemInfo:esc.systemInfo, initialPrompt:esc.prompt };
     window._lastAIReply = esc.prompt;
+    limpiarHistorialChat();
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
     document.getElementById('escenario-titulo').innerText = `${s.icon||''} ${esc.titulo}`;
     document.getElementById('chat-prompt').innerText = `"${esc.prompt}"`;
     document.getElementById('user-transcript-wrapper').classList.add('hidden');
     document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+    document.getElementById('suggestion-chips').classList.add('hidden');
     setTimeout(() => hablarNativo(esc.prompt), 200);
 };
 
 window.toggleConfigPanel    = function() { document.getElementById('config-panel').classList.toggle('hidden'); };
 window.cambiarVozSistema    = function() { window.voiceIndexSeleccionada = parseInt(document.getElementById('voice-selector').value)||0; };
 window.escucharEscenarioActual = function() { hablarNativo(window.escenarioAdultoActivo.prompt); };
+
+function limpiarHistorialChat() {
+    const h = document.getElementById('chat-history');
+    if (h) { h.innerHTML = ''; h.classList.add('hidden'); }
+}
+
+window.repetirEscena = function() {
+    const esc = window.escenarioAdultoActivo;
+    limpiarHistorialChat();
+    window.escenarioAdultoActivo.prompt = esc.initialPrompt || esc.prompt;
+    window._lastAIReply = window.escenarioAdultoActivo.prompt;
+    document.getElementById('chat-prompt').innerText = `"${window.escenarioAdultoActivo.prompt}"`;
+    document.getElementById('user-transcript-wrapper').classList.add('hidden');
+    document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+    document.getElementById('suggestion-chips').classList.add('hidden');
+    hablarNativo(window.escenarioAdultoActivo.prompt);
+};
 
 function inicializarVoces() {
     if (!('speechSynthesis' in window)) return;
@@ -1055,15 +1150,21 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
     const p = window.familia[window.perfilActualId];
     f.classList.remove('hidden','bg-emerald-50','text-emerald-700','border-emerald-300','bg-rose-50','text-rose-700','border-rose-300');
 
+    if (!p.temaProgress) p.temaProgress = {};
+    const temaIdx = p.temaProgress[idTema] || 0;
+
     if (esCorrecto) {
         btn.classList.add('bg-emerald-100','border-emerald-400','correct-ring');
-        f.innerText = p.misionIndex >= 4 ? '⚡ Amazing! Level 2 complete!' : '✨ Brilliant! Well done!';
+        f.innerText = temaIdx >= 4 ? '⚡ Amazing! Level 2 complete!' : '✨ Brilliant! Well done!';
         f.classList.add('bg-emerald-50','text-emerald-700','border-emerald-300');
         lanzarEstrellas();
         p.score      += 50;
+        p.racha       = (p.racha || 0) + 1;
         p.misionIndex += 1;
+        p.temaProgress[idTema] = temaIdx + 1;
         guardarEstado();
         document.getElementById('puntos-nena').innerText = p.score + ' XP';
+        document.getElementById('racha-nena').innerText  = p.racha;
         actualizarBarraProgreso(p);
         hablarNativo(p.misionIndex % 4 === 0 ? 'Brilliant! Get ready for the bonus game!' : 'Brilliant! Well done!');
 
@@ -1074,10 +1175,14 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
             setTimeout(() => window.seleccionarTematica(idTema), 1900);
         }
     } else {
+        p.racha = 0;
+        document.getElementById('racha-nena').innerText = 0;
+        guardarEstado();
         btn.classList.add('bg-rose-100','border-rose-400');
         setTimeout(() => btn.classList.remove('bg-rose-100','border-rose-400'), 900);
         f.innerText = '🔍 Try again — listen carefully!';
         f.classList.add('bg-rose-50','text-rose-700','border-rose-300');
+        hablarNativo('Oops! Try again!');
     }
     actualizarLeaderboardUI();
 }
@@ -1345,9 +1450,11 @@ window.cerrarShadowing = function() {
 <script type="text/javascript">
 window.generarEscenarioSorpresaAI = async function() {
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
+    limpiarHistorialChat();
     document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Preparing your scene…</span>";
     document.getElementById('user-transcript-wrapper').classList.add('hidden');
     document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+    document.getElementById('suggestion-chips').classList.add('hidden');
     try {
         const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
             method:'POST', headers:{'Content-Type':'application/json'},
@@ -1355,7 +1462,7 @@ window.generarEscenarioSorpresaAI = async function() {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario' };
+        window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario', initialPrompt: data.ai_opening };
         window._lastAIReply = data.ai_opening;
         document.getElementById('escenario-titulo').innerText = `🎲 ${data.setup_title}`;
         document.getElementById('chat-prompt').innerHTML = `
@@ -1374,6 +1481,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
     const p = window.familia[window.perfilActualId];
     document.getElementById('user-transcript').innerText = textoVozReal;
     document.getElementById('user-transcript-wrapper').classList.remove('hidden');
+    document.getElementById('suggestion-chips').classList.add('hidden');
     const evalWrapper = document.getElementById('ai-evaluation-wrapper');
     const evalDiv     = document.getElementById('ai-evaluation');
     evalDiv.innerHTML = "<span class='text-blue-400 animate-pulse text-xs'>Analysing…</span>";
@@ -1389,6 +1497,18 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
+
+        // Update XP and streak
+        p.score += data.xp;
+        if (data.xp >= 50) {
+            p.racha = (p.racha || 0) + 1;
+        } else {
+            p.racha = 0;
+        }
+        guardarEstado();
+        actualizarLeaderboardUI();
+        actualizarNivelAdulto(p);
+
         evalDiv.innerHTML = `
             <p class="font-medium leading-relaxed cursor-pointer select-none"
                onclick="this.nextElementSibling.classList.toggle('hidden')"
@@ -1400,8 +1520,42 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                     <p class="text-amber-700 text-xs font-bold">✏️ ${data.correction}</p>
                 </div>
-                <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP earned!</p>
+                <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP${p.racha >= 2 ? ` · 🔥 ${p.racha} streak!` : ''}</p>
             </div>`;
+
+        // Suggestions when xp is low
+        const chips = document.getElementById('suggestion-chips');
+        const list  = document.getElementById('suggestion-list');
+        if (data.xp < 50 && data.suggestions && data.suggestions.length) {
+            list.innerHTML = '';
+            data.suggestions.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition-all active:scale-95';
+                btn.innerText = s;
+                btn.onclick = () => { hablarNativo(s); btn.classList.add('bg-indigo-100','border-indigo-400'); };
+                list.appendChild(btn);
+            });
+            chips.classList.remove('hidden');
+        } else {
+            chips.classList.add('hidden');
+        }
+
+        // Archive current user + eval to history before showing next prompt
+        const histDiv = document.getElementById('chat-history');
+        const initials = p.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const userBubble = document.getElementById('user-transcript').innerText;
+        const archiveNode = document.createElement('div');
+        archiveNode.className = 'space-y-2 opacity-60';
+        archiveNode.innerHTML = `
+            <div class="flex justify-end gap-2">
+                <div class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs max-w-xs">${userBubble}</div>
+                <div class="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">${initials}</div>
+            </div>`;
+        histDiv.appendChild(archiveNode);
+        histDiv.classList.remove('hidden');
+        histDiv.scrollTop = histDiv.scrollHeight;
+
+        // Update chat-prompt with new AI line
         window.escenarioAdultoActivo.prompt = data.reply;
         window._lastAIReply = data.reply;
         document.getElementById('chat-prompt').innerHTML = `
@@ -1410,9 +1564,6 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             </span>
             <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.translation || ''}</span>`;
         hablarNativo(data.reply);
-        p.score += data.xp;
-        guardarEstado();
-        actualizarLeaderboardUI();
     } catch(e) {
         evalDiv.innerText = 'Server error — check Vercel logs.';
         console.error(e);
