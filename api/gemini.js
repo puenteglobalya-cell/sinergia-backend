@@ -57,11 +57,11 @@ function extraerJSON(text) {
   return JSON.parse(match[0]);
 }
 
-async function llamarGemini(apiKey, systemPrompt, userPrompt) {
+async function llamarGemini(apiKey, systemPrompt, userPrompt, maxTokens = 1024) {
   const body = {
     system_instruction: { parts: [{ text: systemPrompt }] },
     contents: [{ parts: [{ text: userPrompt }] }],
-    generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+    generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens }
   };
   const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
@@ -129,7 +129,7 @@ Reply ONLY with this raw JSON object:
   {"role": "staff",    "text": "...", "translation": "traducción al español"},
   {"role": "traveler", "text": "...", "translation": "traducción al español"}
 ]}`;
-      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 2048);
       return res.status(200).json(extraerJSON(text));
     }
 
@@ -153,7 +153,7 @@ For lower levels (Starter/Elementary): use very simple vocabulary, short sentenc
 For higher levels: use natural sentence variety, idioms where appropriate, and richer vocabulary.
 Reply ONLY with this raw JSON object:
 {"title": "título del texto en español", "text": "The full English passage here as one continuous string. Four to six sentences."}`;
-      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 1024);
       return res.status(200).json(extraerJSON(text));
     }
 
