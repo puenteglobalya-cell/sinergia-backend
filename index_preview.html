@@ -93,6 +93,38 @@
     </div>
 </div>
 
+<!-- ═══ SHADOWING MODAL ═══ -->
+<div id="shadow-overlay" class="fixed inset-0 bg-slate-900/95 flex flex-col z-50 hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+        <div>
+            <h2 class="text-white font-extrabold text-lg">🎭 Shadowing</h2>
+            <p id="shadow-context" class="text-slate-400 text-xs mt-0.5"></p>
+        </div>
+        <button onclick="cerrarShadowing()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors">✕</button>
+    </div>
+    <div id="shadow-lines" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
+    <div id="shadow-mic-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
+        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3">Your turn — repeat the line</p>
+        <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-3 text-white font-medium text-sm text-center mb-4 cursor-pointer" onclick="shadowListenExpected()" title="Tap to hear it">
+        </div>
+        <div class="flex justify-center gap-4">
+            <button onclick="shadowListenExpected()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all">🔊 Hear it</button>
+            <button id="shadow-mic-btn" onclick="shadowToggleMic()" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
+                🎙️ Speak
+            </button>
+        </div>
+        <p id="shadow-mic-status" class="text-slate-400 text-xs text-center mt-2 font-semibold uppercase tracking-widest"></p>
+    </div>
+    <div id="shadow-result-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
+        <div class="text-center space-y-3">
+            <div class="text-5xl" id="shadow-trophy">🏆</div>
+            <p class="text-white font-extrabold text-xl" id="shadow-final-score"></p>
+            <p class="text-slate-400 text-sm" id="shadow-final-msg"></p>
+            <button onclick="cerrarShadowing()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-8 py-3 rounded-2xl text-sm mt-2 transition-all active:scale-95">Done ✓</button>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
 <div id="sb-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
     <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop">
@@ -268,9 +300,14 @@
                     <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Choose a scene</h3>
                     <p class="text-[11px] text-slate-400 mt-0.5">Pick a situation or let AI surprise you</p>
                 </div>
-                <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
-                    🎲 Random Scene
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                        🎲 Random Scene
+                    </button>
+                    <button onclick="iniciarShadowing()" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                        🎭 Shadowing
+                    </button>
+                </div>
             </div>
             <div id="grid-escenarios-adultos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
         </div>
@@ -1115,6 +1152,181 @@ renderizarConfiguracionPerfiles();
 renderizarBotonesPerfil();
 renderizarSelectorEscenariosAdultos();
 window.cambiarPerfil('perfil1');
+</script>
+
+<!-- ═══ SHADOWING LOGIC ═══ -->
+<script type="text/javascript">
+let shadowState = { lines: [], currentLine: 0, scores: [], recognition: null, listening: false };
+
+window.iniciarShadowing = async function() {
+    const p = window.familia[window.perfilActualId];
+    document.getElementById('shadow-overlay').classList.remove('hidden');
+    document.getElementById('shadow-lines').innerHTML = "<p class='text-slate-400 text-sm text-center animate-pulse py-8'>Generating conversation…</p>";
+    document.getElementById('shadow-mic-area').classList.add('hidden');
+    document.getElementById('shadow-result-area').classList.add('hidden');
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'generate_shadowing', level: p.nivel })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        shadowState = { lines: data.lines, currentLine: 0, scores: [], recognition: null, listening: false };
+        document.getElementById('shadow-context').innerText = data.title;
+        renderShadowLines();
+        setTimeout(() => playNextShadowLine(), 500);
+    } catch(e) {
+        document.getElementById('shadow-lines').innerHTML = `<p class='text-red-400 text-sm text-center py-8'>${e.message}</p>`;
+    }
+};
+
+function renderShadowLines() {
+    const container = document.getElementById('shadow-lines');
+    container.innerHTML = '';
+    shadowState.lines.forEach((line, i) => {
+        const isStaff = line.role === 'staff';
+        const div = document.createElement('div');
+        div.id = `shadow-line-${i}`;
+        div.className = `flex ${isStaff ? 'justify-start' : 'justify-end'} opacity-30 transition-all duration-500`;
+        div.innerHTML = `
+            <div class="max-w-xs space-y-1">
+                <p class="text-[10px] font-bold uppercase tracking-wide ${isStaff ? 'text-blue-400' : 'text-emerald-400'} ${isStaff ? '' : 'text-right'}">${isStaff ? '💼 Staff' : '🧳 You'}</p>
+                <div class="${isStaff ? 'bg-slate-700 text-white' : 'bg-emerald-900/60 text-emerald-100'} rounded-2xl px-4 py-3 text-sm font-medium" id="shadow-text-${i}">
+                    ${i === 0 ? line.text : '…'}
+                </div>
+                <p class="text-slate-500 text-xs italic px-1 hidden" id="shadow-trans-${i}">${line.translation}</p>
+                <p class="text-xs font-bold hidden" id="shadow-score-${i}"></p>
+            </div>`;
+        container.appendChild(div);
+    });
+}
+
+function activateShadowLine(i) {
+    const el = document.getElementById(`shadow-line-${i}`);
+    if (el) { el.classList.remove('opacity-30'); el.classList.add('opacity-100'); }
+    const textEl = document.getElementById(`shadow-text-${i}`);
+    if (textEl) textEl.innerText = shadowState.lines[i].text;
+    const transEl = document.getElementById(`shadow-trans-${i}`);
+    if (transEl) transEl.classList.remove('hidden');
+    document.getElementById('shadow-lines').scrollTop = document.getElementById('shadow-lines').scrollHeight;
+}
+
+async function playNextShadowLine() {
+    const i = shadowState.currentLine;
+    if (i >= shadowState.lines.length) { mostrarResultadoShadowing(); return; }
+    const line = shadowState.lines[i];
+    activateShadowLine(i);
+
+    if (line.role === 'staff') {
+        hablarNativo(line.text);
+        setTimeout(() => {
+            shadowState.currentLine++;
+            playNextShadowLine();
+        }, line.text.length * 60 + 1500);
+    } else {
+        document.getElementById('shadow-expected').innerText = line.text;
+        document.getElementById('shadow-mic-area').classList.remove('hidden');
+        document.getElementById('shadow-mic-status').innerText = '';
+        document.getElementById('shadow-lines').scrollTop = document.getElementById('shadow-lines').scrollHeight;
+    }
+}
+
+window.shadowListenExpected = function() {
+    hablarNativo(shadowState.lines[shadowState.currentLine].text);
+};
+
+window.shadowToggleMic = function() {
+    if (shadowState.listening) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert('Use Google Chrome for microphone support.'); return; }
+    const rec = new SR();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    shadowState.recognition = rec;
+    shadowState.listening = true;
+    const btn = document.getElementById('shadow-mic-btn');
+    btn.innerHTML = '🔴 Listening…';
+    btn.disabled = true;
+    document.getElementById('shadow-mic-status').innerText = 'Speak now…';
+
+    rec.onresult = async e => {
+        const said = e.results[0][0].transcript;
+        shadowState.listening = false;
+        btn.innerHTML = '⏳ Evaluating…';
+        await evaluarLineaShadowing(said);
+    };
+    rec.onerror = rec.onend = () => {
+        if (shadowState.listening) {
+            shadowState.listening = false;
+            btn.innerHTML = '🎙️ Speak';
+            btn.disabled = false;
+        }
+    };
+    rec.start();
+};
+
+async function evaluarLineaShadowing(said) {
+    const i = shadowState.currentLine;
+    const expected = shadowState.lines[i].text;
+    const p = window.familia[window.perfilActualId];
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'evaluate_shadowing', textInput: said, expected, level: p.nivel })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        shadowState.scores.push(data.score);
+
+        const scoreEl = document.getElementById(`shadow-score-${i}`);
+        const color = data.score >= 80 ? 'text-emerald-400' : data.score >= 50 ? 'text-amber-400' : 'text-rose-400';
+        if (scoreEl) {
+            scoreEl.className = `text-xs font-bold ${color}`;
+            scoreEl.innerText = `${data.score >= 80 ? '✅' : data.score >= 50 ? '⚠️' : '🔄'} ${data.score}/100 — ${data.feedback}`;
+            scoreEl.classList.remove('hidden');
+        }
+        if (data.tip) hablarNativo(data.tip);
+
+        document.getElementById('shadow-mic-area').classList.add('hidden');
+        const btn = document.getElementById('shadow-mic-btn');
+        btn.innerHTML = '🎙️ Speak';
+        btn.disabled = false;
+
+        shadowState.currentLine++;
+        setTimeout(() => playNextShadowLine(), 1200);
+    } catch(e) {
+        document.getElementById('shadow-mic-status').innerText = 'Error — try again';
+        const btn = document.getElementById('shadow-mic-btn');
+        btn.innerHTML = '🎙️ Speak';
+        btn.disabled = false;
+        shadowState.listening = false;
+    }
+}
+
+function mostrarResultadoShadowing() {
+    document.getElementById('shadow-mic-area').classList.add('hidden');
+    const avg = shadowState.scores.length
+        ? Math.round(shadowState.scores.reduce((a,b) => a+b, 0) / shadowState.scores.length)
+        : 0;
+    const trophy = avg >= 80 ? '🏆' : avg >= 50 ? '🥈' : '💪';
+    const msg    = avg >= 80 ? '¡Excelente pronunciación!' : avg >= 50 ? '¡Muy bien! Seguí practicando.' : '¡Buen intento! La práctica hace al maestro.';
+    document.getElementById('shadow-trophy').innerText = trophy;
+    document.getElementById('shadow-final-score').innerText = `Score: ${avg}/100`;
+    document.getElementById('shadow-final-msg').innerText = msg;
+    document.getElementById('shadow-result-area').classList.remove('hidden');
+
+    const p = window.familia[window.perfilActualId];
+    p.score += Math.round(avg / 2);
+    guardarEstado();
+    actualizarLeaderboardUI();
+    hablarNativo(avg >= 80 ? 'Excellent! Perfect shadowing!' : 'Good job! Keep practicing!');
+}
+
+window.cerrarShadowing = function() {
+    if (shadowState.recognition) { try { shadowState.recognition.stop(); } catch(e) {} }
+    shadowState.listening = false;
+    document.getElementById('shadow-overlay').classList.add('hidden');
+};
 </script>
 
 <!-- ═══ VERCEL CONNECTION ═══ -->
