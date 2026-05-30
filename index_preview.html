@@ -99,6 +99,42 @@
     </div>
 </div>
 
+<!-- ═══ NIVEL UP MODAL ═══ -->
+<div id="nivel-up-overlay" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] hidden">
+    <div class="bg-white rounded-3xl p-8 text-center space-y-4 shadow-2xl wm-pop max-w-xs mx-4">
+        <div class="text-6xl" id="nivel-up-icon">🚀</div>
+        <h2 class="text-2xl font-extrabold text-slate-800">¡Subiste de nivel!</h2>
+        <p id="nivel-up-msg" class="text-slate-500 text-sm leading-relaxed"></p>
+        <button onclick="document.getElementById('nivel-up-overlay').classList.add('hidden')" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold px-8 py-3 rounded-2xl w-full active:scale-95 transition-all">¡Genial! 🎉</button>
+    </div>
+</div>
+
+<!-- ═══ STORYTELLER MODAL ═══ -->
+<div id="storyteller-overlay" class="fixed inset-0 bg-slate-900/97 flex flex-col z-50 hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700 flex-shrink-0">
+        <div>
+            <h2 class="text-white font-extrabold text-lg">📖 Storyteller</h2>
+            <p id="storyteller-subtitle" class="text-slate-400 text-xs mt-0.5">Tap any word to hear it</p>
+        </div>
+        <button onclick="cerrarStoryteller()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-6 py-6">
+        <p id="storyteller-title" class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4"></p>
+        <div id="storyteller-text" class="text-white text-xl leading-loose font-medium select-none"></div>
+    </div>
+    <div class="px-5 py-5 bg-slate-800 border-t border-slate-700 flex-shrink-0 space-y-3">
+        <div class="flex gap-2 justify-center">
+            <button onclick="storytellerPlay(1.0)" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-1.5 active:scale-95 transition-all">▶ Play</button>
+            <button onclick="storytellerPlay(0.6)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-1.5 active:scale-95 transition-all">🐢 Slow</button>
+            <button onclick="storytellerStop()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-1.5 active:scale-95 transition-all">⏹ Stop</button>
+        </div>
+        <button onclick="cargarNuevoStory()" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-2.5 rounded-xl text-sm active:scale-95 transition-all">✨ New story</button>
+    </div>
+    <div id="storyteller-loading" class="absolute inset-0 bg-slate-900/90 flex items-center justify-center">
+        <p class="text-slate-300 text-sm animate-pulse">Generating story…</p>
+    </div>
+</div>
+
 <!-- ═══ SHADOWING MODAL ═══ -->
 <div id="shadow-overlay" class="fixed inset-0 bg-slate-900/95 flex flex-col z-50 hidden">
     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
@@ -267,9 +303,14 @@
                 <div class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-5 text-center border border-slate-100">
                     <h2 id="mision-pregunta-texto" class="text-xl font-extrabold text-slate-800 leading-snug">Question</h2>
                 </div>
-                <button id="btn-audio-infantil" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm active:scale-98 shadow-md">
-                    🔊 Listen again
-                </button>
+                <div class="flex gap-2">
+                    <button id="btn-audio-infantil" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm active:scale-95 shadow-md">
+                        🔊 Listen
+                    </button>
+                    <button id="btn-audio-lento" title="Slow speed" class="bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-2xl transition-all flex items-center justify-center text-xl active:scale-95 shadow-md">
+                        🐢
+                    </button>
+                </div>
                 <div id="contenedor-respuestas"></div>
                 <div id="stars-container" class="relative h-0 overflow-visible pointer-events-none"></div>
                 <div id="feedback-nena" class="hidden p-4 rounded-2xl text-center text-base font-bold border-2"></div>
@@ -316,12 +357,15 @@
                     <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Choose a scene</h3>
                     <p class="text-[11px] text-slate-400 mt-0.5">Pick a situation or let AI surprise you</p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
                         🎲 Random Scene
                     </button>
                     <button onclick="iniciarShadowing()" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
                         🎭 Shadowing
+                    </button>
+                    <button onclick="iniciarStoryteller()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                        📖 Storyteller
                     </button>
                 </div>
             </div>
@@ -940,6 +984,7 @@ function actualizarBarraProgreso(p) {
 window.cambiarPerfil = function(id) {
     window.perfilActualId = id;
     const p = window.familia[id];
+    p.scoreInicioSesion = p.score;
     document.getElementById('vista-infantil').classList.add('hidden');
     document.getElementById('vista-adultos').classList.add('hidden');
 
@@ -991,6 +1036,7 @@ window.seleccionarTematica = function(idTema) {
     qEl.style.cursor = 'pointer';
     qEl.onclick      = () => hablarNativo(tema.audioText);
     document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
+    document.getElementById('btn-audio-lento').onclick    = () => hablarNativo(tema.audioText, 0.55);
 
     const contenedor = document.getElementById('contenedor-respuestas');
     contenedor.innerHTML = '';
@@ -998,11 +1044,16 @@ window.seleccionarTematica = function(idTema) {
     const wrapper = document.createElement('div');
     wrapper.className = `grid ${cols} gap-3`;
     tema.opciones.forEach(opt => {
+        const { emoji, texto } = separarEmojiTexto(opt.texto);
         const btn = document.createElement('button');
-        btn.className = 'bg-white hover:scale-105 active:scale-95 p-5 rounded-3xl font-extrabold text-base shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800';
-        btn.innerText = quitarEmojis(opt.texto);
-        btn.onclick   = () => {
-            hablarNativo(quitarEmojis(opt.texto));
+        btn.className = 'select-none bg-white hover:scale-105 active:scale-95 p-4 rounded-3xl shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800 flex flex-col items-center justify-center gap-2 min-h-[96px]';
+        if (emoji) {
+            btn.innerHTML = `<span class="text-5xl leading-none">${emoji}</span><span class="font-extrabold text-sm leading-tight text-center">${texto}</span>`;
+        } else {
+            btn.innerHTML = `<span class="font-extrabold text-base leading-snug text-center px-1">${texto}</span>`;
+        }
+        btn.onclick = () => {
+            hablarNativo(texto || opt.texto);
             setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), 600);
         };
         wrapper.appendChild(btn);
@@ -1087,14 +1138,76 @@ function inicializarVoces() {
     if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = cargarVoces;
 }
 
-function hablarNativo(texto) {
+function hablarNativo(texto, rate = 0.85) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(texto);
     const v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
     if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
-    u.lang = 'en-US'; u.rate = 0.85;
+    u.lang = 'en-US'; u.rate = rate;
     window.speechSynthesis.speak(u);
+}
+
+function playFX(tipo) {
+    try {
+        const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (tipo === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.12);
+            osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.24);
+            gain.gain.setValueAtTime(0.28, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.18, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        }
+        setTimeout(() => ctx.close(), 600);
+    } catch(e) {}
+}
+
+function separarEmojiTexto(str) {
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
+    const match = str.match(emojiRegex);
+    return { emoji: match ? match[0] : '', texto: quitarEmojis(str) };
+}
+
+const NIVEL_ORDEN = ['Starter','Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate','Advanced'];
+
+function verificarAutoNivelacion(p) {
+    const nivelIdx = NIVEL_ORDEN.indexOf(p.nivel);
+    if (nivelIdx < 0 || nivelIdx >= NIVEL_ORDEN.length - 1) return;
+    const sessionGain = p.score - (p.scoreInicioSesion || p.score);
+    if (p.racha < 3 && sessionGain < 150) return;
+    const nuevoNivel = NIVEL_ORDEN[nivelIdx + 1];
+    p.nivel = nuevoNivel;
+    p.racha = 0;
+    p.scoreInicioSesion = p.score;
+    guardarEstado();
+    renderizarConfiguracionPerfiles();
+    const msg = document.getElementById('nivel-up-msg');
+    const icon = document.getElementById('nivel-up-icon');
+    if (msg) msg.innerText = `${p.nombre} ahora practica en nivel "${nuevoNivel}". ¡Sigue así!`;
+    if (icon) icon.innerText = p.tipo === 'infantil' ? '🌟' : '🚀';
+    document.getElementById('nivel-up-overlay').classList.remove('hidden');
+    if (p.tipo === 'adulto') {
+        document.getElementById('subtitulo-adulto').innerText = `${p.nombre} · ${p.nivel}`;
+        actualizarNivelAdulto(p);
+    } else {
+        document.getElementById('nivel-nena-tag').innerText = `Level: ${p.nivel}`;
+        document.getElementById('racha-nena').innerText = 0;
+    }
 }
 
 function inicializarReconocimientoVoz() {
@@ -1167,6 +1280,7 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
     const temaIdx = p.temaProgress[idTema] || 0;
 
     if (esCorrecto) {
+        playFX('correct');
         btn.classList.add('bg-emerald-100','border-emerald-400','correct-ring');
         f.innerText = temaIdx >= 4 ? '⚡ Amazing! Level 2 complete!' : '✨ Brilliant! Well done!';
         f.classList.add('bg-emerald-50','text-emerald-700','border-emerald-300');
@@ -1179,6 +1293,7 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         document.getElementById('puntos-nena').innerText = p.score + ' XP';
         document.getElementById('racha-nena').innerText  = p.racha;
         actualizarBarraProgreso(p);
+        verificarAutoNivelacion(p);
         hablarNativo(p.misionIndex % 4 === 0 ? 'Brilliant! Get ready for the bonus game!' : 'Brilliant! Well done!');
 
         if (p.misionIndex % 4 === 0) {
@@ -1188,6 +1303,7 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
             setTimeout(() => window.seleccionarTematica(idTema), 1900);
         }
     } else {
+        playFX('wrong');
         p.racha = 0;
         document.getElementById('racha-nena').innerText = 0;
         guardarEstado();
@@ -1463,6 +1579,111 @@ window.cerrarShadowing = function() {
 };
 </script>
 
+<!-- ═══ STORYTELLER LOGIC ═══ -->
+<script type="text/javascript">
+let _storyText   = '';
+let _storyWords  = [];
+let _storyUtter  = null;
+let _storyActive = -1;
+
+window.iniciarStoryteller = function() {
+    document.getElementById('storyteller-overlay').classList.remove('hidden');
+    cargarNuevoStory();
+};
+
+window.cargarNuevoStory = async function() {
+    const p = window.familia[window.perfilActualId];
+    const loadEl = document.getElementById('storyteller-loading');
+    loadEl.classList.remove('hidden');
+    storytellerStop();
+    try {
+        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'generate_story', level: p.nivel })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        _storyText = data.text;
+        document.getElementById('storyteller-title').innerText = data.title || '';
+        document.getElementById('storyteller-subtitle').innerText = 'Tap any word to hear it · Press Play for full read-aloud';
+        renderizarStoryteller(_storyText);
+    } catch(e) {
+        document.getElementById('storyteller-text').innerText = 'Error loading story. Check connection.';
+    } finally {
+        loadEl.classList.add('hidden');
+    }
+};
+
+function renderizarStoryteller(text) {
+    const container = document.getElementById('storyteller-text');
+    let charPos = 0;
+    _storyWords = text.split(/(\s+)/).map((token, i) => {
+        const start = charPos;
+        charPos += token.length;
+        return { token, start, isWord: /\S/.test(token), idx: i };
+    });
+    container.innerHTML = _storyWords.map(d => {
+        if (!d.isWord) return d.token.replace(/\n/g, '<br>');
+        const safe = d.token.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+        return `<span id="st-${d.idx}" class="story-word transition-all duration-75 rounded px-0.5 cursor-pointer" onclick="hablarNativo('${safe}', 0.8)">${d.token}</span>`;
+    }).join('');
+    _storyActive = -1;
+}
+
+window.storytellerPlay = function(rate = 1.0) {
+    if (!_storyText) return;
+    storytellerStop();
+    const u = new SpeechSynthesisUtterance(_storyText);
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
+    u.lang = 'en-US';
+    u.rate = rate;
+
+    const wordTokens = _storyWords.filter(d => d.isWord);
+
+    u.onboundary = e => {
+        if (e.name !== 'word') return;
+        const charIdx = e.charIndex;
+        const found = wordTokens.find(d => charIdx >= d.start && charIdx < d.start + d.token.length);
+        if (!found) return;
+        if (_storyActive >= 0) {
+            const prev = document.getElementById(`st-${_storyActive}`);
+            if (prev) prev.className = 'story-word transition-all duration-75 rounded px-0.5 cursor-pointer';
+        }
+        _storyActive = found.idx;
+        const el = document.getElementById(`st-${_storyActive}`);
+        if (el) {
+            el.className = 'story-word bg-yellow-300 text-slate-900 font-bold transition-all duration-75 rounded px-0.5 cursor-pointer';
+            el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+        }
+    };
+    u.onend = u.onerror = () => {
+        if (_storyActive >= 0) {
+            const prev = document.getElementById(`st-${_storyActive}`);
+            if (prev) prev.className = 'story-word transition-all duration-75 rounded px-0.5 cursor-pointer';
+            _storyActive = -1;
+        }
+    };
+    _storyUtter = u;
+    window.speechSynthesis.speak(u);
+};
+
+window.storytellerStop = function() {
+    window.speechSynthesis.cancel();
+    if (_storyActive >= 0) {
+        const prev = document.getElementById(`st-${_storyActive}`);
+        if (prev) prev.className = 'story-word transition-all duration-75 rounded px-0.5 cursor-pointer';
+        _storyActive = -1;
+    }
+    _storyUtter = null;
+};
+
+window.cerrarStoryteller = function() {
+    storytellerStop();
+    document.getElementById('storyteller-overlay').classList.add('hidden');
+};
+</script>
+
 <!-- ═══ VERCEL CONNECTION ═══ -->
 <script type="text/javascript">
 window.generarEscenarioSorpresaAI = async function() {
@@ -1525,6 +1746,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         guardarEstado();
         actualizarLeaderboardUI();
         actualizarNivelAdulto(p);
+        verificarAutoNivelacion(p);
 
         evalDiv.innerHTML = `
             <p class="font-medium leading-relaxed cursor-pointer select-none"

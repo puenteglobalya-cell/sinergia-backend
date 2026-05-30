@@ -145,6 +145,18 @@ Reply ONLY with this raw JSON object:
       return res.status(200).json(extraerJSON(text));
     }
 
+    if (action === 'generate_story') {
+      const prompt = `Generate a short English reading passage for a language learner at level ${levelKey}.
+${levelGuide}
+Write 4 to 6 natural sentences. Make it engaging and thematically relevant to travel or daily life.
+For lower levels (Starter/Elementary): use very simple vocabulary, short sentences, familiar words.
+For higher levels: use natural sentence variety, idioms where appropriate, and richer vocabulary.
+Reply ONLY with this raw JSON object:
+{"title": "título del texto en español", "text": "The full English passage here as one continuous string. Four to six sentences."}`;
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt);
+      return res.status(200).json(extraerJSON(text));
+    }
+
     if (action === 'evaluate_voice') {
       const strictness = isKids
         ? 'Prioritise fluency and approximate phonetics. Be very encouraging. Accept near-correct answers.'
