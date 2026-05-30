@@ -9,6 +9,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+        * { -webkit-tap-highlight-color: transparent; }
+        body { overscroll-behavior: none; }
+        /* iOS safe areas */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
         @keyframes mic-wave {
             0%   { transform: scale(1); opacity: 0.5; }
             100% { transform: scale(2.4); opacity: 0; }
@@ -62,41 +67,42 @@
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
 
 <!-- TOP BAR -->
-<div class="bg-slate-900 px-4 py-3 flex flex-wrap justify-between items-center gap-3 shadow-lg">
-    <div class="flex items-center gap-3">
-        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse hidden sm:block"></span>
-        <div id="profile-buttons-container" class="flex gap-2 flex-wrap"></div>
+<div class="bg-slate-900 px-4 py-3 flex justify-between items-center gap-3 shadow-lg">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 hidden sm:block"></span>
+        <div id="profile-buttons-container" class="flex gap-1.5 flex-wrap min-w-0"></div>
     </div>
-    <button onclick="toggleConfigPanel()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors text-xs flex items-center gap-1.5">
-        ⚙️ <span class="hidden sm:inline">Settings</span>
-    </button>
+    <div class="flex gap-2 flex-shrink-0">
+        <button onclick="abrirBibliotecaDirecta()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 active:scale-95 transition-all">📚 <span class="hidden sm:inline">Cuentos</span></button>
+        <button onclick="toggleConfigPanel()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 active:scale-95 transition-all border border-slate-600">⚙️ <span class="hidden sm:inline">Settings</span></button>
+    </div>
 </div>
 
 <!-- CONFIG PANEL -->
-<div id="config-panel" class="bg-white border-b border-slate-200 p-6 shadow-xl hidden">
-    <div class="max-w-5xl mx-auto space-y-6">
+<div id="config-panel" class="bg-white border-b border-slate-200 shadow-xl hidden">
+    <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-5">
         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">⚙️ Profile Settings</h3>
-            <button onclick="toggleConfigPanel()" class="text-slate-400 hover:text-slate-600 text-sm">✕ Close</button>
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">⚙️ Settings</h3>
+            <button onclick="toggleConfigPanel()" class="text-slate-400 hover:text-slate-600 font-bold text-lg w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors">✕</button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">English Voice</label>
-                <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-xs p-2.5 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200"></select>
-                <div class="flex flex-wrap gap-1.5 mt-2" id="voice-preset-btns"></div>
-                <p class="text-[10px] text-slate-400 mt-1">Presets eligen la voz más cercana al acento disponible en tu dispositivo</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="space-y-3">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">🎙 English Voice</label>
+                <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-sm p-3 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300"></select>
+                <div class="flex flex-wrap gap-2 mt-1" id="voice-preset-btns"></div>
+                <p class="text-xs text-slate-400">Presets eligen la voz más cercana al acento en tu dispositivo</p>
             </div>
-            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
+            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide">AI Engine</p>
-                    <p class="text-[11px] text-emerald-600 mt-0.5">API Key secured in Vercel environment.</p>
+                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide">Adaptive Engine</p>
+                    <p class="text-xs text-emerald-600 mt-1 leading-relaxed">Sube de nivel automáticamente tras 3 aciertos seguidos.</p>
                 </div>
-                <span class="text-emerald-600 font-bold text-lg">🛡️</span>
+                <span class="text-3xl ml-3">🛡️</span>
             </div>
         </div>
         <div class="space-y-3">
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">Level per Profile</label>
-            <div id="profiles-config-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">Nivel por Perfil</label>
+            <div id="profiles-config-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
         </div>
     </div>
 </div>
@@ -114,32 +120,32 @@
 <!-- ═══ STORYTELLER MODAL ═══ -->
 <div id="storyteller-overlay" class="fixed inset-0 flex flex-col z-[200]" style="background:#0f172a;display:none;">
     <!-- Header -->
-    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700 flex-shrink-0" style="background:#0f172a;">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl">📖</span>
-            <div>
-                <h2 class="text-white font-extrabold text-lg leading-none">Storyteller</h2>
-                <p class="text-slate-400 text-[11px] mt-0.5">Tocá cualquier palabra para escucharla</p>
+    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 flex-shrink-0" style="background:#0f172a;">
+        <div class="flex items-center gap-2 min-w-0">
+            <span class="text-xl flex-shrink-0">📖</span>
+            <div class="min-w-0">
+                <h2 class="text-white font-extrabold text-base leading-none">Storyteller</h2>
+                <p class="text-slate-400 text-xs mt-0.5 truncate">Tocá una palabra para escucharla y traducirla</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="mostrarBiblioteca()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-white font-bold px-3 py-1.5 rounded-lg transition-colors">📚 Biblioteca</button>
-            <button onclick="cerrarStoryteller()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors leading-none">✕</button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="mostrarBiblioteca()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold px-3 py-2 rounded-xl text-xs transition-colors active:scale-95">📚 <span class="hidden sm:inline">Biblioteca</span></button>
+            <button onclick="cerrarStoryteller()" class="text-slate-400 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl text-xl font-bold transition-colors hover:bg-slate-800">✕</button>
         </div>
     </div>
     <!-- Story area -->
-    <div class="flex-1 overflow-y-auto px-6 py-6" style="background:#0f172a;">
-        <p id="storyteller-category" class="text-amber-400 text-[10px] font-extrabold uppercase tracking-widest mb-1"></p>
-        <p id="storyteller-title" class="text-white text-xl font-extrabold mb-5"></p>
-        <div id="storyteller-text" class="select-none leading-loose" style="font-size:1.15rem;color:#e2e8f0;line-height:2.2;font-family:'Plus Jakarta Sans',sans-serif;"></div>
+    <div class="flex-1 overflow-y-auto px-4 py-5 md:px-8" style="background:#0f172a;">
+        <p id="storyteller-category" class="text-amber-400 text-xs font-extrabold uppercase tracking-widest mb-1"></p>
+        <p id="storyteller-title" class="text-white text-lg md:text-xl font-extrabold mb-4"></p>
+        <div id="storyteller-text" class="select-none" style="font-size:clamp(1rem,4vw,1.2rem);color:#e2e8f0;line-height:2.3;font-family:'Plus Jakarta Sans',sans-serif;"></div>
     </div>
     <!-- Controls -->
-    <div class="flex-shrink-0 border-t border-slate-700 px-5 py-4 space-y-3" style="background:#1e293b;">
-        <div class="flex gap-2 justify-center flex-wrap">
-            <button onclick="storytellerPlay()" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5">▶ Play</button>
-            <button onclick="storytellerStop()" class="text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95 transition-all flex items-center gap-1.5" style="background:#334155;">⏹ Stop</button>
+    <div class="flex-shrink-0 border-t border-slate-700 px-4 py-4 pb-safe space-y-3" style="background:#1e293b;">
+        <div class="flex gap-2 justify-center">
+            <button onclick="storytellerPlay()" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold px-6 py-3 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2">▶ Play</button>
+            <button onclick="storytellerStop()" class="bg-slate-600 hover:bg-slate-500 text-white font-bold px-6 py-3 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2">⏹ Stop</button>
         </div>
-        <div class="space-y-1 px-1">
+        <div class="space-y-2 px-1">
             <div class="flex justify-between items-center">
                 <span class="text-slate-400 text-xs">🐢 Lento</span>
                 <span id="spd-label" class="text-blue-400 text-xs font-bold">1×</span>
@@ -147,17 +153,15 @@
             </div>
             <input id="story-speed-slider" type="range" min="0.4" max="1.4" step="0.05" value="1.0"
                 oninput="setStorySpeed(parseFloat(this.value))"
-                class="w-full h-2 rounded-full appearance-none cursor-pointer"
-                style="accent-color:#3b82f6;background:linear-gradient(to right,#3b82f6 43%,#334155 43%)">
+                class="w-full rounded-full appearance-none cursor-pointer"
+                style="height:20px;accent-color:#3b82f6;background:linear-gradient(to right,#3b82f6 43%,#334155 43%)">
         </div>
-        <div class="flex gap-2">
-            <button onclick="cargarNuevoStory()" class="flex-1 font-bold py-2.5 rounded-xl text-sm active:scale-95 transition-all text-white" style="background:#7c3aed;">✨ IA: Nuevo cuento</button>
-        </div>
+        <button onclick="cargarNuevoStory()" class="w-full font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all text-white" style="background:#7c3aed;">✨ IA: Nuevo cuento</button>
     </div>
     <!-- Loading overlay -->
     <div id="storyteller-loading" class="absolute inset-0 flex items-center justify-center" style="background:rgba(15,23,42,0.93);display:none!important;">
-        <div class="text-center space-y-2">
-            <div class="text-4xl animate-bounce">📖</div>
+        <div class="text-center space-y-3">
+            <div class="text-5xl animate-bounce">📖</div>
             <p class="text-slate-300 text-sm font-semibold">Generando historia…</p>
         </div>
     </div>
@@ -165,84 +169,84 @@
 
 <!-- ═══ STORYTELLER LIBRARY MODAL ═══ -->
 <div id="library-overlay" class="fixed inset-0 flex flex-col z-[210]" style="background:rgba(15,23,42,0.97);display:none;">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700 flex-shrink-0">
+    <div class="flex items-center justify-between px-4 py-4 border-b border-slate-700 flex-shrink-0">
         <h2 class="text-white font-extrabold text-lg">📚 Biblioteca</h2>
-        <button onclick="cerrarBiblioteca()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors">✕</button>
+        <button onclick="cerrarBiblioteca()" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl font-bold transition-colors hover:bg-slate-800">✕</button>
     </div>
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3" id="library-list"></div>
 </div>
 
 <!-- ═══ SHADOWING MODAL ═══ -->
-<div id="shadow-overlay" class="fixed inset-0 bg-slate-900/95 flex flex-col z-50 hidden">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
-        <div>
+<div id="shadow-overlay" class="fixed inset-0 bg-slate-900 flex flex-col z-[80] hidden">
+    <div class="flex items-center justify-between px-4 py-4 border-b border-slate-700 flex-shrink-0">
+        <div class="min-w-0">
             <h2 class="text-white font-extrabold text-lg">🎭 Shadowing</h2>
-            <p id="shadow-context" class="text-slate-400 text-xs mt-0.5"></p>
+            <p id="shadow-context" class="text-slate-400 text-xs mt-0.5 truncate max-w-[220px]"></p>
         </div>
-        <button onclick="cerrarShadowing()" class="text-slate-400 hover:text-white text-2xl font-bold transition-colors">✕</button>
+        <button onclick="cerrarShadowing()" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl font-bold transition-colors hover:bg-slate-800 flex-shrink-0">✕</button>
     </div>
     <div id="shadow-lines" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
-    <div id="shadow-mic-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
-        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3">Your turn — repeat the line</p>
-        <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-3 text-white font-medium text-sm text-center mb-4 cursor-pointer" onclick="shadowListenExpected()" title="Tap to hear it">
+    <div id="shadow-mic-area" class="px-4 py-5 bg-slate-800 border-t border-slate-700 hidden">
+        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3">Tu turno — repetí la frase</p>
+        <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-4 text-white font-semibold text-base text-center mb-4 cursor-pointer active:bg-slate-600 transition-colors" onclick="shadowListenExpected()" title="Tap to hear it">
         </div>
-        <div class="flex justify-center gap-4">
-            <button onclick="shadowListenExpected()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all">🔊 Hear it</button>
-            <button id="shadow-mic-btn" onclick="shadowToggleMic()" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2">
-                🎙️ Speak
+        <div class="flex justify-center gap-3">
+            <button onclick="shadowListenExpected()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-5 py-3 rounded-2xl text-sm transition-all active:scale-95">🔊 Escuchar</button>
+            <button id="shadow-mic-btn" onclick="shadowToggleMic()" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold px-7 py-3 rounded-2xl text-sm transition-all active:scale-95 flex items-center gap-2">
+                🎙️ Hablar
             </button>
         </div>
-        <p id="shadow-mic-status" class="text-slate-400 text-xs text-center mt-2 font-semibold uppercase tracking-widest"></p>
+        <p id="shadow-mic-status" class="text-slate-400 text-xs text-center mt-3 font-semibold uppercase tracking-widest"></p>
     </div>
-    <div id="shadow-result-area" class="px-5 py-5 bg-slate-800 border-t border-slate-700 hidden">
-        <div class="text-center space-y-3">
-            <div class="text-5xl" id="shadow-trophy">🏆</div>
-            <p class="text-white font-extrabold text-xl" id="shadow-final-score"></p>
-            <p class="text-slate-400 text-sm" id="shadow-final-msg"></p>
-            <button onclick="cerrarShadowing()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-8 py-3 rounded-2xl text-sm mt-2 transition-all active:scale-95">Done ✓</button>
+    <div id="shadow-result-area" class="px-4 py-6 bg-slate-800 border-t border-slate-700 hidden">
+        <div class="text-center space-y-3 max-w-xs mx-auto">
+            <div class="text-6xl" id="shadow-trophy">🏆</div>
+            <p class="text-white font-extrabold text-2xl" id="shadow-final-score"></p>
+            <p class="text-slate-400 text-sm leading-relaxed" id="shadow-final-msg"></p>
+            <button onclick="cerrarShadowing()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-8 py-4 rounded-2xl text-base transition-all active:scale-95">¡Listo! ✓</button>
         </div>
     </div>
 </div>
 
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
-<div id="sb-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
-    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop">
+<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4">
+    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop mb-0 sm:mb-0">
         <div class="text-center space-y-1">
             <div class="text-4xl">🧩</div>
             <h2 class="text-xl font-extrabold text-slate-800">Sentence Builder!</h2>
-            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tap the words in the right order</p>
+            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá las palabras en orden</p>
         </div>
-        <div id="sb-built" class="min-h-[48px] bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-3 py-2 flex flex-wrap gap-2 items-center justify-center"></div>
+        <div id="sb-built" class="min-h-[56px] bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-3 py-3 flex flex-wrap gap-2 items-center justify-center"></div>
         <div id="sb-words" class="flex flex-wrap gap-2 justify-center"></div>
         <div class="flex gap-2">
-            <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl text-sm transition-all">🔊 Listen</button>
-            <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl text-sm transition-all">↩ Reset</button>
+            <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">🔊 Escuchar</button>
+            <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">↩ Reiniciar</button>
         </div>
-        <div id="sb-feedback" class="hidden text-center font-bold text-sm py-2 rounded-2xl"></div>
+        <div id="sb-feedback" class="hidden text-center font-bold text-sm py-3 rounded-2xl"></div>
     </div>
 </div>
 
 <!-- ═══ WORD MATCH MODAL ═══ -->
-<div id="wordmatch-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden p-4">
+<div id="wordmatch-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4">
     <div id="wordmatch-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 wm-pop">
         <div class="text-center space-y-1">
             <div class="text-4xl">🎮</div>
             <h2 class="text-xl font-extrabold text-slate-800">Word Match!</h2>
-            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tap a word, then its meaning</p>
+            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá una palabra y su significado</p>
         </div>
         <div class="grid grid-cols-2 gap-3">
             <div id="wm-col-en" class="space-y-2"></div>
             <div id="wm-col-es" class="space-y-2"></div>
         </div>
         <div class="flex items-center justify-center gap-2">
-            <div id="wm-dots" class="flex gap-1.5"></div>
+            <div id="wm-dots" class="flex gap-2"></div>
         </div>
     </div>
 </div>
 
 <!-- ═══ FLIP CARDS GAME ═══ -->
-<div id="flipcards-overlay" class="fixed inset-0 flex items-center justify-center z-50 hidden p-4"
-     style="background:rgba(0,0,0,0.75);">
+<div id="flipcards-overlay" class="fixed inset-0 flex items-end sm:items-center justify-center z-[70] hidden p-4"
+     style="background:rgba(0,0,0,0.8);">
     <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
         <!-- Header -->
         <div class="px-5 pt-5 pb-3 flex justify-between items-center">
@@ -250,28 +254,29 @@
                 <p class="text-xs font-extrabold text-violet-500 uppercase tracking-widest">🃏 Tarjetas Mágicas</p>
                 <p id="fc-progress" class="text-slate-400 text-xs mt-0.5">Carta 1 de 6</p>
             </div>
-            <button onclick="cerrarFlipCards()" class="text-slate-400 text-2xl leading-none">✕</button>
+            <button onclick="cerrarFlipCards()" class="text-slate-400 w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-100 transition-colors active:scale-95">✕</button>
         </div>
 
         <!-- Card flip area -->
-        <div class="px-5 pb-2 flex flex-col items-center gap-4">
-            <div id="fc-card-wrap" style="perspective:800px;width:220px;height:220px;cursor:pointer;" onclick="flipCard()">
+        <div class="px-5 pb-2 flex flex-col items-center gap-3">
+            <div id="fc-card-wrap" onclick="flipCard()"
+                 style="perspective:800px;width:min(220px,70vw);height:min(220px,70vw);cursor:pointer;">
                 <div id="fc-card-inner" style="width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,2,.6,1);">
                     <!-- Front: emoji -->
                     <div style="position:absolute;inset:0;backface-visibility:hidden;border-radius:2rem;
                                 background:linear-gradient(135deg,#ede9fe,#dbeafe);
                                 display:flex;align-items:center;justify-content:center;
                                 box-shadow:0 8px 32px rgba(99,102,241,0.18);border:3px solid #c4b5fd;">
-                        <span id="fc-emoji" style="font-size:6rem;line-height:1;user-select:none;">🐶</span>
+                        <span id="fc-emoji" style="font-size:clamp(4rem,15vw,6rem);line-height:1;user-select:none;">🐶</span>
                     </div>
                     <!-- Back: written word -->
                     <div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);
                                 border-radius:2rem;background:linear-gradient(135deg,#d1fae5,#a7f3d0);
-                                display:flex;flex-col;align-items:center;justify-content:center;gap:8px;
+                                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
                                 box-shadow:0 8px 32px rgba(16,185,129,0.2);border:3px solid #6ee7b7;">
-                        <span id="fc-back-emoji" style="font-size:3rem;line-height:1;">🐶</span>
-                        <span id="fc-word" style="font-size:2rem;font-weight:900;color:#064e3b;letter-spacing:2px;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif;">DOG</span>
-                        <span id="fc-translation" style="font-size:0.85rem;color:#065f46;font-weight:600;">Perro</span>
+                        <span id="fc-back-emoji" style="font-size:clamp(2rem,8vw,3rem);line-height:1;">🐶</span>
+                        <span id="fc-word" style="font-size:clamp(1.5rem,7vw,2rem);font-weight:900;color:#064e3b;letter-spacing:2px;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif;">DOG</span>
+                        <span id="fc-translation" style="font-size:0.9rem;color:#065f46;font-weight:600;">Perro</span>
                     </div>
                 </div>
             </div>
@@ -280,9 +285,9 @@
             <p id="fc-hint" class="text-slate-500 text-sm font-semibold text-center">👆 Tocá para escuchar</p>
 
             <!-- Nav buttons -->
-            <div class="flex gap-3 w-full pb-4">
-                <button onclick="fcPrev()" class="flex-1 font-bold py-3 rounded-2xl text-slate-700 text-sm active:scale-95 transition-all" style="background:#f1f5f9;">◀ Anterior</button>
-                <button onclick="fcNext()" class="flex-1 font-bold py-3 rounded-2xl text-white text-sm active:scale-95 transition-all" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">Siguiente ▶</button>
+            <div class="flex gap-3 w-full pb-5">
+                <button onclick="fcPrev()" class="flex-1 bg-slate-100 hover:bg-slate-200 font-bold py-4 rounded-2xl text-slate-700 text-sm active:scale-95 transition-all">◀ Anterior</button>
+                <button onclick="fcNext()" class="flex-1 font-bold py-4 rounded-2xl text-white text-sm active:scale-95 transition-all" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">Siguiente ▶</button>
             </div>
         </div>
     </div>
@@ -303,13 +308,13 @@
             </div>
             <div class="flex gap-4 items-center">
                 <div class="text-center">
-                    <p class="text-[10px] font-bold text-orange-400 uppercase">Streak</p>
-                    <p class="text-base font-extrabold text-orange-600">🔥<span id="racha-nena">0</span></p>
+                    <p class="text-xs font-bold text-orange-400 uppercase">Streak</p>
+                    <p class="text-lg font-extrabold text-orange-600">🔥<span id="racha-nena">0</span></p>
                 </div>
                 <div class="h-8 w-px bg-slate-200"></div>
                 <div class="text-center">
-                    <p class="text-[10px] font-bold text-blue-400 uppercase">Score</p>
-                    <p id="puntos-nena" class="text-base font-extrabold text-blue-600">0 XP</p>
+                    <p class="text-xs font-bold text-blue-400 uppercase">Score</p>
+                    <p id="puntos-nena" class="text-lg font-extrabold text-blue-600">0 XP</p>
                 </div>
             </div>
         </div>
@@ -426,23 +431,23 @@
             <div class="space-y-2 flex-1">
                 <div class="flex items-center gap-3">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
-                    <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
+                    <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-xs font-extrabold px-2.5 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
                 </div>
                 <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
                 <div id="adulto-nivel-progress" class="space-y-1 hidden">
                     <div class="flex justify-between items-center">
-                        <span id="adulto-nivel-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-wide"></span>
-                        <span id="adulto-nivel-xp" class="text-[10px] font-bold text-blue-500"></span>
+                        <span id="adulto-nivel-label" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></span>
+                        <span id="adulto-nivel-xp" class="text-xs font-bold text-blue-500"></span>
                     </div>
-                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                         <div id="adulto-nivel-fill" class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-700" style="width:0%"></div>
                     </div>
                 </div>
             </div>
             <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-4 rounded-xl w-full md:w-72 shadow-sm">
-                <p class="font-extrabold text-slate-500 mb-3 uppercase tracking-widest text-[10px]">🏆 Family Leaderboard</p>
-                <ol id="leaderboard-list" class="space-y-2 text-xs"></ol>
+                <p class="font-extrabold text-slate-500 mb-3 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
+                <ol id="leaderboard-list" class="space-y-2 text-sm"></ol>
             </div>
         </div>
     </header>
@@ -474,8 +479,8 @@
             <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3 flex justify-between items-center">
                 <h2 id="escenario-titulo" class="text-sm font-bold text-white tracking-wide">Scene</h2>
                 <div class="flex gap-2">
-                    <button onclick="repetirEscena()" class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">↩ Try again</button>
-                    <button onclick="escucharEscenarioActual()" class="text-[11px] bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">🔊 Listen</button>
+                    <button onclick="repetirEscena()" class="text-xs bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">↩ Again</button>
+                    <button onclick="escucharEscenarioActual()" class="text-xs bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">🔊 Listen</button>
                 </div>
             </div>
             <!-- Chat history (accumulated past turns) -->
@@ -483,32 +488,32 @@
             <!-- Current exchange -->
             <div class="p-5 space-y-4 bg-slate-50/60 min-h-[160px]">
                 <div class="flex items-end gap-3">
-                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
-                    <div class="slide-left max-w-xs md:max-w-sm">
+                    <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">AI</div>
+                    <div class="flex-1 min-w-0">
                         <div id="chat-prompt" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
                 </div>
                 <div id="user-transcript-wrapper" class="flex items-end justify-end gap-3 hidden">
-                    <div class="slide-right max-w-xs md:max-w-sm">
-                        <div id="user-transcript" class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
+                    <div class="flex-1 min-w-0 flex justify-end">
+                        <div id="user-transcript" class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed max-w-[85%]"></div>
                     </div>
-                    <div id="user-avatar-initials" class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">YO</div>
+                    <div id="user-avatar-initials" class="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">YO</div>
                 </div>
                 <div id="ai-evaluation-wrapper" class="hidden">
                     <div class="flex items-end gap-3">
-                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm">AI</div>
-                        <div class="slide-left max-w-xs md:max-w-sm w-full">
+                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">AI</div>
+                        <div class="flex-1 min-w-0">
                             <div id="ai-evaluation" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
                         </div>
                     </div>
                     <!-- Suggestion chips (shown when xp < 50) -->
-                    <div id="suggestion-chips" class="hidden mt-3 ml-11 space-y-2">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">💡 Try saying:</p>
+                    <div id="suggestion-chips" class="hidden mt-3 ml-12 space-y-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">💡 Podés decir:</p>
                         <div id="suggestion-list" class="flex flex-wrap gap-2"></div>
                     </div>
                 </div>
             </div>
-            <div class="px-5 py-6 bg-white border-t border-slate-100 flex flex-col items-center gap-4">
+            <div class="px-5 py-6 pb-safe bg-white border-t border-slate-100 flex flex-col items-center gap-4">
                 <div class="relative flex items-center justify-center h-24 w-24">
                     <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-red-400/20 hidden mic-wave"></div>
                     <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-red-400/15 hidden mic-wave-2"></div>
@@ -1366,7 +1371,7 @@ function inicializarVoces() {
         container.innerHTML = '';
         VOICE_PRESETS.forEach(preset => {
             const btn = document.createElement('button');
-            btn.className = 'text-[10px] font-bold px-2 py-1 rounded-lg text-white active:scale-95 transition-all';
+            btn.className = 'text-xs font-bold px-3 py-2.5 rounded-xl text-white active:scale-95 transition-all';
             btn.style.background = '#334155';
             btn.textContent = preset.label;
             btn.onclick = () => {
@@ -1589,18 +1594,18 @@ function renderizarConfiguracionPerfiles() {
     Object.values(window.familia).forEach(p => {
         const colors = PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
         const card   = document.createElement('div');
-        card.className = 'bg-slate-50 border p-3 rounded-xl space-y-2 text-xs';
+        card.className = 'bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3';
         card.innerHTML = `
             <div class="flex items-center gap-2">
-                <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[10px] font-bold">${p.nombre[0]}</div>
-                <p class="font-bold text-slate-600">${p.nombre}</p>
+                <div class="h-8 w-8 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold flex-shrink-0">${p.nombre[0]}</div>
+                <p class="font-bold text-slate-700 text-sm">${p.nombre}</p>
             </div>
-            <select id="sel-handicap-${p.id}" class="w-full bg-white border p-1.5 rounded-lg text-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <select id="sel-handicap-${p.id}" class="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
                 ${niveles.map(n => `<option value="${n}" ${p.nivel===n?'selected':''}>${n}</option>`).join('')}
             </select>
-            <div class="flex items-center justify-between pt-1">
-                <span class="text-slate-400 text-[10px]">Score: <strong>${p.score} XP</strong> · Racha: ${p.racha||0}</span>
-                <button onclick="resetearPerfil('${p.id}')" class="text-[10px] font-bold text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-2 py-1 rounded-lg transition-colors">↺ Reset</button>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-400 text-xs">Score: <strong class="text-slate-600">${p.score} XP</strong> · 🔥${p.racha||0}</span>
+                <button onclick="resetearPerfil('${p.id}')" class="text-xs font-bold text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 px-3 py-1.5 rounded-xl transition-colors active:scale-95">↺ Reset</button>
             </div>`;
         container.appendChild(card);
         document.getElementById(`sel-handicap-${p.id}`).onchange = function() {
@@ -1618,11 +1623,11 @@ function renderizarBotonesPerfil() {
     Object.values(window.familia).forEach(p => {
         const colors = PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
         const btn = document.createElement('button');
-        btn.className  = 'profile-btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition-all';
+        btn.className  = 'profile-btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-2 rounded-xl border border-slate-700 transition-all active:scale-95';
         btn.dataset.id = p.id;
         btn.innerHTML  = `
-            <div class="h-5 w-5 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[9px] font-bold">${p.nombre[0]}</div>
-            <span class="text-slate-200 font-semibold text-xs">${p.nombre.split(' ')[0]}</span>`;
+            <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold flex-shrink-0">${p.nombre[0]}</div>
+            <span class="text-slate-200 font-semibold text-xs hidden sm:inline">${p.nombre.split(' ')[0]}</span>`;
         btn.onclick = () => window.cambiarPerfil(p.id);
         container.appendChild(btn);
     });
@@ -1908,7 +1913,7 @@ window.stWordTap = async function(el, word, idx) {
     if (_stTooltip) { _stTooltip.remove(); _stTooltip = null; }
     // build tooltip
     const tip = document.createElement('span');
-    tip.style.cssText = 'position:absolute;background:#fde047;color:#0f172a;font-size:0.72rem;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.35);pointer-events:none;z-index:9999;';
+    tip.style.cssText = 'position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#fde047;color:#0f172a;font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:10px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.4);pointer-events:none;z-index:220;';
     tip.textContent = '…';
     el.style.position = 'relative';
     el.appendChild(tip);
