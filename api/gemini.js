@@ -42,7 +42,13 @@ async function llamarGemini(apiKey, prompt) {
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
-  return data.candidates[0].content.parts[0].text.trim();
+  const candidate = data.candidates && data.candidates[0];
+  if (!candidate || !candidate.content) {
+    const reason = candidate && candidate.finishReason ? candidate.finishReason : 'NO_CANDIDATE';
+    console.error('Gemini blocked response. Full data:', JSON.stringify(data));
+    throw new Error('Gemini did not return content. Reason: ' + reason);
+  }
+  return candidate.content.parts[0].text.trim();
 }
 
 module.exports = async function (req, res) {
