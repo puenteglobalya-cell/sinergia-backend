@@ -116,20 +116,11 @@ Reply ONLY with this raw JSON object:
     if (action === 'generate_shadowing') {
       const pool    = isKids ? KIDS_CONTEXTS : ADULT_CONTEXTS;
       const context = pool[Math.floor(Math.random() * pool.length)];
-      const prompt  = `Generate a realistic short conversation in this setting: ${context}.
-The traveler's English level is ${levelKey}. ${levelGuide}
-Write exactly 6 lines alternating: staff first, then traveler, then staff, etc.
-Keep traveler lines natural and achievable for level ${levelKey}.
-Reply ONLY with this raw JSON object:
-{"title": "título corto en español", "context": "${context}", "lines": [
-  {"role": "staff",    "text": "...", "translation": "traducción al español"},
-  {"role": "traveler", "text": "...", "translation": "traducción al español"},
-  {"role": "staff",    "text": "...", "translation": "traducción al español"},
-  {"role": "traveler", "text": "...", "translation": "traducción al español"},
-  {"role": "staff",    "text": "...", "translation": "traducción al español"},
-  {"role": "traveler", "text": "...", "translation": "traducción al español"}
-]}`;
-      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 2048);
+      const prompt  = `Setting: ${context}. Level: ${levelKey}. ${levelGuide}
+Write a 6-line dialogue (staff/traveler alternating, staff first). Keep each line under 12 words. Translations must be brief.
+Return ONLY this JSON (no extra text):
+{"title":"título en español","context":"${context}","lines":[{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."},{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."},{"role":"staff","text":"...","translation":"..."},{"role":"traveler","text":"...","translation":"..."}]}`;
+      const text = await llamarGemini(apiKey, SYSTEM_IDENTITY, prompt, 4096);
       return res.status(200).json(extraerJSON(text));
     }
 
