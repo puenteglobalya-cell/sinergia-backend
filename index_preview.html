@@ -707,8 +707,8 @@
         </div>
     </nav>
 
-    <!-- Progress bar shown after tier 1 unlocked -->
-    <div id="progress-bar-wrapper" class="max-w-2xl mx-auto w-full mb-3 hidden">
+    <!-- Progress bar: always visible -->
+    <div id="progress-bar-wrapper" class="max-w-2xl mx-auto w-full mb-3">
         <div class="glass-card rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-sm">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap">Next prize</span>
             <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
@@ -903,26 +903,29 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Tarjetas -->
-        <button onclick="window._tarjetasTema && mostrarFlipCards(window._tarjetasTema)" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-blue-100 hover:border-blue-300 hover:-translate-y-1 transition-all active:scale-95">
-            <div class="w-20 h-20 mb-4 bg-blue-50 rounded-full flex items-center justify-center text-5xl floating">🃏</div>
-            <h3 class="font-extrabold text-blue-600 text-lg mb-2">Tarjetas</h3>
-            <p class="text-slate-400 text-sm flex-grow">Domina vocabulario con tarjetas visuales y audio.</p>
-            <div class="mt-4 w-full py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm neo-btn">Jugar Ahora →</div>
+        <button onclick="window._tarjetasTema && mostrarFlipCards(window._tarjetasTema)" class="group relative rounded-3xl p-6 flex flex-col items-center text-center shadow-lg overflow-hidden active:scale-95 transition-all text-white" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">
+            <div class="absolute inset-0 opacity-10 text-[100px] flex items-end justify-end -mr-4 -mb-4 select-none pointer-events-none leading-none">🃏</div>
+            <div class="w-16 h-16 mb-3 bg-white/20 rounded-2xl flex items-center justify-center text-4xl floating">🃏</div>
+            <h3 class="font-extrabold text-white text-lg mb-1">Tarjetas</h3>
+            <p class="text-violet-200 text-sm flex-grow">Vocabulario con tarjetas visuales y audio.</p>
+            <div class="mt-4 w-full py-3 bg-white/20 hover:bg-white/30 text-white rounded-2xl font-bold text-sm transition-all">Jugar Ahora →</div>
         </button>
         <!-- Word Match -->
-        <button onclick="window.mostrarWordMatch();volverDeElige()" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-amber-200 hover:border-amber-400 hover:-translate-y-1 transition-all active:scale-95 relative overflow-hidden">
-            <div class="absolute top-3 right-3 px-2 py-0.5 bg-amber-400 text-white text-[10px] font-extrabold rounded-full uppercase tracking-wider">POPULAR</div>
-            <div class="w-20 h-20 mb-4 bg-amber-50 rounded-full flex items-center justify-center text-5xl floating" style="animation-delay:0.5s">🎮</div>
-            <h3 class="font-extrabold text-amber-600 text-lg mb-2">Word Match</h3>
-            <p class="text-slate-400 text-sm flex-grow">Une palabras con su significado correcto.</p>
-            <div class="mt-4 w-full py-3 bg-amber-500 text-white rounded-2xl font-bold text-sm neo-btn">Comenzar Reto 🎉</div>
+        <button onclick="window.mostrarWordMatch();volverDeElige()" class="group relative rounded-3xl p-6 flex flex-col items-center text-center shadow-lg overflow-hidden active:scale-95 transition-all text-white" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <div class="absolute top-3 right-3 px-2 py-0.5 bg-white/30 text-white text-[10px] font-extrabold rounded-full uppercase tracking-wider">POPULAR</div>
+            <div class="absolute inset-0 opacity-10 text-[100px] flex items-end justify-end -mr-4 -mb-4 select-none pointer-events-none leading-none">🎮</div>
+            <div class="w-16 h-16 mb-3 bg-white/20 rounded-2xl flex items-center justify-center text-4xl floating" style="animation-delay:0.5s">🎮</div>
+            <h3 class="font-extrabold text-white text-lg mb-1">Word Match</h3>
+            <p class="text-amber-100 text-sm flex-grow">Une palabras con su significado correcto.</p>
+            <div class="mt-4 w-full py-3 bg-white/20 hover:bg-white/30 text-white rounded-2xl font-bold text-sm transition-all">Comenzar Reto 🎉</div>
         </button>
         <!-- Misión -->
-        <button onclick="irAMisionDirecta(window._temaActual)" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-emerald-100 hover:border-emerald-300 hover:-translate-y-1 transition-all active:scale-95">
-            <div class="w-20 h-20 mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-5xl floating" style="animation-delay:1s">🧩</div>
-            <h3 class="font-extrabold text-emerald-600 text-lg mb-2">Misión</h3>
-            <p class="text-slate-400 text-sm flex-grow">Responde preguntas y sube de nivel.</p>
-            <div class="mt-4 w-full py-3 bg-emerald-600 text-white rounded-2xl font-bold text-sm neo-btn">Construir 🚀</div>
+        <button onclick="irAMisionDirecta(window._temaActual)" class="group relative rounded-3xl p-6 flex flex-col items-center text-center shadow-lg overflow-hidden active:scale-95 transition-all text-white" style="background:linear-gradient(135deg,#10b981,#059669);">
+            <div class="absolute inset-0 opacity-10 text-[100px] flex items-end justify-end -mr-4 -mb-4 select-none pointer-events-none leading-none">🧩</div>
+            <div class="w-16 h-16 mb-3 bg-white/20 rounded-2xl flex items-center justify-center text-4xl floating" style="animation-delay:1s">🧩</div>
+            <h3 class="font-extrabold text-white text-lg mb-1">Misión</h3>
+            <p class="text-emerald-100 text-sm flex-grow">Respondé preguntas y subí de nivel.</p>
+            <div class="mt-4 w-full py-3 bg-white/20 hover:bg-white/30 text-white rounded-2xl font-bold text-sm transition-all">¡Arrancar! 🚀</div>
         </button>
     </div>
     <div class="text-center">
@@ -986,7 +989,7 @@
                         <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-xs font-extrabold px-2.5 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
                     </div>
                     <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
-                    <div id="adulto-nivel-progress" class="space-y-1 hidden">
+                    <div id="adulto-nivel-progress" class="space-y-1">
                         <div class="flex justify-between items-center">
                             <span id="adulto-nivel-label" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></span>
                             <span id="adulto-nivel-xp" class="text-xs font-bold text-blue-500"></span>
@@ -2265,8 +2268,6 @@ function actualizarBarraProgreso(p) {
     const label   = document.getElementById('progress-label');
     const sinceLastGame = p.misionIndex % 4;
 
-    if (p.misionIndex === 0) { wrapper.classList.add('hidden'); return; }
-    wrapper.classList.remove('hidden');
     fill.style.width  = (sinceLastGame / 4 * 100) + '%';
     const remaining = 4 - sinceLastGame;
     label.textContent = sinceLastGame === 3 ? '🎁!' : '🎁❓';
@@ -2387,14 +2388,20 @@ window.irAMisionDirecta = function(idTema) {
     const cols = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
     const wrapper = document.createElement('div');
     wrapper.className = `grid ${cols} gap-3`;
-    tema.opciones.forEach(opt => {
+    const BTN_COLORS = [
+        'from-blue-400 to-blue-600','from-violet-400 to-purple-600',
+        'from-rose-400 to-pink-600','from-amber-400 to-orange-500',
+        'from-emerald-400 to-teal-600','from-cyan-400 to-sky-600'
+    ];
+    tema.opciones.forEach((opt, i) => {
         const { emoji, texto } = separarEmojiTexto(opt.texto);
         const btn = document.createElement('button');
-        btn.className = 'select-none bg-white active:scale-95 p-4 rounded-3xl shadow-md border-2 border-transparent hover:border-blue-200 adventure-card text-slate-800 flex flex-col items-center justify-center gap-2 min-h-[96px]';
+        const grad = BTN_COLORS[i % BTN_COLORS.length];
+        btn.className = `select-none bg-gradient-to-br ${grad} active:scale-95 p-4 rounded-3xl shadow-lg border-2 border-white/30 adventure-card text-white flex flex-col items-center justify-center gap-2 min-h-[110px]`;
         if (emoji) {
-            btn.innerHTML = `<span class="text-5xl leading-none">${emoji}</span><span class="font-extrabold text-sm leading-tight text-center">${texto}</span>`;
+            btn.innerHTML = `<span class="text-5xl leading-none drop-shadow">${emoji}</span><span class="font-extrabold text-sm leading-tight text-center drop-shadow">${texto}</span>`;
         } else {
-            btn.innerHTML = `<span class="font-extrabold text-base leading-snug text-center px-1">${texto}</span>`;
+            btn.innerHTML = `<span class="font-extrabold text-base leading-snug text-center px-1 drop-shadow">${texto}</span>`;
         }
         btn.onclick = () => {
             const word = texto || opt.texto;
@@ -2919,13 +2926,22 @@ function renderProfileSelectScreen() {
     if (!grid) return;
     grid.innerHTML = '';
     Object.entries(PROFILE_AVATARS).forEach(([id, info]) => {
+        const p = window.familia && window.familia[id];
+        const xp = p ? (p.score || 0) : 0;
+        const racha = p ? (p.racha || 0) : 0;
+        const nivel = p ? p.nivel : info.sub.replace(/[⭐🌟]/g,'').trim();
         const card = document.createElement('button');
-        card.className = 'avatar-card flex flex-col items-center gap-2 p-4 rounded-3xl active:scale-95 transition-all text-white shadow-xl';
+        card.className = 'avatar-card flex flex-col items-center gap-2.5 p-5 rounded-3xl active:scale-95 transition-all text-white shadow-xl relative overflow-hidden';
         card.style.background = info.bg;
         card.innerHTML = `
-            <div class="text-6xl drop-shadow-lg leading-none">${info.emoji}</div>
-            <div class="font-extrabold text-base leading-tight">${info.label}</div>
-            <div class="text-xs font-semibold opacity-80">${info.sub}</div>`;
+            <div class="absolute inset-0 opacity-10 text-[80px] flex items-end justify-end -mr-3 -mb-3 select-none pointer-events-none leading-none">${info.emoji}</div>
+            <div class="text-6xl drop-shadow-lg leading-none floating">${info.emoji}</div>
+            <div class="font-extrabold text-lg leading-tight">${info.label}</div>
+            <div class="text-xs font-semibold opacity-80 bg-white/20 px-2.5 py-0.5 rounded-full">${nivel}</div>
+            <div class="flex gap-3 text-xs font-bold mt-0.5">
+                <span class="bg-white/20 px-2 py-0.5 rounded-full">⭐ ${xp} XP</span>
+                ${racha > 0 ? `<span class="bg-white/20 px-2 py-0.5 rounded-full">🔥 ${racha}</span>` : ''}
+            </div>`;
         card.onclick = () => {
             document.getElementById('profile-select-overlay').style.display = 'none';
             window.cambiarPerfil(id);
