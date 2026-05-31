@@ -70,6 +70,15 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         .fade-in-up { animation: fade-in-up 0.3s ease-out; }
+
+        @keyframes eq1 {
+            0%, 100% { height: 6px; } 50% { height: 20px; }
+        }
+        @keyframes eq2 {
+            0%, 100% { height: 16px; } 50% { height: 6px; }
+        }
+        .scrollbar-none { scrollbar-width: none; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
@@ -381,51 +390,52 @@
     <main class="flex-1 max-w-lg mx-auto w-full">
 
         <!-- Topic selector -->
-        <div id="panel-tematicas" class="space-y-4">
+        <div id="panel-tematicas" class="space-y-3">
             <div class="text-center">
                 <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
-                <p class="text-slate-500 text-sm mt-1">Tap a topic to start</p>
+                <p class="text-slate-500 text-sm mt-1">Deslizá para elegir tu tema</p>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="seleccionarTematica('greetings')" class="group bg-gradient-to-br from-blue-400 to-blue-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+            <!-- Horizontal snap carousel — no scroll general en mobile -->
+            <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-1 -mx-1 px-1">
+                <button onclick="seleccionarTematica('greetings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-blue-400 to-blue-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
-                    <div class="font-extrabold text-base">Greetings</div>
+                    <div class="font-extrabold text-sm">Greetings</div>
                 </button>
-                <button onclick="seleccionarTematica('numbers')" class="group bg-gradient-to-br from-amber-400 to-orange-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('numbers')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🔢</div>
-                    <div class="font-extrabold text-base">Numbers</div>
+                    <div class="font-extrabold text-sm">Numbers</div>
                 </button>
-                <button onclick="seleccionarTematica('colors')" class="group bg-gradient-to-br from-rose-400 to-pink-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('colors')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-rose-400 to-pink-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎨</div>
-                    <div class="font-extrabold text-base">Colours</div>
+                    <div class="font-extrabold text-sm">Colours</div>
                 </button>
-                <button onclick="seleccionarTematica('travel')" class="group bg-gradient-to-br from-emerald-400 to-teal-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('travel')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-emerald-400 to-teal-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">✈️</div>
-                    <div class="font-extrabold text-base">Travel</div>
+                    <div class="font-extrabold text-sm">Travel</div>
                 </button>
-                <button onclick="seleccionarTematica('animals')" class="group bg-gradient-to-br from-lime-400 to-green-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('animals')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-lime-400 to-green-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐾</div>
-                    <div class="font-extrabold text-base">Animals</div>
+                    <div class="font-extrabold text-sm">Animals</div>
                 </button>
-                <button onclick="seleccionarTematica('food')" class="group bg-gradient-to-br from-yellow-400 to-orange-400 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('food')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-400 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🍕</div>
-                    <div class="font-extrabold text-base">Food</div>
+                    <div class="font-extrabold text-sm">Food</div>
                 </button>
-                <button onclick="seleccionarTematica('clothes')" class="group bg-gradient-to-br from-fuchsia-400 to-purple-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('clothes')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-fuchsia-400 to-purple-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👗</div>
-                    <div class="font-extrabold text-base">Clothes</div>
+                    <div class="font-extrabold text-sm">Clothes</div>
                 </button>
-                <button onclick="seleccionarTematica('weather')" class="group bg-gradient-to-br from-sky-400 to-cyan-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('weather')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-sky-400 to-cyan-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🌦️</div>
-                    <div class="font-extrabold text-base">Weather</div>
+                    <div class="font-extrabold text-sm">Weather</div>
                 </button>
-                <button onclick="seleccionarTematica('family')" class="group bg-gradient-to-br from-pink-400 to-rose-500 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('family')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-pink-400 to-rose-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👨‍👩‍👧</div>
-                    <div class="font-extrabold text-base">Family</div>
+                    <div class="font-extrabold text-sm">Family</div>
                 </button>
-                <button onclick="seleccionarTematica('feelings')" class="group bg-gradient-to-br from-violet-400 to-indigo-600 p-5 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white">
+                <button onclick="seleccionarTematica('feelings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-violet-400 to-indigo-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
-                    <div class="font-extrabold text-base">Feelings</div>
+                    <div class="font-extrabold text-sm">Feelings</div>
                 </button>
             </div>
         </div>
@@ -580,12 +590,19 @@
             </div>
             <div class="px-5 py-6 pb-safe bg-white border-t border-slate-100 flex flex-col items-center gap-4">
                 <div class="relative flex items-center justify-center h-24 w-24">
-                    <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-red-400/20 hidden mic-wave"></div>
-                    <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-red-400/15 hidden mic-wave-2"></div>
+                    <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-rose-400/20 hidden mic-wave"></div>
+                    <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-rose-400/12 hidden mic-wave-2"></div>
                     <button id="btn-mic-adulto" onclick="alternarMic()"
-                        class="relative h-20 w-20 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all text-3xl z-10">
-                        <span id="mic-icon">🎙️</span>
-                        <span id="pulse-ring" class="absolute inset-0 rounded-full bg-red-400/30 animate-ping hidden"></span>
+                        class="relative h-20 w-20 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all z-10 border-2 border-slate-600">
+                        <span id="mic-icon" class="text-3xl">🎙️</span>
+                        <!-- Equalizer bars shown while recording -->
+                        <span id="mic-eq" class="hidden absolute inset-0 flex items-end justify-center gap-0.5 pb-3">
+                            <span class="w-1 bg-rose-400 rounded-full animate-[eq1_0.6s_ease-in-out_infinite]" style="height:8px"></span>
+                            <span class="w-1 bg-rose-400 rounded-full animate-[eq2_0.6s_ease-in-out_infinite_0.1s]" style="height:14px"></span>
+                            <span class="w-1 bg-rose-400 rounded-full animate-[eq1_0.6s_ease-in-out_infinite_0.2s]" style="height:20px"></span>
+                            <span class="w-1 bg-rose-400 rounded-full animate-[eq2_0.6s_ease-in-out_infinite_0.05s]" style="height:12px"></span>
+                            <span class="w-1 bg-rose-400 rounded-full animate-[eq1_0.6s_ease-in-out_infinite_0.15s]" style="height:7px"></span>
+                        </span>
                     </button>
                 </div>
                 <p id="mic-status-text" class="text-xs text-slate-400 font-bold uppercase tracking-widest">Tap to speak in English</p>
@@ -621,18 +638,18 @@ const SCENARIO_STYLES = {
 
 // ── Sentence Builder bank ────────────────────────────────────────────────────
 const SENTENCE_BANK = [
-    { words:['Good','morning!','How','are','you?'],        sentence:'Good morning! How are you?' },
-    { words:['Water','please,','thank','you!'],             sentence:'Water please, thank you!' },
-    { words:['Where','is','the','bathroom?'],               sentence:'Where is the bathroom?' },
-    { words:['I','have','two','bags.'],                     sentence:'I have two bags.' },
-    { words:['Excuse','me,','can','you','help','me?'],      sentence:'Excuse me, can you help me?' },
-    { words:['I','am','very','happy','today!'],             sentence:'I am very happy today!' },
-    { words:['The','sky','is','blue.'],                     sentence:'The sky is blue.' },
-    { words:['I','want','a','window','seat','please.'],     sentence:'I want a window seat please.' },
-    { words:['My','name','is','Juliana.'],                  sentence:'My name is Juliana.' },
-    { words:['I','do','not','understand.'],                 sentence:'I do not understand.' },
-    { words:['Can','you','speak','slowly','please?'],       sentence:'Can you speak slowly please?' },
-    { words:['I','love','cats','and','dogs!'],              sentence:'I love cats and dogs!' },
+    { words:['Good','morning!','How','are','you?'],        sentence:'Good morning! How are you?',        distractor:'Evening!' },
+    { words:['Water','please,','thank','you!'],             sentence:'Water please, thank you!',           distractor:'Sorry' },
+    { words:['Where','is','the','bathroom?'],               sentence:'Where is the bathroom?',             distractor:'Who' },
+    { words:['I','have','two','bags.'],                     sentence:'I have two bags.',                   distractor:'three' },
+    { words:['Excuse','me,','can','you','help','me?'],      sentence:'Excuse me, can you help me?',        distractor:'him?' },
+    { words:['I','am','very','happy','today!'],             sentence:'I am very happy today!',             distractor:'sad' },
+    { words:['The','sky','is','blue.'],                     sentence:'The sky is blue.',                   distractor:'green.' },
+    { words:['I','want','a','window','seat','please.'],     sentence:'I want a window seat please.',       distractor:'floor' },
+    { words:['My','name','is','Juliana.'],                  sentence:'My name is Juliana.',                distractor:'Emilia.' },
+    { words:['I','do','not','understand.'],                 sentence:'I do not understand.',               distractor:'know' },
+    { words:['Can','you','speak','slowly','please?'],       sentence:'Can you speak slowly please?',       distractor:'quickly' },
+    { words:['I','love','cats','and','dogs!'],              sentence:'I love cats and dogs!',              distractor:'hate' },
 ];
 
 // ── Flip Cards Game ───────────────────────────────────────────────────────────
@@ -746,11 +763,14 @@ let sbState = { sentence: null, built: [], remaining: [] };
 
 window.mostrarSentenceBuilder = function() {
     const pick = SENTENCE_BANK[Math.floor(Math.random() * SENTENCE_BANK.length)];
-    sbState = { sentence: pick, built: [], remaining: [...pick.words].sort(() => Math.random() - 0.5) };
+    const p = window.familia[window.perfilActualId];
+    const useDistractor = pick.distractor && ['Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate','Advanced'].includes(p.nivel);
+    const wordPool = [...pick.words, ...(useDistractor ? [pick.distractor] : [])].sort(() => Math.random() - 0.5);
+    sbState = { sentence: pick, built: [], remaining: wordPool, hasDistractor: useDistractor };
     sbRender();
     document.getElementById('sb-feedback').classList.add('hidden');
     document.getElementById('sb-overlay').classList.remove('hidden');
-    hablarNativo('Sentence Builder! Put the words in the right order!');
+    hablarNativo(useDistractor ? 'Sentence Builder! One word is a trap!' : 'Sentence Builder! Put the words in the right order!');
 };
 
 function sbRender() {
@@ -1237,18 +1257,27 @@ function obtenerRachaFamiliar() {
 function guardarRachaFamiliar(data) { localStorage.setItem('sinergia_racha_familiar', JSON.stringify(data)); }
 
 function verificarRachaFamiliar() {
-    const rf    = obtenerRachaFamiliar();
-    const hoy   = new Date().toLocaleDateString('es-AR');
-    const ayer  = new Date(Date.now() - 86400000).toLocaleDateString('es-AR');
+    const rf  = obtenerRachaFamiliar();
+    const hoy = new Date().toLocaleDateString('es-AR');
     if (rf.ultimoDia === hoy) return rf;
-    if (rf.ultimoDia === ayer) {
+    // Check if yesterday was completed by all members
+    if (rf.ultimoDia && rf.ultimoDia !== hoy) {
         const todosActivos = Object.values(window.familia).every(p => (rf.xpDia[p.id] || 0) >= 50);
-        if (todosActivos) rf.racha = (rf.racha || 0) + 1;
-        else rf.racha = 0;
-    } else if (rf.ultimoDia !== '') {
-        rf.racha = 0;
+        if (todosActivos) {
+            rf.racha = (rf.racha || 0) + 1;
+            rf.diasCompletados = rf.diasCompletados || [];
+            rf.diasCompletados.push(rf.ultimoDia);
+            if (rf.diasCompletados.length > 60) rf.diasCompletados = rf.diasCompletados.slice(-60);
+        } else {
+            // Only reset if more than one day was missed (allows next-day edge case)
+            const ultimaFecha = rf.diasCompletados && rf.diasCompletados.length
+                ? new Date(rf.diasCompletados[rf.diasCompletados.length - 1].split('/').reverse().join('-'))
+                : null;
+            const diff = ultimaFecha ? Math.round((Date.now() - ultimaFecha) / 86400000) : 999;
+            if (diff > 1) rf.racha = 0;
+        }
     }
-    rf.xpDia = {};
+    rf.xpDia    = {};
     rf.ultimoDia = hoy;
     guardarRachaFamiliar(rf);
     return rf;
@@ -1632,14 +1661,20 @@ window.aplicarTema = function(bgClass, metaColor) {
     const body = document.body;
     BG_THEMES.forEach(c => body.classList.remove(c));
     body.classList.add(bgClass);
-    // dark mode text flip
     const isDark = bgClass === 'bg-slate-900';
     body.classList.toggle('text-slate-100', isDark);
     body.classList.toggle('text-slate-900', !isDark);
+    // Adapt config panel, top bar cards and modals for dark mode
+    const panel = document.getElementById('config-panel');
+    if (panel) {
+        panel.className = panel.className.replace(/bg-\S+/, '');
+        panel.classList.add(isDark ? 'bg-slate-800' : 'bg-white');
+        panel.classList.toggle('border-slate-700', isDark);
+        panel.classList.toggle('border-slate-200', !isDark);
+    }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = metaColor;
     localStorage.setItem('sinergia_tema', bgClass + '|' + metaColor);
-    // highlight active button
     document.querySelectorAll('#theme-color-btns button').forEach(b => b.style.outline = '');
     const active = [...document.querySelectorAll('#theme-color-btns button')].find(b => b.getAttribute('onclick')?.includes(bgClass));
     if (active) active.style.outline = '3px solid #3b82f6';
@@ -1732,9 +1767,10 @@ function inicializarVoces() {
 
 let _ttsTimer = null;
 window.isAudioThreadMuted = false;
-function hablarNativo(texto, rate = 0.85) {
+function hablarNativo(texto, rate = null) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
+    if (window.isAudioThreadMuted) return;
     clearTimeout(_ttsTimer);
     window.isAudioThreadMuted = true;
     _ttsTimer = setTimeout(() => {
@@ -1742,7 +1778,8 @@ function hablarNativo(texto, rate = 0.85) {
         const u = new SpeechSynthesisUtterance(texto);
         const v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
         if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
-        u.lang = 'en-US'; u.rate = rate;
+        u.lang = 'en-US';
+        u.rate = rate || window.voiceRateOverride || 0.85;
         window.speechSynthesis.speak(u);
     }, 120);
 }
@@ -1834,11 +1871,11 @@ window.alternarMic = function() {
     if (!window.reconocimientoVoz) { alert('Use Google Chrome for microphone support.'); return; }
     if (!window.esGrabando) {
         window.esGrabando = true;
-        ['wave-ring-1','wave-ring-2','pulse-ring'].forEach(id => document.getElementById(id).classList.remove('hidden'));
+        ['wave-ring-1','wave-ring-2'].forEach(id => document.getElementById(id).classList.remove('hidden'));
+        document.getElementById('mic-icon').classList.add('hidden');
+        document.getElementById('mic-eq').classList.remove('hidden');
+        document.getElementById('btn-mic-adulto').classList.add('border-rose-500');
         document.getElementById('mic-status-text').innerText = '🔴 Listening… speak now!';
-        const btn = document.getElementById('btn-mic-adulto');
-        btn.classList.replace('from-blue-500','from-red-500');
-        btn.classList.replace('to-indigo-600','to-red-600');
         window.reconocimientoVoz.start();
     } else {
         window.reconocimientoVoz.stop();
@@ -1847,11 +1884,11 @@ window.alternarMic = function() {
 
 function detenerMicUI() {
     window.esGrabando = false;
-    ['wave-ring-1','wave-ring-2','pulse-ring'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['wave-ring-1','wave-ring-2'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    document.getElementById('mic-icon').classList.remove('hidden');
+    document.getElementById('mic-eq').classList.add('hidden');
+    document.getElementById('btn-mic-adulto').classList.remove('border-rose-500');
     document.getElementById('mic-status-text').innerText = 'Tap to speak in English';
-    const btn = document.getElementById('btn-mic-adulto');
-    btn.classList.replace('from-red-500','from-blue-500');
-    btn.classList.replace('to-red-600','to-indigo-600');
 }
 
 function lanzarEstrellas() {
@@ -1925,11 +1962,12 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         p.racha = 0;
         document.getElementById('racha-nena').innerText = 0;
         guardarEstado();
-        btn.classList.add('bg-rose-100','border-rose-400');
-        setTimeout(() => btn.classList.remove('bg-rose-100','border-rose-400'), 900);
+        // Non-punitive: neutral gray tint, no red flash
+        btn.classList.add('bg-slate-100','border-slate-300','opacity-70');
+        setTimeout(() => btn.classList.remove('bg-slate-100','border-slate-300','opacity-70'), 1200);
         const fraseMal = INCORRECTO_FRASES[Math.floor(Math.random() * INCORRECTO_FRASES.length)];
         f.innerText = fraseMal[1];
-        f.classList.add('bg-rose-50','text-rose-700','border-rose-300');
+        f.classList.add('bg-sky-50','text-sky-700','border-sky-200');
         hablarNativo(fraseMal[0]);
     }
     actualizarLeaderboardUI();
@@ -1986,7 +2024,17 @@ function renderizarSelectorEscenariosAdultos() {
     const container = document.getElementById('grid-escenarios-adultos');
     if (!container) return;
     container.innerHTML = '';
-    Object.values(bancoEscenariosFijos).forEach(e => {
+    // Always show base travel scenarios
+    const baseIds   = ['airport','hotel','restaurant','taxi'];
+    // Rotate 2 business scenarios daily (deterministic by day-of-year so everyone sees same)
+    const bizIds    = ['oilgas','treasury','ifrs','saptrm'];
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+    const biz1 = bizIds[dayOfYear % bizIds.length];
+    const biz2 = bizIds[(dayOfYear + 1) % bizIds.length];
+    const idsToShow = [...baseIds, biz1, biz2];
+    idsToShow.forEach(id => {
+        const e = bancoEscenariosFijos[id];
+        if (!e) return;
         const s = SCENARIO_STYLES[e.id]||{icon:'📍',bg:'bg-slate-50 border-slate-200'};
         const btn = document.createElement('button');
         btn.id        = `btn-esc-${e.id}`;
@@ -2023,10 +2071,10 @@ function renderizarEscenariosCustom() {
 
 window.agregarEscenarioCustom = function() {
     const input = document.getElementById('custom-scene-input');
-    const texto = input.value.trim();
-    if (!texto) return;
+    const textoSanitizado = input.value.trim().replace(/[`"\\]/g, "'").replace(/</g,'').replace(/>/g,'');
+    if (!textoSanitizado) return;
     const customs = cargarEscenariosCustom();
-    customs.unshift({ titulo: texto, systemInfo: texto });
+    customs.unshift({ titulo: textoSanitizado, systemInfo: textoSanitizado });
     guardarEscenariosCustom(customs);
     input.value = '';
     renderizarEscenariosCustom();
@@ -2064,15 +2112,18 @@ function cargarEscenarioCustom(idx) {
 
 async function generarEscenarioCustomConIA(esc) {
     const p = window.familia[window.perfilActualId];
+    const queryId = ++window._currentQueryId;
     document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Preparando escenario…</span>";
     try {
         const data = await geminiSafeFetch({ action:'generate_scenario', level: p.nivel, systemInfo: esc.systemInfo });
+        if (queryId !== window._currentQueryId) return;
         window.escenarioAdultoActivo.prompt = data.ai_opening || esc.titulo;
         window._lastAIReply = data.ai_opening || '';
         document.getElementById('escenario-titulo').innerText = `💬 ${data.setup_title || esc.titulo}`;
         renderWordClickablePrompt(data.ai_opening || esc.titulo, data.ai_opening_translation || '', 'chat-prompt');
         hablarNativo(data.ai_opening || esc.titulo);
     } catch(e) {
+        if (queryId !== window._currentQueryId) return;
         renderWordClickablePrompt(esc.titulo, '', 'chat-prompt');
     }
 }
@@ -2886,7 +2937,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                title="Tap to translate">
                 ${data.reply} <span class="text-blue-300 text-xs">🌐</span>
             </p>
-            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden transition-opacity duration-500${(p.interaccionesEscena||0) > 5 ? ' opacity-20 hover:opacity-100' : ''}">${data.translation || ''}</p>
+            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden transition-opacity duration-700 hover:opacity-100" style="opacity:${Math.max(0.1, 1 - ((p.interaccionesEscena||0) * 0.15)).toFixed(2)}">${data.translation || ''}</p>
             <div class="mt-2 pt-2 border-t border-blue-100 space-y-1.5">
                 <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-start justify-between gap-2">
                     <p id="${correctionId}" class="text-amber-700 text-xs font-bold flex-1">✏️ ${data.correction}</p>
@@ -2920,19 +2971,43 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         const prevReply  = window.escenarioAdultoActivo?.prompt || '';
         const archiveId  = 'hist-' + Date.now();
         const archiveNode = document.createElement('div');
-        archiveNode.className = 'space-y-2 opacity-60';
-        archiveNode.innerHTML = `
-            ${prevReply ? `<div class="flex items-end gap-2">
-                <div class="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">AI</div>
-                <div class="bg-slate-100 text-slate-800 rounded-2xl rounded-bl-sm px-3 py-2 text-xs max-w-xs flex-1">${prevReply}
-                    <button onclick="guardarEnGlosario('${p.id}',\`${prevReply.replace(/`/g,"'")}\`,'${archiveId}')" id="${archiveId}-btn"
-                        class="ml-2 text-amber-400 hover:text-amber-500 transition-colors active:scale-125 leading-none" title="Guardar en glosario">⭐</button>
-                </div>
-            </div>` : ''}
-            <div class="flex justify-end gap-2">
-                <div class="bg-emerald-500 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs max-w-xs">${userBubble}</div>
-                <div class="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">${initials}</div>
-            </div>`;
+        archiveNode.className = 'space-y-2';
+        // AI archived bubble — interactive words
+        if (prevReply) {
+            const aiRow = document.createElement('div');
+            aiRow.className = 'flex items-end gap-2';
+            aiRow.innerHTML = `<div class="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">AI</div>`;
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'bg-slate-200 text-slate-700 rounded-2xl rounded-bl-sm px-3 py-2 text-xs max-w-xs flex-1 leading-relaxed';
+            // Render clickable words inside archived bubble
+            prevReply.split(/(\s+)/).forEach(token => {
+                if (!/\S/.test(token)) { aiBubble.appendChild(document.createTextNode(token)); return; }
+                const word = token.replace(/[^a-zA-Z']/g,'');
+                const sp = document.createElement('span');
+                sp.textContent = token;
+                sp.style.cssText = 'cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.1s;';
+                sp.addEventListener('click', () => chatWordTap(sp, word || token));
+                sp.addEventListener('mouseenter', () => { sp.style.background='rgba(99,179,237,0.2)'; });
+                sp.addEventListener('mouseleave', () => { sp.style.background=''; });
+                aiBubble.appendChild(sp);
+            });
+            const starBtn = document.createElement('button');
+            starBtn.id = archiveId + '-btn';
+            starBtn.className = 'ml-1 text-amber-400 hover:text-amber-500 transition-colors active:scale-125 leading-none';
+            starBtn.title = 'Guardar en glosario';
+            starBtn.textContent = '⭐';
+            starBtn.onclick = () => guardarEnGlosario(p.id, prevReply, archiveId);
+            aiBubble.appendChild(starBtn);
+            aiRow.appendChild(aiBubble);
+            archiveNode.appendChild(aiRow);
+        }
+        // User bubble
+        const userRow = document.createElement('div');
+        userRow.className = 'flex justify-end gap-2';
+        userRow.innerHTML = `
+            <div class="bg-emerald-600 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs max-w-xs leading-relaxed">${userBubble}</div>
+            <div class="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">${initials}</div>`;
+        archiveNode.appendChild(userRow);
         histDiv.appendChild(archiveNode);
         histDiv.classList.remove('hidden');
         histDiv.scrollTop = histDiv.scrollHeight;
