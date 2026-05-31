@@ -254,7 +254,29 @@
         .wm-btn-en.selected { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; border-color: #1d4ed8; transform: scale(1.04); }
         .wm-btn-es  { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 2px solid #86efac; color: #14532d; }
         .wm-btn-es.selected { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border-color: #15803d; transform: scale(1.04); }
+        .wm-grid-card { cursor: pointer; }
         .wm-btn-en, .wm-btn-es { transition: all 0.18s ease; font-weight: 700; border-radius: 1rem; padding: 0.65rem 0.5rem; font-size: 0.82rem; text-align: center; width: 100%; }
+
+        /* ── Elegí tu práctica panel ── */
+        .practica-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .practica-card:active { transform: scale(0.96); }
+        .practica-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+
+        /* ── Kids nav bar ── */
+        #kids-nav { position: sticky; bottom: 0; z-index: 30; }
+        .kids-nav-btn { transition: all 0.18s ease; }
+        .kids-nav-btn.active { background: linear-gradient(135deg,#2563eb,#4f46e5); color: #fff; }
+
+        /* ── Mapa de Aventuras overlay ── */
+        @keyframes mapNodePop {
+            0%   { transform: scale(0); opacity: 0; }
+            70%  { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .mapa-node { animation: mapNodePop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+        /* ── Adults stats bento ── */
+        .stat-ring { transition: stroke-dashoffset 1s ease; }
     </style>
 </head>
 <body class="mesh-bg text-slate-900 min-h-screen flex flex-col antialiased">
@@ -440,8 +462,8 @@
 </div>
 
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
-<div id="sb-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[250] hidden p-4 touch-manipulation select-none">
-    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 wm-pop relative" style="box-shadow:0 24px 64px rgba(0,88,190,0.18),0 2px 8px rgba(0,0,0,0.08);">
+<div id="sb-overlay" class="fixed inset-0 z-[250] hidden flex flex-col touch-manipulation select-none" style="background:linear-gradient(135deg,#dbeafe 0%,#ede9fe 50%,#fce7f3 100%);">
+    <div id="sb-card" class="flex-1 flex flex-col w-full max-w-sm mx-auto p-6 space-y-4 overflow-y-auto">
         <button onclick="document.getElementById('sb-overlay').classList.add('hidden');window.speechSynthesis.cancel();"
                 class="absolute top-3 right-3 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors z-30">✕</button>
         <div class="text-center space-y-1 pt-1">
@@ -462,40 +484,54 @@
     </div>
 </div>
 
-<!-- ═══ WORD MATCH MODAL ═══ -->
-<div id="wordmatch-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4 touch-manipulation select-none">
-    <div id="wordmatch-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-5 wm-pop">
-        <div class="text-center space-y-1">
-            <div class="text-4xl">🎮</div>
-            <h2 class="text-xl font-extrabold text-slate-800">Word Match!</h2>
-            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá una palabra y su significado</p>
+<!-- ═══ WORD MATCH FULL SCREEN ═══ -->
+<div id="wordmatch-overlay" class="fixed inset-0 z-[60] hidden" style="background:linear-gradient(160deg,#f0f4ff 0%,#faf8ff 60%,#f0fff8 100%);">
+    <div class="h-full flex flex-col max-w-3xl mx-auto px-4">
+        <!-- Header -->
+        <div class="flex items-center justify-between py-4 flex-shrink-0">
+            <button onclick="document.getElementById('wordmatch-overlay').classList.add('hidden')" class="flex items-center gap-1 text-slate-500 hover:text-slate-700 font-semibold text-sm transition-colors active:scale-95">
+                ← Práctica
+            </button>
+            <div class="flex items-center gap-3">
+                <div id="wm-timer-display" class="bg-white shadow-sm px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-bold text-violet-600">⏱ <span id="wm-timer">0:00</span></div>
+                <div class="bg-white shadow-sm px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-bold text-amber-500">⭐ <span id="wm-xp-display">0</span></div>
+            </div>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-            <div id="wm-col-en" class="space-y-2"></div>
-            <div id="wm-col-es" class="space-y-2"></div>
+        <!-- Progress bar -->
+        <div class="mb-3 flex-shrink-0">
+            <div class="flex justify-between text-xs font-bold text-slate-400 mb-1">
+                <span id="wm-title-label">Word Match</span>
+                <span id="wm-progress-label">0/4</span>
+            </div>
+            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div id="wm-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
         </div>
-        <div class="flex items-center justify-center gap-2">
-            <div id="wm-dots" class="flex gap-2"></div>
-        </div>
+        <!-- Grid -->
+        <div id="wm-grid" class="flex-1 grid grid-cols-4 gap-3 content-center pb-4"></div>
     </div>
 </div>
 
 
 <!-- ═══ GEM MATCH GAME ═══ -->
-<div id="gem-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] hidden p-4 touch-manipulation select-none">
-    <div id="gem-card" class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden wm-pop">
-        <div class="px-5 pt-5 pb-3 flex justify-between items-center">
-            <div>
-                <p class="text-xs font-extrabold text-violet-500 uppercase tracking-widest">💎 Gem Match</p>
-                <p id="gem-subtitle" class="text-slate-400 text-xs mt-0.5">¡Encontrá los pares!</p>
+<div id="gem-overlay" class="fixed inset-0 z-[60] hidden flex flex-col" style="background: linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);">
+    <div class="flex items-center justify-between px-4 py-3 flex-shrink-0">
+        <button onclick="cerrarGemMatch()" class="text-white/70 hover:text-white font-semibold text-sm">← Salir</button>
+        <div class="text-center">
+            <p class="text-violet-300 text-xs font-bold uppercase tracking-widest">💎 Gemas Lingüísticas</p>
+        </div>
+        <div class="flex gap-3">
+            <div class="bg-white/10 rounded-xl px-3 py-1.5 text-center">
+                <p class="text-[10px] text-violet-300 font-bold">PARES</p>
+                <p id="gem-pairs-left" class="text-white font-extrabold text-sm">0/8</p>
             </div>
-            <div class="flex items-center gap-2">
-                <span id="gem-pairs-left" class="text-xs font-extrabold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">0/6</span>
-                <button onclick="cerrarGemMatch()" class="text-slate-400 w-9 h-9 flex items-center justify-center rounded-xl text-xl hover:bg-slate-100 transition-colors active:scale-95">✕</button>
+            <div class="bg-white/10 rounded-xl px-3 py-1.5 text-center">
+                <p class="text-[10px] text-violet-300 font-bold">MOVS</p>
+                <p id="gem-moves" class="text-white font-extrabold text-sm">20</p>
             </div>
         </div>
-        <div id="gem-grid" class="grid grid-cols-4 gap-2 px-5 pb-5"></div>
     </div>
+    <div id="gem-grid" class="flex-1 grid grid-cols-4 gap-3 px-4 pb-4 content-center max-w-sm mx-auto w-full"></div>
 </div>
 
 <!-- ═══ FLIP CARDS GAME ═══ -->
@@ -647,6 +683,29 @@
             </div>
         </div>
     </header>
+
+
+    <!-- Kids nav bar -->
+    <nav id="kids-nav" class="max-w-2xl mx-auto w-full mb-3">
+        <div class="glass-card rounded-2xl p-1.5 shadow flex gap-1">
+            <button id="knav-aventuras" class="kids-nav-btn active flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold"
+                    onclick="kidsNavTab('aventuras')">
+                <span class="text-base">🗺️</span>Aventuras
+            </button>
+            <button id="knav-tarjetas" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
+                    onclick="kidsNavTab('tarjetas')">
+                <span class="text-base">🃏</span>Tarjetas
+            </button>
+            <button id="knav-shadowing" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
+                    onclick="kidsNavTab('shadowing')">
+                <span class="text-base">🎭</span>Shadowing
+            </button>
+            <button id="knav-mapa" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
+                    onclick="kidsNavTab('mapa')">
+                <span class="text-base">🌟</span>Mapa
+            </button>
+        </div>
+    </nav>
 
     <!-- Progress bar shown after tier 1 unlocked -->
     <div id="progress-bar-wrapper" class="max-w-2xl mx-auto w-full mb-3 hidden">
@@ -808,6 +867,42 @@
             </div>
         </div>
 
+        <!-- Elegí tu práctica screen -->
+<div id="elige-practica-panel" class="hidden space-y-6">
+    <div class="text-center">
+        <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">¡Próxima parada!</p>
+        <h2 id="elige-practica-titulo" class="text-2xl font-extrabold text-slate-800">¿Qué querés practicar?</h2>
+        <p class="text-slate-400 text-sm mt-1">Elegí tu modo para ganar +20 XP y mantener la racha 🔥</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Tarjetas -->
+        <button onclick="window._tarjetasTema && mostrarFlipCards(window._tarjetasTema)" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-blue-100 hover:border-blue-300 hover:-translate-y-1 transition-all active:scale-95">
+            <div class="w-20 h-20 mb-4 bg-blue-50 rounded-full flex items-center justify-center text-5xl floating">🃏</div>
+            <h3 class="font-extrabold text-blue-600 text-lg mb-2">Tarjetas</h3>
+            <p class="text-slate-400 text-sm flex-grow">Domina vocabulario con tarjetas visuales y audio.</p>
+            <div class="mt-4 w-full py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm neo-btn">Jugar Ahora →</div>
+        </button>
+        <!-- Word Match -->
+        <button onclick="window.mostrarWordMatch();volverDeElige()" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-amber-200 hover:border-amber-400 hover:-translate-y-1 transition-all active:scale-95 relative overflow-hidden">
+            <div class="absolute top-3 right-3 px-2 py-0.5 bg-amber-400 text-white text-[10px] font-extrabold rounded-full uppercase tracking-wider">POPULAR</div>
+            <div class="w-20 h-20 mb-4 bg-amber-50 rounded-full flex items-center justify-center text-5xl floating" style="animation-delay:0.5s">🎮</div>
+            <h3 class="font-extrabold text-amber-600 text-lg mb-2">Word Match</h3>
+            <p class="text-slate-400 text-sm flex-grow">Une palabras con su significado correcto.</p>
+            <div class="mt-4 w-full py-3 bg-amber-500 text-white rounded-2xl font-bold text-sm neo-btn">Comenzar Reto 🎉</div>
+        </button>
+        <!-- Misión -->
+        <button onclick="irAMisionDirecta(window._temaActual)" class="group bg-white rounded-3xl p-6 flex flex-col items-center text-center shadow-md border-2 border-emerald-100 hover:border-emerald-300 hover:-translate-y-1 transition-all active:scale-95">
+            <div class="w-20 h-20 mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-5xl floating" style="animation-delay:1s">🧩</div>
+            <h3 class="font-extrabold text-emerald-600 text-lg mb-2">Misión</h3>
+            <p class="text-slate-400 text-sm flex-grow">Responde preguntas y sube de nivel.</p>
+            <div class="mt-4 w-full py-3 bg-emerald-600 text-white rounded-2xl font-bold text-sm neo-btn">Construir 🚀</div>
+        </button>
+    </div>
+    <div class="text-center">
+        <button onclick="volverDeElige()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold transition-colors">← Volver al mapa</button>
+    </div>
+</div>
+
         <!-- Mission card -->
         <div id="zona-mision" class="hidden">
             <div class="glass-card rounded-3xl p-6 shadow-xl space-y-4 relative adventure-card">
@@ -834,6 +929,21 @@
 
     </main>
 </div>
+
+<!-- ═══ MAPA DE AVENTURAS ═══ -->
+<div id="mapa-overlay" class="fixed inset-0 z-[150] hidden flex flex-col" style="background:linear-gradient(160deg,#dbeafe 0%,#ede9fe 50%,#fce7f3 100%);">
+    <div class="flex items-center justify-between px-4 py-3 flex-shrink-0">
+        <button onclick="cerrarMapa()" class="text-slate-500 hover:text-slate-700 font-semibold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-slate-800 text-base">🗺 Tu Gran Aventura</h2>
+        <div class="w-16"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 pb-8">
+        <p class="text-center text-slate-500 text-xs mb-6">Sigue el camino para ganar tesoros ✨</p>
+        <div id="mapa-path" class="relative max-w-xs mx-auto space-y-2"></div>
+    </div>
+</div>
+
+<!-- mapa-overlay: see above -->
 
 <!-- ═══ ADULTS INTERFACE ═══ -->
 <div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden" style="background:linear-gradient(160deg,#f0f4ff 0%,#faf8ff 60%,#f0fff8 100%);">
@@ -880,7 +990,61 @@
             </div>
             <ol id="leaderboard-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm"></ol>
         </div>
+        <!-- Stats bento row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto w-full mb-4">
+            <div class="glass-card rounded-2xl p-4 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">🎙 Pronunciación</p>
+                <p id="adulto-pron-pct" class="text-2xl font-extrabold text-blue-600">–%</p>
+                <div class="mt-2 h-1.5 bg-slate-100 rounded-full"><div id="adulto-pron-bar" class="h-full bg-blue-500 rounded-full transition-all" style="width:0%"></div></div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">📚 Vocabulario</p>
+                <p id="adulto-vocab-count" class="text-2xl font-extrabold text-violet-600">0</p>
+                <p class="text-[10px] text-slate-400 mt-1">palabras aprendidas</p>
+            </div>
+            <div class="glass-card rounded-2xl p-4 shadow-sm col-span-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">🎯 Habilidades</p>
+                <svg id="adulto-radar" viewBox="-60 -60 120 120" class="w-full h-24">
+                    <polygon id="radar-bg" points="0,-45 39,-22 39,22 0,45 -39,22 -39,-22" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+                    <polygon id="radar-mid" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+                    <polygon id="radar-fill" points="0,-40 35,-20 30,18 0,38 -32,16 -35,-18" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="1.5"/>
+                    <text x="0" y="-50" text-anchor="middle" font-size="7" fill="#94a3b8">Speaking</text>
+                    <text x="44" y="-24" text-anchor="start" font-size="7" fill="#94a3b8">Vocab</text>
+                    <text x="44" y="26" text-anchor="start" font-size="7" fill="#94a3b8">Grammar</text>
+                    <text x="0" y="52" text-anchor="middle" font-size="7" fill="#94a3b8">Listening</text>
+                    <text x="-44" y="26" text-anchor="end" font-size="7" fill="#94a3b8">Reading</text>
+                    <text x="-44" y="-24" text-anchor="end" font-size="7" fill="#94a3b8">Writing</text>
+                </svg>
+            </div>
+        </div>
     </header>
+
+        <!-- Stats bento row -->
+        <div class="grid grid-cols-3 gap-3">
+            <!-- Radar / progress ring -->
+            <div class="glass-card rounded-2xl p-3 shadow-sm flex flex-col items-center justify-center gap-1 col-span-1">
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle cx="36" cy="36" r="28" fill="none" stroke="#e0e7ff" stroke-width="7"/>
+                    <circle id="adulto-ring-fill" cx="36" cy="36" r="28" fill="none" stroke="#4f46e5" stroke-width="7"
+                            stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176"
+                            transform="rotate(-90 36 36)" class="stat-ring"/>
+                    <text x="36" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="#312e81" id="adulto-ring-label">0%</text>
+                </svg>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Overall</p>
+            </div>
+            <!-- Pronunciation -->
+            <div class="glass-card rounded-2xl p-3 shadow-sm flex flex-col items-center justify-center gap-1">
+                <div class="text-2xl">🎙️</div>
+                <p class="text-xl font-extrabold text-indigo-600" id="adulto-pron-pct">--</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Pronunciación</p>
+            </div>
+            <!-- Vocabulary -->
+            <div class="glass-card rounded-2xl p-3 shadow-sm flex flex-col items-center justify-center gap-1">
+                <div class="text-2xl">📚</div>
+                <p class="text-xl font-extrabold text-emerald-600" id="adulto-vocab-count">0</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Palabras</p>
+            </div>
+        </div>
 
     <main class="max-w-4xl mx-auto w-full space-y-5 flex-1">
 
@@ -1560,112 +1724,111 @@ Object.assign(MISIONES, {
 let wmState = { selectedEN: null, matched: 0, pairs: [], correctCount: 0 };
 
 window.mostrarWordMatch = function() {
-    const pool    = [...WORD_MATCH_BANK].sort(() => Math.random() - 0.5).slice(0, 4);
-    const shuffES = [...pool.map((p,i) => ({...p, idx:i}))].sort(() => Math.random() - 0.5);
-    wmState = { selectedEN: null, matched: 0, pairs: pool };
+    const pool = [...WORD_MATCH_BANK].sort(() => Math.random()-0.5).slice(0,4);
+    const cells = [];
+    pool.forEach((pair,i) => { cells.push({type:'en',idx:i,text:pair.en}); cells.push({type:'es',idx:i,text:pair.es}); });
+    cells.sort(() => Math.random()-0.5);
 
-    document.getElementById('wordmatch-card').innerHTML = `
-        <div class="text-center space-y-1">
-            <div class="text-4xl">🎮</div>
-            <h2 class="text-xl font-extrabold text-slate-800">Word Match!</h2>
-            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tap a word, then its meaning</p>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-            <div id="wm-col-en" class="space-y-2"></div>
-            <div id="wm-col-es" class="space-y-2"></div>
-        </div>
-        <div class="flex items-center justify-center gap-2">
-            <div id="wm-dots" class="flex gap-1.5"></div>
-        </div>`;
+    const TOPIC_EMOJIS = {greetings:'👋',numbers:'🔢',colors:'🎨',travel:'✈️',animals:'🐾',food:'🍕',clothes:'👗',weather:'🌦',family:'👨‍👩‍👧',feelings:'😊',koala:'🐨',sea:'🐙'};
+    const temaEmoji = TOPIC_EMOJIS[window._temaActual] || '📚';
 
-    document.getElementById('wm-dots').innerHTML = pool.map((_,i) => `<span id="wm-dot-${i}" class="h-3 w-3 rounded-full bg-slate-200 transition-all"></span>`).join('');
-    const colEN = document.getElementById('wm-col-en');
-    const colES = document.getElementById('wm-col-es');
+    wmState = { selectedEN:null, matched:0, pairs:pool, xp:0, timer:0, timerInterval:null };
+    document.getElementById('wm-title-label').textContent = `Word Match ${temaEmoji}`;
+    document.getElementById('wm-progress-label').textContent = `0/${pool.length}`;
+    document.getElementById('wm-progress-bar').style.width = '0%';
+    document.getElementById('wm-xp-display').textContent = '0';
+    document.getElementById('wm-timer').textContent = '0:00';
 
-    pool.forEach((pair, i) => {
-        const btn = document.createElement('button');
-        btn.id = `wm-en-${i}`;
-        btn.className = 'wm-btn-en';
-        btn.innerText = pair.en;
-        btn.onclick = () => wmSelectEN(i);
-        colEN.appendChild(btn);
-    });
-    shuffES.forEach(pair => {
-        const btn = document.createElement('button');
-        btn.id = `wm-es-${pair.idx}`;
-        btn.className = 'wm-btn-es';
-        btn.innerText = pair.es;
-        btn.onclick = () => wmSelectES(pair.idx);
-        colES.appendChild(btn);
-    });
+    clearInterval(wmState.timerInterval);
+    let secs = 0;
+    wmState.timerInterval = setInterval(() => {
+        secs++;
+        document.getElementById('wm-timer').textContent = Math.floor(secs/60)+':'+(secs%60).toString().padStart(2,'0');
+    }, 1000);
+
+    const PAIR_COLORS = ['from-blue-100 to-blue-200','from-purple-100 to-purple-200','from-emerald-100 to-emerald-200','from-amber-100 to-amber-200'];
+    const grid = document.getElementById('wm-grid');
+    grid.innerHTML = cells.map((c,i) => {
+        const colorClass = PAIR_COLORS[c.idx % PAIR_COLORS.length];
+        return `<button id="wmg-${i}" data-type="${c.type}" data-idx="${c.idx}"
+            class="wm-grid-card aspect-square bg-gradient-to-br ${colorClass} rounded-2xl flex flex-col items-center justify-center gap-1 shadow-sm border-2 border-transparent text-center p-2 transition-all active:scale-95 font-bold text-sm"
+            onclick="wmGridClick(${i})">
+            <span class="text-2xl">${c.type==='en'?'🔤':'💬'}</span>
+            <span class="text-xs font-extrabold text-slate-700 leading-tight">${c.text}</span>
+        </button>`;
+    }).join('');
 
     document.getElementById('wordmatch-overlay').classList.remove('hidden');
-    hablarNativo('Word Match! Tap a word, then find its meaning!');
+    hablarNativo('Word Match! Tap a word, then find its pair!');
 };
 
-function wmSelectEN(idx) {
-    const btn = document.getElementById(`wm-en-${idx}`);
+let wmGridState = { selectedCell: null };
+
+window.wmGridClick = function(cellIdx) {
+    const btn = document.getElementById(`wmg-${cellIdx}`);
     if (!btn || btn.disabled) return;
-    if (wmState.selectedEN !== null) {
-        const prev = document.getElementById(`wm-en-${wmState.selectedEN}`);
-        if (prev && !prev.disabled) prev.className = 'wm-btn-en';
+    const type = btn.dataset.type;
+    const idx  = parseInt(btn.dataset.idx);
+
+    if (!wmGridState.selectedCell) {
+        wmGridState.selectedCell = { cellIdx, type, idx };
+        btn.classList.add('ring-4','ring-blue-500','scale-105');
+        hablarNativo(wmState.pairs[idx][type==='en'?'en':'es']);
+        return;
     }
-    wmState.selectedEN = idx;
-    btn.className = 'wm-btn-en selected';
-    hablarNativo(wmState.pairs[idx].en);
-}
 
-function wmSelectES(idx) {
-    if (wmState.selectedEN === null) return;
-    const btnES = document.getElementById(`wm-es-${idx}`);
-    if (!btnES || btnES.disabled) return;
+    const prev = wmGridState.selectedCell;
+    if (prev.cellIdx === cellIdx) {
+        btn.classList.remove('ring-4','ring-blue-500','scale-105');
+        wmGridState.selectedCell = null;
+        return;
+    }
 
-    if (wmState.selectedEN === idx) {
-        const btnEN = document.getElementById(`wm-en-${wmState.selectedEN}`);
-        [btnEN, btnES].forEach(b => {
-            if (b) {
-                b.className = 'w-full py-3 px-3 bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-extrabold rounded-2xl text-sm text-center success-glow';
-                b.disabled = true;
-            }
+    if (prev.idx === idx && prev.type !== type) {
+        [cellIdx, prev.cellIdx].forEach(ci => {
+            const b = document.getElementById(`wmg-${ci}`);
+            if (b) { b.className = 'wm-grid-card aspect-square bg-gradient-to-br from-emerald-300 to-green-400 rounded-2xl flex flex-col items-center justify-center gap-1 shadow-sm border-2 border-emerald-400 text-center p-2 success-glow font-bold text-sm'; b.disabled = true; }
         });
-        const dot = document.getElementById(`wm-dot-${idx}`);
-        if (dot) dot.className = 'h-3 w-3 rounded-full bg-emerald-400 transition-all scale-125';
         wmState.matched++;
-        wmState.selectedEN = null;
+        wmState.xp += 25;
+        document.getElementById('wm-xp-display').textContent = wmState.xp;
+        const pct = Math.round((wmState.matched/wmState.pairs.length)*100);
+        document.getElementById('wm-progress-bar').style.width = pct+'%';
+        document.getElementById('wm-progress-label').textContent = `${wmState.matched}/${wmState.pairs.length}`;
         hablarNativo(wmState.pairs[idx].en);
-        if (wmState.matched === 4) setTimeout(wmComplete, 700);
+        wmGridState.selectedCell = null;
+        if (wmState.matched === wmState.pairs.length) setTimeout(wmGridComplete, 700);
     } else {
-        btnES.classList.add('wrong-shake', 'bg-rose-50', 'border-rose-400');
-        setTimeout(() => btnES.classList.remove('wrong-shake', 'bg-rose-50', 'border-rose-400'), 500);
+        [cellIdx, prev.cellIdx].forEach(ci => {
+            const b = document.getElementById(`wmg-${ci}`);
+            if (b) { b.classList.add('wrong-shake','bg-rose-100','border-rose-300'); b.classList.remove('ring-4','ring-blue-500','scale-105'); setTimeout(()=>{ b.classList.remove('wrong-shake','bg-rose-100','border-rose-300'); },500); }
+        });
+        wmGridState.selectedCell = null;
     }
-}
+};
 
-function wmComplete() {
+function wmGridComplete() {
+    clearInterval(wmState.timerInterval);
     const p = window.familia[window.perfilActualId];
-    p.score += 100; p.scoreSemanal = (p.scoreSemanal||0) + 100;
+    p.score += 100; p.scoreSemanal = (p.scoreSemanal||0)+100;
     guardarEstado();
-    document.getElementById('puntos-nena').innerText = p.score + ' XP';
     actualizarLeaderboardUI();
-
-    document.getElementById('wordmatch-card').innerHTML = `
-        <div class="text-center space-y-4 py-4">
-            <div class="text-7xl">🏆</div>
-            <h2 class="text-2xl font-extrabold text-slate-800">Perfect!</h2>
-            <p class="text-emerald-600 font-extrabold text-xl">+100 XP Bonus!</p>
-            <p class="text-slate-400 text-sm">You matched all words!</p>
+    if (p.tipo==='infantil') { document.getElementById('puntos-nena').innerText = p.score+' XP'; }
+    document.getElementById('wm-grid').innerHTML = `
+        <div class="col-span-4 flex flex-col items-center justify-center gap-4 py-8">
+            <div class="text-8xl">🏆</div>
+            <h2 class="text-3xl font-extrabold text-slate-800">¡Perfecto!</h2>
+            <p class="text-emerald-600 font-extrabold text-2xl">+100 XP Bonus!</p>
+            <p class="text-slate-400">¡Uniste todas las palabras!</p>
+            <button onclick="document.getElementById('wordmatch-overlay').classList.add('hidden')" class="mt-4 bg-blue-600 text-white font-extrabold px-8 py-4 rounded-2xl text-lg active:scale-95 neo-btn">¡Genial! 🎉</button>
         </div>`;
-    const wmWinFrases = [
-        'Amazing! Perfect score! One hundred bonus points!',
-        'Fantastic! You matched them all! Great job!',
-        'Brilliant! One hundred extra points for you!',
-        'Wonderful! You are a word champion!',
-    ];
-    hablarNativo(wmWinFrases[Math.floor(Math.random() * wmWinFrases.length)]);
-    setTimeout(() => {
-        document.getElementById('wordmatch-overlay').classList.add('hidden');
-        window.volverATematicas();
-    }, 3500);
+    hablarNativo('Amazing! You matched them all! One hundred bonus points!');
 }
+
+// Legacy no-op stubs to avoid errors if referenced
+function wmSelectEN() {}
+function wmSelectES() {}
+function wmComplete() {}
 
 const _FAMILIA_DEFAULT = {
     perfil1: { id:'perfil1', nombre:'Juliana',     tipo:'infantil', nivel:'Starter',            score:0, racha:0, misionIndex:0, temaProgress:{}, avatar:'🐼', avatarBg:'from-pink-400 to-rose-500' },
@@ -2016,6 +2179,11 @@ function actualizarNivelAdulto(p) {
     document.getElementById('adulto-nivel-label').innerText = p.nivel + ' → ' + (NIVEL_KEYS[nivelIdx+1]||'Master');
     document.getElementById('adulto-nivel-xp').innerText    = `${xpActual} / ${xpSig} XP`;
     document.getElementById('adulto-nivel-fill').style.width = pct + '%';
+    const pronPct = Math.min(98, Math.round(45 + ((p.score||0)/20)));
+    const pronPctEl = document.getElementById('adulto-pron-pct');
+    if (pronPctEl) { pronPctEl.textContent = pronPct+'%'; document.getElementById('adulto-pron-bar').style.width = pronPct+'%'; }
+    const vocabEl = document.getElementById('adulto-vocab-count');
+    if (vocabEl) { const gKey = 'sinergia_glos_'+p.id; const glos = JSON.parse(localStorage.getItem(gKey)||'[]'); vocabEl.textContent = (glos.length || Math.round((p.score||0)/8)); }
 }
 
 function actualizarBadgesTemas(p) {
@@ -2091,29 +2259,57 @@ window.cambiarPerfil = function(id) {
 };
 
 window.seleccionarTematica = function(idTema) {
-    const p      = window.familia[window.perfilActualId];
-    const temaIdx = p.temaProgress[idTema] || 0;
-    const tema   = obtenerPregunta(idTema, temaIdx);
+    mostrarEligePractica(idTema);
+};
 
+window._temaActual = null;
+window._tarjetasTema = null;
+
+function mostrarEligePractica(idTema) {
+    const temaToFlipDeck = {
+        greetings:'Animals', numbers:'Animals', colors:'Animals',
+        travel:'Animals', animals:'Animals', food:'Food', clothes:'Clothes',
+        weather:'Weather', family:'Family', feelings:'Feelings',
+        koala:'Koala', sea:'Sea'
+    };
+    window._temaActual = idTema;
+    window._tarjetasTema = temaToFlipDeck[idTema] || 'Animals';
+    const p = window.familia[window.perfilActualId];
+    const titleEl = document.getElementById('elige-practica-titulo');
+    if (titleEl) titleEl.textContent = `¿Qué querés practicar hoy, ${p.nombre.split(' ')[0]}?`;
+    document.getElementById('panel-tematicas').classList.add('hidden');
+    document.getElementById('zona-mision').classList.add('hidden');
+    document.getElementById('elige-practica-panel').classList.remove('hidden');
+    hablarNativo(`¿Qué querés practicar hoy, ${p.nombre.split(' ')[0]}?`);
+}
+
+function volverDeElige() {
+    document.getElementById('elige-practica-panel').classList.add('hidden');
+    document.getElementById('panel-tematicas').classList.remove('hidden');
+    actualizarBadgesTemas(window.familia[window.perfilActualId]);
+}
+
+window.irAMisionDirecta = function(idTema) {
+    document.getElementById('elige-practica-panel').classList.add('hidden');
+    const p = window.familia[window.perfilActualId];
+    const temaIdx = p.temaProgress[idTema] || 0;
+    const tema = obtenerPregunta(idTema, temaIdx);
     document.getElementById('panel-tematicas').classList.add('hidden');
     const zonaEl = document.getElementById('zona-mision');
     zonaEl.classList.remove('hidden');
     zonaEl.classList.add('fade-in-up');
     setTimeout(() => zonaEl.classList.remove('fade-in-up'), 400);
-
     document.getElementById('mision-categoria-titulo').innerText = idTema.toUpperCase() + (temaIdx >= 4 ? ' ⚡' : '');
     document.getElementById('feedback-nena').classList.add('hidden');
-
     const qEl = document.getElementById('mision-pregunta-texto');
-    qEl.innerText    = tema.pregunta;
+    qEl.innerText = tema.pregunta;
     qEl.style.cursor = 'pointer';
-    qEl.onclick      = () => hablarNativo(tema.audioText);
+    qEl.onclick = () => hablarNativo(tema.audioText);
     document.getElementById('btn-audio-infantil').onclick = () => hablarNativo(tema.audioText);
-    document.getElementById('btn-audio-lento').onclick    = () => hablarNativo(tema.audioText, 0.55);
-
+    document.getElementById('btn-audio-lento').onclick = () => hablarNativo(tema.audioText, 0.55);
     const contenedor = document.getElementById('contenedor-respuestas');
     contenedor.innerHTML = '';
-    const cols    = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
+    const cols = tema.opciones.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
     const wrapper = document.createElement('div');
     wrapper.className = `grid ${cols} gap-3`;
     tema.opciones.forEach(opt => {
@@ -2127,7 +2323,6 @@ window.seleccionarTematica = function(idTema) {
         }
         btn.onclick = () => {
             const word = texto || opt.texto;
-            // Speak the tapped option, wait for it to finish before evaluating
             const msDelay = 300 + word.length * 55;
             hablarNativo(word, 0.85);
             setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), msDelay);
@@ -2139,9 +2334,80 @@ window.seleccionarTematica = function(idTema) {
 };
 
 window.volverATematicas = function() {
+    volverDeElige();
     document.getElementById('zona-mision').classList.add('hidden');
     document.getElementById('panel-tematicas').classList.remove('hidden');
     actualizarBadgesTemas(window.familia[window.perfilActualId]);
+};
+
+window.kidsNavTab = function(tab) {
+    ['aventuras','tarjetas','shadowing','mapa'].forEach(t => {
+        const btn = document.getElementById('knav-'+t);
+        if (!btn) return;
+        if (t === tab) { btn.className = 'kids-nav-btn flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-blue-600 text-white shadow-sm'; }
+        else { btn.className = 'kids-nav-btn flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-500 hover:text-slate-700'; }
+    });
+    if (tab === 'aventuras') {
+        document.getElementById('panel-tematicas').classList.remove('hidden');
+        document.getElementById('elige-practica-panel').classList.add('hidden');
+        document.getElementById('zona-mision').classList.add('hidden');
+    } else if (tab === 'tarjetas') {
+        abrirFlipCards ? abrirFlipCards() : mostrarFlipCards('Animals');
+    } else if (tab === 'shadowing') {
+        const ov = document.getElementById('shadow-overlay');
+        if (ov) { ov.classList.remove('hidden'); if(typeof iniciarShadowing==='function') iniciarShadowing(); }
+    } else if (tab === 'mapa') {
+        window.abrirMapa && window.abrirMapa();
+    }
+};
+
+const MAPA_TEMAS = [
+    { id:'greetings', label:'Saludos', emoji:'👋', color:'#2563eb' },
+    { id:'numbers',   label:'Números', emoji:'🔢', color:'#f59e0b' },
+    { id:'colors',    label:'Colores', emoji:'🎨', color:'#ec4899' },
+    { id:'travel',    label:'Travel',  emoji:'✈️', color:'#10b981' },
+    { id:'animals',   label:'Animals', emoji:'🐾', color:'#84cc16' },
+    { id:'food',      label:'Food',    emoji:'🍕', color:'#facc15' },
+    { id:'clothes',   label:'Clothes', emoji:'👗', color:'#a855f7' },
+    { id:'weather',   label:'Weather', emoji:'🌦', color:'#38bdf8' },
+    { id:'family',    label:'Family',  emoji:'👨‍👩‍👧', color:'#f43f5e' },
+    { id:'feelings',  label:'Feelings',emoji:'😊', color:'#818cf8' },
+    { id:'koala',     label:'Koala',   emoji:'🐨', color:'#64748b' },
+    { id:'sea',       label:'Sea',     emoji:'🐙', color:'#06b6d4' },
+];
+
+window.abrirMapa = function() {
+    const p = window.familia[window.perfilActualId];
+    const path = document.getElementById('mapa-path');
+    path.innerHTML = '';
+
+    path.innerHTML += `<div class="flex justify-center mb-4"><div class="bg-yellow-400 rounded-3xl px-6 py-3 shadow-lg text-center"><div class="text-3xl">🎁</div><div class="text-xs font-extrabold text-yellow-900">¡Gran Tesoro!</div><div class="text-[10px] text-yellow-700">Nivel 12</div></div></div>`;
+
+    MAPA_TEMAS.slice().reverse().forEach((tema, ri) => {
+        const i = MAPA_TEMAS.length - 1 - ri;
+        const progress = p.temaProgress?.[tema.id] || 0;
+        const unlocked = i === 0 || (p.temaProgress?.[MAPA_TEMAS[i-1].id] || 0) > 0;
+        const completed = progress >= 8;
+        const side = ri % 2 === 0 ? 'justify-start pl-8' : 'justify-end pr-8';
+
+        path.innerHTML += `
+            <div class="flex ${side} mb-1">
+                <button onclick="${unlocked ? `cerrarMapa();mostrarEligePractica('${tema.id}')` : ''}"
+                    class="relative w-20 h-20 rounded-3xl flex flex-col items-center justify-center gap-1 shadow-lg transition-all active:scale-95 ${!unlocked ? 'opacity-40 cursor-not-allowed' : 'hover:-translate-y-1'}"
+                    style="background:${completed ? '#22c55e' : unlocked ? tema.color : '#94a3b8'}">
+                    <span class="text-3xl">${completed ? '✅' : unlocked ? tema.emoji : '🔒'}</span>
+                    <span class="text-[10px] font-extrabold text-white leading-none">${tema.label}</span>
+                    ${progress > 0 ? `<span class="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-[9px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center">${progress}</span>` : ''}
+                </button>
+            </div>
+            ${ri < MAPA_TEMAS.length-1 ? `<div class="flex ${ri%2===0?'justify-start pl-16':'justify-end pr-16'} my-0.5"><div class="text-slate-300 text-xl">↕</div></div>` : ''}`;
+    });
+
+    document.getElementById('mapa-overlay').classList.remove('hidden');
+};
+
+window.cerrarMapa = function() {
+    document.getElementById('mapa-overlay').classList.add('hidden');
 };
 
 window.cargarEscenarioFijoAdulto = function(idEsc) {
@@ -2594,51 +2860,64 @@ const GEM_EMOJIS = ['💎','🔮','⭐','🌙','🦋','🌈','🍀','🎯','🎪
 let gemState = { cards: [], flipped: [], matched: 0, locked: false };
 
 window.mostrarGemMatch = function() {
-    const subset = [...GEM_EMOJIS].sort(() => Math.random()-0.5).slice(0,6);
-    const pairs  = [...subset, ...subset].sort(() => Math.random()-0.5);
-    gemState = { cards: pairs, flipped: [], matched: 0, locked: false };
-    
-    const grid = document.getElementById('gem-grid');
-    document.getElementById('gem-pairs-left').textContent = `0/6`;
-    document.getElementById('gem-subtitle').textContent = '¡Encontrá los 6 pares!';
-    grid.innerHTML = pairs.map((emoji, i) => `
-        <button id="gem-${i}" class="gem-card h-14 rounded-2xl relative overflow-hidden shadow-sm"
-                style="background:linear-gradient(135deg,#e0e7ff,#c7d2fe);"
-                onclick="gemFlip(${i})">
-            <div class="gem-front absolute inset-0 flex items-center justify-center text-2xl" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">
-                <span class="text-white font-bold text-lg">?</span>
-            </div>
-            <div class="gem-back absolute inset-0 hidden items-center justify-center text-3xl" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);">${emoji}</div>
-        </button>`).join('');
-    
+    const GEM_POOL = ['💎','🔮','⭐','🌙','🦋','🌈','🍀','🎯'];
+    const pairs = [...GEM_POOL, ...GEM_POOL].sort(() => Math.random()-0.5);
+    gemState = { cards: pairs, selected: null, matched: 0, moves: 20, locked: false };
+
+    document.getElementById('gem-pairs-left').textContent = `0/${GEM_POOL.length}`;
+    document.getElementById('gem-moves').textContent = '20';
+
+    document.getElementById('gem-grid').innerHTML = pairs.map((emoji,i) =>
+        `<button id="gem-${i}" onclick="gemTap(${i})"
+            class="gem-vis-card aspect-square bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center text-4xl transition-all active:scale-90 border-2 border-white/10"
+            data-emoji="${emoji}">${emoji}</button>`
+    ).join('');
+
     document.getElementById('gem-overlay').classList.remove('hidden');
-    hablarNativo('Gem Match! Find the matching pairs!');
+    hablarNativo('Gemas Lingüísticas! Find the matching pairs!');
 };
 
-window.gemFlip = function(i) {
-    if (gemState.locked) return;
-    if (gemState.flipped.includes(i)) return;
+window.gemTap = function(i) {
+    if (gemState.locked || gemState.moves <= 0) return;
     const card = document.getElementById(`gem-${i}`);
-    if (!card || card.classList.contains('matched')) return;
-    card.classList.add('flipped');
-    gemState.flipped.push(i);
-    if (gemState.flipped.length < 2) return;
-    gemState.locked = true;
-    const [a, b] = gemState.flipped;
-    if (gemState.cards[a] === gemState.cards[b]) {
-        document.getElementById(`gem-${a}`).classList.add('matched');
-        document.getElementById(`gem-${b}`).classList.add('matched');
+    if (!card || card.disabled || card.classList.contains('gem-matched')) return;
+
+    if (gemState.selected === null || gemState.selected === undefined) {
+        gemState.selected = i;
+        card.classList.add('ring-4','ring-yellow-300','scale-110','bg-white/30');
+        return;
+    }
+    if (gemState.selected === i) {
+        card.classList.remove('ring-4','ring-yellow-300','scale-110','bg-white/30');
+        gemState.selected = null;
+        return;
+    }
+
+    const prevCard = document.getElementById(`gem-${gemState.selected}`);
+    const prevEmoji = prevCard?.dataset.emoji;
+    const thisEmoji = card.dataset.emoji;
+    const GEM_POOL_LEN = 8;
+
+    if (prevEmoji === thisEmoji) {
+        [i, gemState.selected].forEach(ci => {
+            const b = document.getElementById(`gem-${ci}`);
+            if (b) { b.classList.add('gem-matched','opacity-30'); b.disabled = true; b.classList.remove('ring-4','ring-yellow-300','scale-110','bg-white/30'); }
+        });
         gemState.matched++;
-        document.getElementById('gem-pairs-left').textContent = `${gemState.matched}/6`;
-        gemState.flipped = [];
-        gemState.locked = false;
-        if (gemState.matched === 6) setTimeout(gemWin, 600);
+        document.getElementById('gem-pairs-left').textContent = `${gemState.matched}/${GEM_POOL_LEN}`;
+        gemState.selected = null;
+        if (gemState.matched === GEM_POOL_LEN) setTimeout(gemWin, 500);
     } else {
-        setTimeout(() => {
-            [a,b].forEach(idx => document.getElementById(`gem-${idx}`)?.classList.remove('flipped'));
-            gemState.flipped = [];
-            gemState.locked = false;
-        }, 900);
+        gemState.moves--;
+        document.getElementById('gem-moves').textContent = gemState.moves;
+        [i, gemState.selected].forEach(ci => {
+            const b = document.getElementById(`gem-${ci}`);
+            if (b) { b.classList.add('wrong-shake'); b.classList.remove('ring-4','ring-yellow-300','scale-110','bg-white/30'); setTimeout(()=>b.classList.remove('wrong-shake'),500); }
+        });
+        gemState.selected = null;
+        if (gemState.moves <= 0) setTimeout(() => {
+            document.getElementById('gem-grid').innerHTML = `<div class="col-span-4 text-center text-white py-8"><div class="text-6xl mb-4">😢</div><h2 class="text-2xl font-extrabold mb-2">¡Sin movimientos!</h2><button onclick="window.mostrarGemMatch()" class="mt-4 bg-violet-600 text-white font-extrabold px-6 py-3 rounded-2xl">Intentar de nuevo</button></div>`;
+        }, 500);
     }
 };
 
@@ -2647,22 +2926,100 @@ function gemWin() {
     p.score += 80; p.scoreSemanal = (p.scoreSemanal||0) + 80;
     guardarEstado();
     actualizarLeaderboardUI();
-    document.getElementById('gem-card').innerHTML = `
-        <div class="text-center space-y-4 py-8 px-6">
-            <div class="text-7xl">💎</div>
-            <h2 class="text-2xl font-extrabold text-slate-800">¡Perfecto!</h2>
-            <p class="text-violet-600 font-extrabold text-xl">+80 XP Bonus!</p>
-            <p class="text-slate-400 text-sm">¡Encontraste todos los pares!</p>
+    document.getElementById('gem-grid').innerHTML = `
+        <div class="col-span-4 text-center text-white py-8">
+            <div class="text-6xl mb-4">💎</div>
+            <h2 class="text-2xl font-extrabold mb-2">¡Perfecto!</h2>
+            <p class="text-violet-300 font-extrabold text-xl mb-4">+80 XP Bonus!</p>
+            <button onclick="cerrarGemMatch()" class="bg-violet-600 text-white font-extrabold px-6 py-3 rounded-2xl">¡Genial! 🎉</button>
         </div>`;
     hablarNativo('Amazing! You found all the pairs! Eighty bonus points!');
-    setTimeout(() => {
-        document.getElementById('gem-overlay').classList.add('hidden');
-    }, 3000);
 }
 
 window.cerrarGemMatch = function() {
     document.getElementById('gem-overlay').classList.add('hidden');
 };
+
+// Legacy stub
+window.gemFlip = function() {};
+
+
+// ═══ KIDS NAV SWITCH ═══
+window.kidsNavSwitch = function(tab) {
+    ['aventuras','tarjetas','shadowing'].forEach(t => {
+        const btn = document.getElementById('knav-' + t);
+        if (btn) {
+            btn.classList.remove('active');
+            btn.classList.add('text-slate-500');
+            btn.classList.remove('text-white');
+        }
+    });
+    const active = document.getElementById('knav-' + tab);
+    if (active) {
+        active.classList.add('active');
+        active.classList.remove('text-slate-500');
+    }
+    if (tab === 'tarjetas') {
+        window.abrirFlipCards(window._temaActual || 'greetings');
+    } else if (tab === 'shadowing') {
+        // Trigger shadowing mode for kids (reuse sentence builder)
+        window.mostrarSentenceBuilder && window.mostrarSentenceBuilder();
+    } else {
+        // aventuras: make sure panel-tematicas is shown
+        document.getElementById('panel-tematicas').classList.remove('hidden');
+        document.getElementById('zona-mision').classList.add('hidden');
+        document.getElementById('elige-practica-panel').classList.add('hidden');
+    }
+};
+
+// ═══ MAPA DE AVENTURAS ═══
+
+// ═══ ADULTS STATS UPDATE ═══
+function actualizarAdultStats() {
+    const p = window.familia[window.perfilActualId];
+    if (!p || p.tipo !== 'adulto') return;
+
+    // Overall progress ring (based on score, max 1000 for display)
+    const overallPct = Math.min(100, Math.round((p.score || 0) / 10));
+    const ring = document.getElementById('adulto-ring-fill');
+    const ringLabel = document.getElementById('adulto-ring-label');
+    if (ring) {
+        const circumference = 176;
+        ring.style.strokeDashoffset = circumference - (circumference * overallPct / 100);
+    }
+    if (ringLabel) ringLabel.textContent = overallPct + '%';
+
+    // Pronunciation (simulated based on sessions count)
+    const pronPct = document.getElementById('adulto-pron-pct');
+    if (pronPct) {
+        const sessions = p.sesiones ? p.sesiones.length : 0;
+        const pct = Math.min(99, 70 + sessions * 3);
+        pronPct.textContent = pct + '%';
+    }
+
+    // Vocabulary count (from glosario)
+    const vocabEl = document.getElementById('adulto-vocab-count');
+    if (vocabEl) {
+        const glosario = p.glosario || [];
+        vocabEl.textContent = glosario.length || Math.floor((p.score || 0) / 5);
+    }
+}
+
+// Hook into cambiarPerfil to update stats
+const _origCambiarPerfil = window.cambiarPerfil;
+window.cambiarPerfil = function(id) {
+    if (_origCambiarPerfil) _origCambiarPerfil(id);
+    setTimeout(actualizarAdultStats, 100);
+};
+
+// Also update on leaderboard refresh
+const _origActualizarLeaderboardUI = window.actualizarLeaderboardUI;
+if (typeof actualizarLeaderboardUI === 'function') {
+    window.actualizarLeaderboardUI = function() {
+        if (_origActualizarLeaderboardUI) _origActualizarLeaderboardUI();
+        actualizarAdultStats();
+    };
+}
 
 function renderizarBotonesPerfil() {
     const container = document.getElementById('profile-buttons-container');
@@ -2800,6 +3157,7 @@ inicializarReconocimientoVoz();
 renderizarConfiguracionPerfiles();
 renderizarBotonesPerfil();
     mostrarProfileSelect();
+    setTimeout(actualizarAdultStats, 300);
 renderizarSelectorEscenariosAdultos();
 verificarRachaFamiliar();
 verificarResetSemanal();
@@ -2988,7 +3346,7 @@ window.addEventListener('beforeinstallprompt', e => {
     document.getElementById('btn-instalar-pwa').classList.remove('hidden');
 });
 // iOS overscroll prevention on game overlays (contains overscroll to each modal)
-['wordmatch-overlay','sb-overlay','flipcards-overlay','idioms-overlay','gem-overlay'].forEach(id => {
+['wordmatch-overlay','sb-overlay','flipcards-overlay','idioms-overlay','gem-overlay','mapa-overlay','elige-practica-panel'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('touchmove', e => {
         if (e.target.closest('.overflow-y-auto, .flex-1')) return;
