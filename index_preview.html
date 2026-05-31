@@ -6,7 +6,7 @@
     <title>Sinergia Familiar - Language Hub</title>
     <!-- PWA -->
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0058be">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -79,24 +79,71 @@
         }
         .scrollbar-none { scrollbar-width: none; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
+
+        /* Design system: Mesh background */
+        .mesh-bg {
+            background-color: #faf8ff;
+            background-image:
+                radial-gradient(at 0% 0%,   rgba(0, 88, 190, 0.07) 0, transparent 50%),
+                radial-gradient(at 50% 0%,  rgba(254, 166, 25, 0.06) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 105, 71, 0.05) 0, transparent 50%);
+        }
+        /* Glass card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(218, 226, 253, 0.6);
+        }
+        /* Neumorphic button: press down effect */
+        .neo-btn {
+            box-shadow: 3px 3px 0px 0px rgba(0, 88, 190, 0.18);
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+        }
+        .neo-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px rgba(0, 88, 190, 0.18);
+        }
+        /* Hover lift for cards */
+        .adventure-card {
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+        }
+        .adventure-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 88, 190, 0.12);
+        }
+        /* Floating animation for icons */
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-8px); }
+        }
+        .floating { animation: floating 3.2s ease-in-out infinite; }
+        /* Top bar glass */
+        .topbar-glass {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(194, 198, 214, 0.4);
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col antialiased">
+<body class="mesh-bg text-slate-900 min-h-screen flex flex-col antialiased">
 
 <!-- TOP BAR -->
-<div class="bg-slate-900 px-4 py-3 flex justify-between items-center gap-3 shadow-lg">
-    <div class="flex items-center gap-2 min-w-0 flex-1">
-        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 hidden sm:block"></span>
+<div class="topbar-glass sticky top-0 z-40 px-4 py-2.5 flex justify-between items-center gap-3 shadow-sm">
+    <div class="flex items-center gap-3 min-w-0 flex-1">
+        <!-- Logo -->
+        <span class="font-extrabold text-base tracking-tight text-blue-700 flex-shrink-0 hidden sm:block">Sinergia</span>
         <div id="profile-buttons-container" class="flex gap-1.5 flex-wrap min-w-0"></div>
     </div>
-    <div class="flex gap-2 flex-shrink-0">
-        <button onclick="abrirBibliotecaDirecta()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 active:scale-95 transition-all">📚 <span class="hidden sm:inline">Cuentos</span></button>
-        <button onclick="toggleConfigPanel()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 active:scale-95 transition-all border border-slate-600">⚙️ <span class="hidden sm:inline">Settings</span></button>
+    <div class="flex gap-2 flex-shrink-0 items-center">
+        <button onclick="abrirBibliotecaDirecta()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 active:scale-95 transition-all shadow-sm neo-btn">📚 <span class="hidden sm:inline">Cuentos</span></button>
+        <button onclick="toggleConfigPanel()" class="bg-white hover:bg-slate-50 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 active:scale-95 transition-all border border-slate-200 shadow-sm">⚙️ <span class="hidden sm:inline">Settings</span></button>
     </div>
 </div>
 
 <!-- CONFIG PANEL -->
-<div id="config-panel" class="bg-white border-b border-slate-200 shadow-xl hidden">
+<div id="config-panel" class="bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xl hidden">
     <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-5">
         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
             <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">⚙️ Settings</h3>
@@ -353,10 +400,10 @@
 
 <!-- ═══ KIDS INTERFACE ═══ -->
 <div id="vista-infantil" class="flex-1 flex flex-col p-4 md:p-6 hidden"
-     style="background: linear-gradient(135deg,#e0f2fe 0%,#fef9c3 50%,#fce7f3 100%);">
+     style="background: linear-gradient(135deg,#dbeafe 0%,#fef9c3 45%,#fce7f3 100%);">
 
     <header class="max-w-lg mx-auto w-full mb-5">
-        <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-4 shadow-lg border border-white flex justify-between items-center">
+        <div class="glass-card rounded-3xl p-4 shadow-lg flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-md">⭐</div>
                 <div>
@@ -380,7 +427,7 @@
 
     <!-- Progress bar shown after tier 1 unlocked -->
     <div id="progress-bar-wrapper" class="max-w-lg mx-auto w-full mb-3 hidden">
-        <div class="bg-white/70 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm border border-white">
+        <div class="glass-card rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap">Next prize</span>
             <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
                 <div id="progress-fill" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width:0%"></div>
@@ -459,7 +506,7 @@
 
         <!-- Mission card -->
         <div id="zona-mision" class="hidden">
-            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/60 space-y-4 relative">
+            <div class="glass-card rounded-3xl p-6 shadow-xl space-y-4 relative adventure-card">
                 <button onclick="volverATematicas()" class="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors">✕</button>
                 <div class="text-center">
                     <span id="mision-categoria-titulo" class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">Category</span>
@@ -485,10 +532,10 @@
 </div>
 
 <!-- ═══ ADULTS INTERFACE ═══ -->
-<div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden bg-gradient-to-br from-slate-100 to-indigo-50/60">
+<div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden" style="background:linear-gradient(160deg,#f0f4ff 0%,#faf8ff 60%,#f0fff8 100%);">
 
     <header class="max-w-4xl mx-auto w-full mb-5">
-        <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="glass-card rounded-2xl p-5 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div class="space-y-2 flex-1">
                 <div class="flex items-center gap-3">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -516,26 +563,26 @@
 
     <main class="max-w-4xl mx-auto w-full space-y-5 flex-1">
 
-        <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-md space-y-4">
+        <div class="glass-card rounded-2xl p-5 shadow-md space-y-4">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div>
                     <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Choose a scene</h3>
                     <p class="text-[11px] text-slate-400 mt-0.5">Pick a situation or let AI surprise you</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="generarEscenarioSorpresaAI()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                    <button onclick="generarEscenarioSorpresaAI()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 neo-btn">
                         🎲 Random Scene
                     </button>
-                    <button onclick="iniciarShadowing()" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                    <button onclick="iniciarShadowing()" class="bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 neo-btn">
                         🎭 Shadowing
                     </button>
-                    <button onclick="iniciarStoryteller()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95">
+                    <button onclick="iniciarStoryteller()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 neo-btn">
                         📖 Storyteller
                     </button>
-                    <button onclick="mostrarGlosario()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95 border border-slate-600">
+                    <button onclick="mostrarGlosario()" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 border border-slate-200">
                         ⭐ Glosario
                     </button>
-                    <button onclick="mostrarHistorialSesiones()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2 active:scale-95 border border-slate-600">
+                    <button onclick="mostrarHistorialSesiones()" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 border border-slate-200">
                         📅 Sesiones
                     </button>
                 </div>
@@ -554,7 +601,7 @@
             </div>
         </div>
 
-        <div id="zona-conversacion-adulto" class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hidden">
+        <div id="zona-conversacion-adulto" class="glass-card rounded-2xl shadow-md overflow-hidden hidden">
             <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3 flex justify-between items-center">
                 <h2 id="escenario-titulo" class="text-sm font-bold text-white tracking-wide">Scene</h2>
                 <div class="flex gap-2">
@@ -1595,9 +1642,11 @@ window.cambiarPerfil = function(id) {
     }
 
     document.querySelectorAll('.profile-btn').forEach(btn => {
-        btn.classList.toggle('ring-2',    btn.dataset.id === id);
-        btn.classList.toggle('ring-white',btn.dataset.id === id);
-        btn.classList.toggle('scale-105', btn.dataset.id === id);
+        const active = btn.dataset.id === id;
+        btn.classList.toggle('ring-2',         active);
+        btn.classList.toggle('ring-blue-400',  active);
+        btn.classList.toggle('border-blue-300',active);
+        btn.classList.toggle('scale-105',      active);
     });
     const initials = p.nombre.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const av = document.getElementById('user-avatar-initials');
@@ -1666,7 +1715,7 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     Object.keys(bancoEscenariosFijos).forEach(k => {
         const b  = document.getElementById(`btn-esc-${k}`);
         const sk = SCENARIO_STYLES[k] || {};
-        if (b) b.className = `border p-3 rounded-xl font-bold text-xs transition-all text-center ${sk.bg||'bg-slate-50 border-slate-200'}`;
+        if (b) b.className = `border p-3 rounded-xl font-bold text-xs text-center adventure-card ${sk.bg||'bg-slate-50 border-slate-200'}`;
     });
     const active = document.getElementById(`btn-esc-${idEsc}`);
     if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
@@ -2055,11 +2104,11 @@ function renderizarBotonesPerfil() {
     Object.values(window.familia).forEach(p => {
         const colors = PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
         const btn = document.createElement('button');
-        btn.className  = 'profile-btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-2 rounded-xl border border-slate-700 transition-all active:scale-95';
+        btn.className  = 'profile-btn flex items-center gap-1.5 bg-white hover:bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm transition-all active:scale-95';
         btn.dataset.id = p.id;
         btn.innerHTML  = `
-            <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold flex-shrink-0">${p.nombre[0]}</div>
-            <span class="text-slate-200 font-semibold text-xs hidden sm:inline">${p.nombre.split(' ')[0]}</span>`;
+            <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">${p.nombre[0]}</div>
+            <span class="text-slate-700 font-semibold text-xs hidden sm:inline">${p.nombre.split(' ')[0]}</span>`;
         btn.onclick = () => window.cambiarPerfil(p.id);
         container.appendChild(btn);
     });
@@ -2083,8 +2132,8 @@ function renderizarSelectorEscenariosAdultos() {
         const s = SCENARIO_STYLES[e.id]||{icon:'📍',bg:'bg-slate-50 border-slate-200'};
         const btn = document.createElement('button');
         btn.id        = `btn-esc-${e.id}`;
-        btn.className = `border p-3 rounded-xl font-bold text-xs transition-all text-center ${s.bg}`;
-        btn.innerHTML = `<div class="text-2xl mb-1.5">${s.icon}</div><div>${e.titulo}</div>`;
+        btn.className = `border p-3 rounded-xl font-bold text-xs text-center adventure-card ${s.bg}`;
+        btn.innerHTML = `<div class="text-2xl mb-1.5 floating">${s.icon}</div><div>${e.titulo}</div>`;
         btn.onclick   = () => window.cargarEscenarioFijoAdulto(e.id);
         container.appendChild(btn);
     });
@@ -2139,7 +2188,7 @@ function cargarEscenarioCustom(idx) {
     Object.keys(bancoEscenariosFijos).forEach(k => {
         const b  = document.getElementById(`btn-esc-${k}`);
         const sk = SCENARIO_STYLES[k] || {};
-        if (b) b.className = `border p-3 rounded-xl font-bold text-xs transition-all text-center ${sk.bg||'bg-slate-50 border-slate-200'}`;
+        if (b) b.className = `border p-3 rounded-xl font-bold text-xs text-center adventure-card ${sk.bg||'bg-slate-50 border-slate-200'}`;
     });
     window._escenariosVisitados = window._escenariosVisitados || new Set();
     window._escenariosVisitados.add('custom_' + idx);
