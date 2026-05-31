@@ -361,7 +361,7 @@
             <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
                 <div id="progress-fill" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width:0%"></div>
             </div>
-            <span id="progress-label" class="text-xs font-extrabold text-orange-600 whitespace-nowrap">0/4</span>
+            <span id="progress-label" class="text-xs font-extrabold text-orange-600 whitespace-nowrap">🎁❓</span>
         </div>
     </div>
 
@@ -481,7 +481,8 @@
             </div>
             <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-4 rounded-xl w-full md:w-72 shadow-sm">
                 <p class="font-extrabold text-slate-500 mb-3 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
-                <ol id="leaderboard-list" class="space-y-2 text-sm"></ol>
+                <div id="racha-familiar-badge" class="hidden flex items-center justify-center gap-1 mb-2"></div>
+<ol id="leaderboard-list" class="space-y-2 text-sm"></ol>
             </div>
         </div>
     </header>
@@ -1190,6 +1191,48 @@ function getWeekNumber() {
     return d.getFullYear() * 100 + Math.round(((d - w) / 86400000 - 3 + (w.getDay() + 6) % 7) / 7) + 1;
 }
 
+// ── Collective Family Streak ──────────────────────────────────────────────────
+function obtenerRachaFamiliar() {
+    try { return JSON.parse(localStorage.getItem('sinergia_racha_familiar') || '{"racha":0,"ultimoDia":"","xpDia":{}}'); }
+    catch(e) { return { racha:0, ultimoDia:'', xpDia:{} }; }
+}
+function guardarRachaFamiliar(data) { localStorage.setItem('sinergia_racha_familiar', JSON.stringify(data)); }
+
+function verificarRachaFamiliar() {
+    const rf    = obtenerRachaFamiliar();
+    const hoy   = new Date().toLocaleDateString('es-AR');
+    const ayer  = new Date(Date.now() - 86400000).toLocaleDateString('es-AR');
+    if (rf.ultimoDia === hoy) return rf;
+    if (rf.ultimoDia === ayer) {
+        const todosActivos = Object.values(window.familia).every(p => (rf.xpDia[p.id] || 0) >= 50);
+        if (todosActivos) rf.racha = (rf.racha || 0) + 1;
+        else rf.racha = 0;
+    } else if (rf.ultimoDia !== '') {
+        rf.racha = 0;
+    }
+    rf.xpDia = {};
+    rf.ultimoDia = hoy;
+    guardarRachaFamiliar(rf);
+    return rf;
+}
+
+function registrarXpRachaFamiliar(perfilId, xp) {
+    const rf = obtenerRachaFamiliar();
+    rf.xpDia[perfilId] = (rf.xpDia[perfilId] || 0) + xp;
+    guardarRachaFamiliar(rf);
+    actualizarRachaFamiliarUI();
+}
+
+function actualizarRachaFamiliarUI() {
+    const rf  = obtenerRachaFamiliar();
+    const el  = document.getElementById('racha-familiar-badge');
+    if (!el) return;
+    const xpDia = Object.values(window.familia).map(p => rf.xpDia[p.id] || 0);
+    const todos = xpDia.every(x => x >= 50);
+    el.classList.toggle('hidden', rf.racha === 0 && !todos);
+    el.innerHTML = `<span class="text-2xl">${todos ? '👑' : '🔥'}</span><span class="text-lg font-extrabold text-amber-400">${rf.racha}${todos ? '+' : ''}</span>`;
+}
+
 function verificarResetSemanal() {
     const semanaActual = getWeekNumber();
     const semanaGuardada = parseInt(localStorage.getItem('sinergia_lastWeek') || '0');
@@ -1332,7 +1375,8 @@ function actualizarBarraProgreso(p) {
     if (p.misionIndex === 0) { wrapper.classList.add('hidden'); return; }
     wrapper.classList.remove('hidden');
     fill.style.width  = (sinceLastGame / 4 * 100) + '%';
-    label.innerText   = sinceLastGame + '/4';
+    // Mystery chest — don't reveal the exact progress to keep dopamine alive
+    label.innerText = sinceLastGame === 3 ? '🎁!' : '🎁❓';
 }
 
 window.cambiarPerfil = function(id) {
@@ -1436,6 +1480,8 @@ window.cargarEscenarioFijoAdulto = function(idEsc) {
     const active = document.getElementById(`btn-esc-${idEsc}`);
     if (active) active.className = `p-3 rounded-xl font-bold text-xs transition-all text-center ${s.active}`;
 
+    window._escenariosVisitados = window._escenariosVisitados || new Set();
+    window._escenariosVisitados.add(idEsc);
     window.escenarioAdultoActivo = { titulo:esc.titulo, prompt:esc.prompt, systemInfo:esc.systemInfo, initialPrompt:esc.prompt };
     window._lastAIReply = esc.prompt;
     limpiarHistorialChat();
@@ -1466,6 +1512,8 @@ window.cambiarVozSistema    = function() { window.voiceIndexSeleccionada = parse
 window.escucharEscenarioActual = function() { hablarNativo(window.escenarioAdultoActivo.prompt); };
 
 function limpiarHistorialChat() {
+    const _p = window.familia[window.perfilActualId];
+    if (_p) _p.interaccionesEscena = 0;
     const h = document.getElementById('chat-history');
     if (h) { h.innerHTML = ''; h.classList.add('hidden'); }
 }
@@ -1541,18 +1589,20 @@ function inicializarVoces() {
 }
 
 let _ttsTimer = null;
+window.isAudioThreadMuted = false;
 function hablarNativo(texto, rate = 0.85) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     clearTimeout(_ttsTimer);
-    // 50ms micro-delay clears the OS audio thread before new utterance
+    window.isAudioThreadMuted = true;
     _ttsTimer = setTimeout(() => {
+        window.isAudioThreadMuted = false;
         const u = new SpeechSynthesisUtterance(texto);
         const v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
         if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
         u.lang = 'en-US'; u.rate = rate;
         window.speechSynthesis.speak(u);
-    }, 50);
+    }, 120);
 }
 
 function playFX(tipo) {
@@ -1572,13 +1622,14 @@ function playFX(tipo) {
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.5);
         } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(220, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
-            gain.gain.setValueAtTime(0.18, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.18);
+            osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.38);
+            gain.gain.setValueAtTime(0.14, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.42);
             osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.3);
+            osc.stop(ctx.currentTime + 0.42);
         }
         setTimeout(() => ctx.close(), 600);
     } catch(e) {}
@@ -1592,11 +1643,13 @@ function separarEmojiTexto(str) {
 
 const NIVEL_ORDEN = ['Starter','Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate','Advanced'];
 
+window._escenariosVisitados = window._escenariosVisitados || new Set();
 function verificarAutoNivelacion(p) {
     const nivelIdx = NIVEL_ORDEN.indexOf(p.nivel);
     if (nivelIdx < 0 || nivelIdx >= NIVEL_ORDEN.length - 1) return;
     const sessionGain = p.score - (p.scoreInicioSesion || p.score);
-    if (p.racha < 3 && sessionGain < 150) return;
+    const diverseEnough = window._escenariosVisitados.size >= 2;
+    if ((p.racha < 3 && sessionGain < 150) || !diverseEnough) return;
     const nuevoNivel = NIVEL_ORDEN[nivelIdx + 1];
     p.nivel = nuevoNivel;
     p.racha = 0;
@@ -1706,6 +1759,7 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         f.classList.add('bg-emerald-50','text-emerald-700','border-emerald-300');
         lanzarEstrellas();
         p.score      += 50; p.scoreSemanal = (p.scoreSemanal||0) + 50;
+        registrarXpRachaFamiliar(p.id, 50);
         p.racha       = (p.racha || 0) + 1;
         p.misionIndex += 1;
         p.temaProgress[idTema] = temaIdx + 1;
@@ -1806,7 +1860,9 @@ inicializarReconocimientoVoz();
 renderizarConfiguracionPerfiles();
 renderizarBotonesPerfil();
 renderizarSelectorEscenariosAdultos();
+verificarRachaFamiliar();
 verificarResetSemanal();
+actualizarRachaFamiliarUI();
 window.cambiarPerfil('perfil1');
 
 // ── Session Timer ─────────────────────────────────────────────────────────────
@@ -1819,17 +1875,26 @@ function formatMinutes(ms) {
     return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
+let _sessionSaveTimer = null;
+let _sessionSaveBuf   = {}; // perfilId -> acumulado ms
 function guardarSesion(perfilId, duracionMs) {
-    if (duracionMs < 5000) return; // ignore accidental taps
-    const key   = `sinergia_sesiones_${perfilId}`;
-    const hoy   = new Date().toLocaleDateString('es-AR');
-    let sesiones;
-    try { sesiones = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { sesiones = []; }
-    const idx = sesiones.findIndex(s => s.fecha === hoy);
-    if (idx >= 0) sesiones[idx].minutos += Math.round(duracionMs / 60000);
-    else sesiones.unshift({ fecha: hoy, minutos: Math.round(duracionMs / 60000) });
-    if (sesiones.length > 30) sesiones.pop();
-    localStorage.setItem(key, JSON.stringify(sesiones));
+    if (duracionMs < 5000) return;
+    _sessionSaveBuf[perfilId] = (_sessionSaveBuf[perfilId] || 0) + duracionMs;
+    clearTimeout(_sessionSaveTimer);
+    _sessionSaveTimer = setTimeout(() => {
+        Object.entries(_sessionSaveBuf).forEach(([pid, ms]) => {
+            const key   = `sinergia_sesiones_${pid}`;
+            const hoy   = new Date().toLocaleDateString('es-AR');
+            let sesiones;
+            try { sesiones = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { sesiones = []; }
+            const idx = sesiones.findIndex(s => s.fecha === hoy);
+            if (idx >= 0) sesiones[idx].minutos += Math.round(ms / 60000);
+            else sesiones.unshift({ fecha: hoy, minutos: Math.round(ms / 60000) });
+            if (sesiones.length > 30) sesiones.pop();
+            localStorage.setItem(key, JSON.stringify(sesiones));
+        });
+        _sessionSaveBuf = {};
+    }, 800);
 }
 
 // Save session when switching profile or leaving
@@ -1914,6 +1979,15 @@ window.addEventListener('beforeinstallprompt', e => {
     _installPrompt = e;
     document.getElementById('btn-instalar-pwa').classList.remove('hidden');
 });
+// iOS overscroll prevention on game overlays
+['wordmatch-overlay','sb-overlay','flipcards-overlay'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('touchmove', e => {
+        if (e.target.closest('.overflow-y-auto')) return;
+        e.preventDefault();
+    }, { passive: false });
+});
+
 window.instalarPWA = async function() {
     if (!_installPrompt) return;
     _installPrompt.prompt();
@@ -2093,7 +2167,12 @@ function mostrarResultadoShadowing() {
 }
 
 window.cerrarShadowing = function() {
-    if (shadowState.recognition) { try { shadowState.recognition.stop(); } catch(e) {} }
+    if (shadowState.recognition) {
+        shadowState.recognition.onresult = null;
+        shadowState.recognition.onend    = null;
+        try { shadowState.recognition.abort(); } catch(e) {}
+        shadowState.recognition = null;
+    }
     shadowState.listening = false;
     document.getElementById('shadow-overlay').classList.add('hidden');
 };
@@ -2148,7 +2227,18 @@ window.cargarNuevoStory = async function() {
         document.getElementById('storyteller-title').innerText    = data.title || '';
         cargarTextoEnStoryteller(data.text);
     } catch(e) {
-        document.getElementById('storyteller-text').innerHTML = '<span style="color:#f87171">Error al generar historia. Revisá la conexión.</span>';
+        const p2 = window.familia[window.perfilActualId];
+        const NIVEL_IDX2 = { 'Starter':0,'Elementary':1,'Pre-Intermediate':2,'Intermediate':3,'Upper-Intermediate':4,'Advanced':5 };
+        const userIdx2 = NIVEL_IDX2[p2.nivel] || 0;
+        const fallbacks = STORY_LIBRARY.filter(s => (NIVEL_IDX2[s.nivel]||0) <= userIdx2 + 1);
+        const pick = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        if (pick) {
+            document.getElementById('storyteller-category').innerText = pick.categoria || 'Cuento';
+            document.getElementById('storyteller-title').innerText    = pick.titulo;
+            cargarTextoEnStoryteller(pick.text);
+        } else {
+            document.getElementById('storyteller-text').innerHTML = '<span style="color:#f87171">Sin conexión. Intentá de nuevo.</span>';
+        }
     } finally {
         hideEl('storyteller-loading');
     }
@@ -2163,12 +2253,22 @@ function cargarTextoEnStoryteller(text) {
         charPos += token.length;
         return { token, start, isWord: /\S/.test(token), idx: i };
     });
-    container.innerHTML = _storyWords.map(d => {
-        if (!d.isWord) return d.token.replace(/\n/g, '<br>');
+    container.innerHTML = '';
+    _storyWords.forEach(d => {
+        if (!d.isWord) {
+            container.insertAdjacentHTML('beforeend', d.token.replace(/\n/g, '<br>'));
+            return;
+        }
         const clean = d.token.replace(/[^a-zA-Z']/g,'');
-        const safe  = d.token.replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-        return `<span id="st-${d.idx}" data-word="${clean}" style="transition:background 0.12s;border-radius:4px;padding:0 3px;cursor:pointer;color:#e2e8f0;" onclick="stWordTap(this,'${clean}',${d.idx})">${d.token}</span>`;
-    }).join('');
+        const safe  = d.token.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        const span  = document.createElement('span');
+        span.id = 'st-' + d.idx;
+        span.dataset.word = clean;
+        span.style.cssText = 'transition:background 0.12s;border-radius:4px;padding:0 3px;cursor:pointer;color:#e2e8f0;';
+        span.innerHTML = safe;
+        span.addEventListener('click', () => stWordTap(span, clean, d.idx));
+        container.appendChild(span);
+    });
     _storyActive = -1;
 }
 
@@ -2187,8 +2287,9 @@ window.stWordTap = async function(el, word, idx) {
     el.style.outline = '2px solid #38bdf8';
     _stResumeMarker = el;
 
-    // remove previous tooltip
-    if (_stTooltip) { _stTooltip.remove(); _stTooltip = null; }
+    // Explicit teardown before creating new tooltip
+    if (_stTooltip && _stTooltip.isConnected) { _stTooltip.remove(); }
+    _stTooltip = null;
     // build tooltip — appended to body to avoid clipping by parent overflow
     const tip = document.createElement('div');
     tip.style.cssText = 'position:fixed;background:#fde047;color:#0f172a;font-size:0.82rem;font-weight:700;padding:5px 12px;border-radius:10px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.45);pointer-events:none;z-index:500;transition:opacity 0.2s;';
@@ -2482,8 +2583,10 @@ async function geminiSafeFetch(body) {
             body: JSON.stringify(body), signal: ctrl.signal
         });
         const raw  = await res.text();
-        const m    = raw.match(/\{[\s\S]*\}/);
-        return JSON.parse(m ? m[0] : raw);
+        const si = raw.indexOf('{');
+        const ei = raw.lastIndexOf('}');
+        const clean = (si !== -1 && ei !== -1) ? raw.slice(si, ei + 1) : raw;
+        return JSON.parse(clean);
     } catch(e) {
         if (e.name === 'AbortError') throw new Error('timeout');
         throw e;
@@ -2524,7 +2627,9 @@ window.generarEscenarioSorpresaAI = async function() {
     }
 };
 
+window._currentQueryId = (window._currentQueryId || 0);
 window.dispatchGeminiVoz = async function(textoVozReal) {
+    const queryId = ++window._currentQueryId;
     const p = window.familia[window.perfilActualId];
     document.getElementById('user-transcript').innerText = textoVozReal;
     document.getElementById('user-transcript-wrapper').classList.remove('hidden');
@@ -2540,9 +2645,12 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             systemInfo: window.escenarioAdultoActivo.systemInfo
         });
         if (data.error) throw new Error(data.error);
+        if (queryId !== window._currentQueryId) return; // stale response, discard
 
-        // Update XP and streak
+        // Update XP, streak, interaction counter
         p.score += data.xp; p.scoreSemanal = (p.scoreSemanal||0) + data.xp;
+        p.interaccionesEscena = (p.interaccionesEscena || 0) + 1;
+        registrarXpRachaFamiliar(p.id, data.xp);
         if (data.xp >= 50) {
             p.racha = (p.racha || 0) + 1;
         } else {
@@ -2560,7 +2668,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                title="Tap to translate">
                 ${data.reply} <span class="text-blue-300 text-xs">🌐</span>
             </p>
-            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden">${data.translation || ''}</p>
+            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden transition-opacity duration-500${(p.interaccionesEscena||0) > 5 ? ' opacity-20 hover:opacity-100' : ''}">${data.translation || ''}</p>
             <div class="mt-2 pt-2 border-t border-blue-100 space-y-1.5">
                 <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-start justify-between gap-2">
                     <p id="${correctionId}" class="text-amber-700 text-xs font-bold flex-1">✏️ ${data.correction}</p>
@@ -2618,7 +2726,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
                 "${data.reply}" <span class="text-blue-300 text-[10px]">🌐</span>
             </span>
-            <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.translation || ''}</span>`;
+            <span class="block text-slate-400 text-xs italic mt-1 hidden transition-opacity duration-500${(p.interaccionesEscena||0) > 5 ? ' opacity-20 hover:opacity-100' : ''}">${data.translation || ''}</span>`;
         hablarNativo(data.reply);
     } catch(e) {
         const fb = OFFLINE_FALLBACKS.evaluate_voice;
