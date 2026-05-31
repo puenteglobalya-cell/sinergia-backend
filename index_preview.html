@@ -709,7 +709,7 @@ window.fcNext = function() {
 };
 
 window.fcPrev = function() {
-    if (fcState.idx > 0) { fcState.idx--; fcRender(); }
+    if (fcState.idx > 0) { fcState.idx--; fcRender(); setTimeout(() => hablarNativo(fcState.deck[fcState.idx].word, 0.75), 350); }
 };
 
 // ── Sentence Builder state ────────────────────────────────────────────────────
@@ -769,7 +769,8 @@ function sbCheck() {
     const fb = document.getElementById('sb-feedback');
     fb.classList.remove('hidden','bg-emerald-50','text-emerald-700','bg-rose-50','text-rose-700');
     if (attempt === correct) {
-        fb.innerText = '🏆 Perfect sentence!';
+        const sbWinFrases = ['🏆 Perfect sentence!','🌟 Brilliant! That\'s right!','⭐ Excellent! Well done!','🎉 Amazing! Perfect!'];
+        fb.innerText = sbWinFrases[Math.floor(Math.random() * sbWinFrases.length)];
         fb.classList.add('bg-emerald-50','text-emerald-700');
         hablarNativo('Perfect! ' + correct);
         const p = window.familia[window.perfilActualId];
@@ -780,13 +781,14 @@ function sbCheck() {
         setTimeout(() => {
             document.getElementById('sb-overlay').classList.add('hidden');
             window.volverATematicas();
-        }, 2500);
+        }, 3200);
     } else {
-        fb.innerText = '🔍 Not quite — try again!';
+        const sbLoseFrases = ['🔍 Not quite — try again!','🎧 Listen and try again!','💪 Almost! One more try!','🔄 Keep trying — you can do it!'];
+        fb.innerText = sbLoseFrases[Math.floor(Math.random() * sbLoseFrases.length)];
         fb.classList.add('bg-rose-50','text-rose-700');
         document.getElementById('sb-card').classList.add('wrong-shake');
         setTimeout(() => document.getElementById('sb-card').classList.remove('wrong-shake'), 400);
-        setTimeout(() => sbReset(), 800);
+        setTimeout(() => sbReset(), 900);
     }
 }
 
@@ -1139,11 +1141,17 @@ function wmComplete() {
             <p class="text-emerald-600 font-extrabold text-xl">+100 XP Bonus!</p>
             <p class="text-slate-400 text-sm">You matched all words!</p>
         </div>`;
-    hablarNativo('Amazing! Perfect score! One hundred bonus points!');
+    const wmWinFrases = [
+        'Amazing! Perfect score! One hundred bonus points!',
+        'Fantastic! You matched them all! Great job!',
+        'Brilliant! One hundred extra points for you!',
+        'Wonderful! You are a word champion!',
+    ];
+    hablarNativo(wmWinFrases[Math.floor(Math.random() * wmWinFrases.length)]);
     setTimeout(() => {
         document.getElementById('wordmatch-overlay').classList.add('hidden');
         window.volverATematicas();
-    }, 3000);
+    }, 3500);
 }
 
 window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
@@ -1252,10 +1260,28 @@ window.eliminarDeGlosario = function(perfilId, idx) {
     window.mostrarGlosario();
 };
 
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// Per-theme random queues so we don't repeat until all questions are seen
+const _temaQueues = {};
 function obtenerPregunta(idTema, temaIdx) {
     const banco = MISIONES[idTema];
-    const tier  = (temaIdx >= 4) ? banco.tier2 : banco.tier1;
-    return tier[temaIdx % tier.length];
+    const tier  = (temaIdx >= 4) ? 'tier2' : 'tier1';
+    const key   = idTema + '_' + tier;
+    if (!_temaQueues[key] || _temaQueues[key].length === 0) {
+        _temaQueues[key] = shuffle(banco[tier].map((_, i) => i));
+    }
+    const idx = _temaQueues[key].shift();
+    const q   = { ...banco[tier][idx] };
+    q.opciones = shuffle(q.opciones);
+    return q;
 }
 
 const NIVEL_XP = { 'Starter':0, 'Elementary':200, 'Pre-Intermediate':500, 'Intermediate':1000, 'Upper-Intermediate':2000, 'Advanced':4000 };
@@ -1381,8 +1407,11 @@ window.seleccionarTematica = function(idTema) {
             btn.innerHTML = `<span class="font-extrabold text-base leading-snug text-center px-1">${texto}</span>`;
         }
         btn.onclick = () => {
-            hablarNativo(texto || opt.texto);
-            setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), 600);
+            const word = texto || opt.texto;
+            // Speak the tapped option, wait for it to finish before evaluating
+            const msDelay = 300 + word.length * 55;
+            hablarNativo(word, 0.85);
+            setTimeout(() => evaluarRespuestaInfantil(opt.correcta, idTema, btn), msDelay);
         };
         wrapper.appendChild(btn);
     });
@@ -1652,13 +1681,31 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
     if (!p.temaProgress) p.temaProgress = {};
     const temaIdx = p.temaProgress[idTema] || 0;
 
+    const CORRECTO_FRASES = [
+        ['Brilliant! Well done!',         '✨ Brilliant! Well done!'],
+        ['Fantastic! You got it!',         '🌟 Fantastic! You got it!'],
+        ['Amazing! Great job!',            '🎉 Amazing! Great job!'],
+        ['Super! You are a star!',         '⭐ Super! You are a star!'],
+        ['Excellent! Keep it up!',         '🚀 Excellent! Keep it up!'],
+        ['Wonderful! You are so smart!',   '💫 Wonderful! You are so smart!'],
+    ];
+    const INCORRECTO_FRASES = [
+        ['Oops! Try again!',               '🔍 Try again — listen carefully!'],
+        ['Not quite! Try once more!',       '🔍 Not quite! Try once more!'],
+        ['Almost! Give it another go!',    '🔍 Almost! Try again!'],
+        ['Good try! Listen and try again!','🔍 Good try! Listen again!'],
+    ];
+
     if (esCorrecto) {
         playFX('correct');
         btn.classList.add('bg-emerald-100','border-emerald-400','correct-ring');
-        f.innerText = temaIdx >= 4 ? '⚡ Amazing! Level 2 complete!' : '✨ Brilliant! Well done!';
+        const frase = p.misionIndex % 4 === 3
+            ? ['Brilliant! Get ready for a bonus game!', '⚡ Brilliant! Bonus game coming!']
+            : CORRECTO_FRASES[Math.floor(Math.random() * CORRECTO_FRASES.length)];
+        f.innerText = frase[1];
         f.classList.add('bg-emerald-50','text-emerald-700','border-emerald-300');
         lanzarEstrellas();
-        p.score      += 50;
+        p.score      += 50; p.scoreSemanal = (p.scoreSemanal||0) + 50;
         p.racha       = (p.racha || 0) + 1;
         p.misionIndex += 1;
         p.temaProgress[idTema] = temaIdx + 1;
@@ -1667,13 +1714,15 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         document.getElementById('racha-nena').innerText  = p.racha;
         actualizarBarraProgreso(p);
         verificarAutoNivelacion(p);
-        hablarNativo(p.misionIndex % 4 === 0 ? 'Brilliant! Get ready for the bonus game!' : 'Brilliant! Well done!');
+
+        // Speak first, then advance — give enough time to hear the full phrase
+        hablarNativo(frase[0]);
 
         if (p.misionIndex % 4 === 0) {
             const juego = Math.random() < 0.5 ? window.mostrarWordMatch : window.mostrarSentenceBuilder;
-            setTimeout(() => juego(), 2200);
+            setTimeout(() => juego(), 2800);
         } else {
-            setTimeout(() => window.seleccionarTematica(idTema), 1900);
+            setTimeout(() => window.seleccionarTematica(idTema), 2600);
         }
     } else {
         playFX('wrong');
@@ -1682,9 +1731,10 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         guardarEstado();
         btn.classList.add('bg-rose-100','border-rose-400');
         setTimeout(() => btn.classList.remove('bg-rose-100','border-rose-400'), 900);
-        f.innerText = '🔍 Try again — listen carefully!';
+        const fraseMal = INCORRECTO_FRASES[Math.floor(Math.random() * INCORRECTO_FRASES.length)];
+        f.innerText = fraseMal[1];
         f.classList.add('bg-rose-50','text-rose-700','border-rose-300');
-        hablarNativo('Oops! Try again!');
+        hablarNativo(fraseMal[0]);
     }
     actualizarLeaderboardUI();
 }
