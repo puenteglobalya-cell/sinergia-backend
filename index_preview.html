@@ -77,6 +77,10 @@
         @keyframes eq2 {
             0%, 100% { height: 16px; } 50% { height: 6px; }
         }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
         .scrollbar-none { scrollbar-width: none; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
 
@@ -977,6 +981,29 @@
     </div>
 </div>
 
+<!-- ═══ GRAN TESORO OVERLAY ═══ -->
+<div id="gran-tesoro-overlay" class="fixed inset-0 z-[300] hidden flex flex-col items-center justify-center touch-manipulation" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" id="tesoro-confetti-container"></div>
+    <div class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center gap-5">
+        <div class="text-8xl floating" style="filter:drop-shadow(0 0 24px gold)">🏆</div>
+        <h1 class="text-3xl font-extrabold text-yellow-300 text-center leading-tight drop-shadow-lg">¡GRAN TESORO!</h1>
+        <p class="text-yellow-100 text-sm text-center font-semibold">Completaste los 12 temas. ¡Sos un campeón del inglés!</p>
+
+        <!-- Final quiz -->
+        <div id="tesoro-quiz-container" class="w-full bg-white/10 backdrop-blur-sm rounded-3xl p-5 space-y-3">
+            <p class="text-yellow-200 text-xs font-bold text-center uppercase tracking-widest">Desafío Final 🔥</p>
+            <p id="tesoro-pregunta" class="text-white text-lg font-extrabold text-center leading-snug min-h-[56px]">Cargando...</p>
+            <div id="tesoro-opciones" class="grid grid-cols-2 gap-2"></div>
+            <p id="tesoro-feedback" class="text-center text-base font-bold min-h-[28px]"></p>
+        </div>
+
+        <div class="flex gap-3 w-full">
+            <button onclick="cargarTesoroQuiz()" class="flex-1 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-extrabold py-3 rounded-2xl text-sm active:scale-95 transition-all shadow-lg">🎲 Nueva pregunta</button>
+            <button onclick="cerrarGranTesoro()" class="flex-1 bg-white/20 hover:bg-white/30 text-white font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all">✕ Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <!-- mapa-overlay: see above -->
 
 <!-- ═══ ADULTS INTERFACE ═══ -->
@@ -1216,6 +1243,7 @@ document.addEventListener('keydown', function(e) {
         ['shadow-overlay',      () => window.cerrarShadowing && window.cerrarShadowing()],
         ['sb-overlay',          () => document.getElementById('sb-overlay').classList.add('hidden')],
         ['mapa-overlay',        () => window.cerrarMapa && window.cerrarMapa()],
+        ['gran-tesoro-overlay', () => window.cerrarGranTesoro && window.cerrarGranTesoro()],
         ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
         ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
         ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
@@ -2364,7 +2392,16 @@ window.cambiarPerfil = function(id) {
 };
 
 window.seleccionarTematica = function(idTema) {
-    mostrarEligePractica(idTema);
+    // Adventure mode goes straight to mission quiz — flip cards are in the Tarjetas tab
+    const temaToFlipDeck = {
+        greetings:'Greetings', numbers:'Numbers', colors:'Colors',
+        travel:'Travel', animals:'Animals', food:'Food', clothes:'Clothes',
+        weather:'Weather', family:'Family', feelings:'Feelings',
+        koala:'Koala', sea:'Sea'
+    };
+    window._temaActual = idTema;
+    window._tarjetasTema = temaToFlipDeck[idTema] || 'Animals';
+    irAMisionDirecta(idTema);
 };
 
 window._temaActual = null;
@@ -2505,7 +2542,10 @@ window.abrirMapa = function() {
     const path = document.getElementById('mapa-path');
     path.innerHTML = '';
 
-    path.innerHTML += `<div class="flex justify-center mb-4"><div class="bg-yellow-400 rounded-3xl px-6 py-3 shadow-lg text-center"><div class="text-3xl">🎁</div><div class="text-xs font-extrabold text-yellow-900">¡Gran Tesoro!</div><div class="text-[10px] text-yellow-700">Nivel 12</div></div></div>`;
+    const allDone = MAPA_TEMAS.every(t => (p.temaProgress?.[t.id] || 0) >= 8);
+    const tesoroStyle = allDone ? 'cursor:pointer;animation:pulse 1.5s infinite;' : 'opacity:0.45;cursor:not-allowed;';
+    const tesoroClick = allDone ? 'onclick="abrirGranTesoro()"' : '';
+    path.innerHTML += `<div class="flex justify-center mb-4"><div ${tesoroClick} class="bg-yellow-400 rounded-3xl px-6 py-3 shadow-lg text-center active:scale-95 transition-all" style="${tesoroStyle}"><div class="text-3xl">🏆</div><div class="text-xs font-extrabold text-yellow-900">${allDone ? '¡GRAN TESORO!' : '¡Gran Tesoro!'}</div><div class="text-[10px] text-yellow-700">${allDone ? '¡Toca para abrir!' : 'Completá los 12 temas'}</div></div></div>`;
 
     MAPA_TEMAS.slice().reverse().forEach((tema, ri) => {
         const i = MAPA_TEMAS.length - 1 - ri;
@@ -2516,7 +2556,7 @@ window.abrirMapa = function() {
 
         path.innerHTML += `
             <div class="flex ${side} mb-1">
-                <button onclick="${unlocked ? `cerrarMapa();mostrarEligePractica('${tema.id}')` : ''}"
+                <button onclick="${unlocked ? `cerrarMapa();seleccionarTematica('${tema.id}')` : ''}"
                     class="relative w-20 h-20 rounded-3xl flex flex-col items-center justify-center gap-1 shadow-lg transition-all active:scale-95 ${!unlocked ? 'opacity-40 cursor-not-allowed' : 'hover:-translate-y-1'}"
                     style="background:${completed ? '#22c55e' : unlocked ? tema.color : '#94a3b8'}">
                     <span class="text-3xl">${completed ? '✅' : unlocked ? tema.emoji : '🔒'}</span>
@@ -2532,6 +2572,72 @@ window.abrirMapa = function() {
 
 window.cerrarMapa = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
+};
+
+window.abrirGranTesoro = function() {
+    document.getElementById('mapa-overlay').classList.add('hidden');
+    document.getElementById('gran-tesoro-overlay').classList.remove('hidden');
+    lanzarTesoroConfetti();
+    cargarTesoroQuiz();
+};
+
+window.cerrarGranTesoro = function() {
+    document.getElementById('gran-tesoro-overlay').classList.add('hidden');
+};
+
+function lanzarTesoroConfetti() {
+    const container = document.getElementById('tesoro-confetti-container');
+    container.innerHTML = '';
+    const emojis = ['⭐','🌟','✨','💫','🎉','🏆','🎊','💛','🔥'];
+    for (let i = 0; i < 40; i++) {
+        const el = document.createElement('div');
+        el.style.cssText = `position:absolute;font-size:${16+Math.random()*24}px;left:${Math.random()*100}%;top:-40px;animation:confettiFall ${2+Math.random()*3}s linear ${Math.random()*2}s forwards;`;
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        container.appendChild(el);
+    }
+}
+
+window.cargarTesoroQuiz = function() {
+    const allDecks = Object.values(FLIP_DECKS).flat();
+    const card = allDecks[Math.floor(Math.random() * allDecks.length)];
+    const wrong = [];
+    while (wrong.length < 3) {
+        const pick = allDecks[Math.floor(Math.random() * allDecks.length)];
+        if (pick.word !== card.word && !wrong.find(w => w.word === pick.word)) wrong.push(pick);
+    }
+    const options = [...wrong.map(w => ({text: w.es, correct: false})), {text: card.es, correct: true}]
+        .sort(() => Math.random() - 0.5);
+
+    document.getElementById('tesoro-pregunta').textContent = `¿Cómo se dice "${card.word}" ${card.emoji} en español?`;
+    document.getElementById('tesoro-feedback').textContent = '';
+    hablarNativo(card.word);
+
+    const opEl = document.getElementById('tesoro-opciones');
+    opEl.innerHTML = '';
+    const colors = ['#2563eb','#7c3aed','#dc2626','#16a34a'];
+    options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.style.cssText = `background:${colors[i]};color:#fff;border-radius:16px;padding:12px 8px;font-weight:800;font-size:13px;border:2px solid rgba(255,255,255,0.3);active-scale:0.95;`;
+        btn.textContent = opt.text;
+        btn.onclick = function() {
+            const fb = document.getElementById('tesoro-feedback');
+            if (opt.correct) {
+                playFX && playFX('correct');
+                fb.textContent = '🌟 ¡Correcto! +50 XP';
+                fb.style.color = '#fde68a';
+                const p = window.familia[window.perfilActualId];
+                if (p) { p.score += 50; guardarEstado(); document.getElementById('puntos-nena') && (document.getElementById('puntos-nena').innerText = p.score + ' XP'); }
+                lanzarEstrellas && lanzarEstrellas();
+                Array.from(opEl.children).forEach(b => b.disabled = true);
+            } else {
+                playFX && playFX('wrong');
+                btn.style.opacity = '0.4';
+                fb.textContent = '🔍 ¡Intentá de nuevo!';
+                fb.style.color = '#fca5a5';
+            }
+        };
+        opEl.appendChild(btn);
+    });
 };
 
 window.cargarEscenarioFijoAdulto = function(idEsc) {
@@ -2767,10 +2873,9 @@ window._escenariosVisitados = window._escenariosVisitados || new Set();
 function verificarAutoNivelacion(p) {
     const nivelIdx = NIVEL_ORDEN.indexOf(p.nivel);
     if (nivelIdx < 0 || nivelIdx >= NIVEL_ORDEN.length - 1) return;
-    const sessionGain = p.score - (p.scoreInicioSesion || p.score);
-    const diverseEnough = window._escenariosVisitados.size >= 2;
-    if ((p.racha < 3 && sessionGain < 150) || !diverseEnough) return;
     const nuevoNivel = NIVEL_ORDEN[nivelIdx + 1];
+    const xpNeeded = NIVEL_XP[nuevoNivel];
+    if (!xpNeeded || p.score < xpNeeded) return;
     p.nivel = nuevoNivel;
     p.racha = 0;
     p.scoreInicioSesion = p.score;
