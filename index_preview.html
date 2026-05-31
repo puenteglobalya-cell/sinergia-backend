@@ -2278,6 +2278,7 @@ function mostrarEligePractica(idTema) {
     const titleEl = document.getElementById('elige-practica-titulo');
     if (titleEl) titleEl.textContent = `¿Qué querés practicar hoy, ${p.nombre.split(' ')[0]}?`;
     document.getElementById('panel-tematicas').classList.add('hidden');
+    document.getElementById('flipcards-launcher').style.display = 'none';
     document.getElementById('zona-mision').classList.add('hidden');
     document.getElementById('elige-practica-panel').classList.remove('hidden');
     hablarNativo(`¿Qué querés practicar hoy, ${p.nombre.split(' ')[0]}?`);
@@ -2286,11 +2287,13 @@ function mostrarEligePractica(idTema) {
 function volverDeElige() {
     document.getElementById('elige-practica-panel').classList.add('hidden');
     document.getElementById('panel-tematicas').classList.remove('hidden');
+    document.getElementById('flipcards-launcher').style.display = '';
     actualizarBadgesTemas(window.familia[window.perfilActualId]);
 }
 
 window.irAMisionDirecta = function(idTema) {
     document.getElementById('elige-practica-panel').classList.add('hidden');
+    document.getElementById('flipcards-launcher').style.display = 'none';
     const p = window.familia[window.perfilActualId];
     const temaIdx = p.temaProgress[idTema] || 0;
     const tema = obtenerPregunta(idTema, temaIdx);
@@ -2349,6 +2352,7 @@ window.kidsNavTab = function(tab) {
     });
     if (tab === 'aventuras') {
         document.getElementById('panel-tematicas').classList.remove('hidden');
+        document.getElementById('flipcards-launcher').style.display = '';
         document.getElementById('elige-practica-panel').classList.add('hidden');
         document.getElementById('zona-mision').classList.add('hidden');
     } else if (tab === 'tarjetas') {
