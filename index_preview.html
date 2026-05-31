@@ -2345,14 +2345,23 @@ window.volverATematicas = function() {
     document.getElementById('zona-mision').classList.add('hidden');
     document.getElementById('panel-tematicas').classList.remove('hidden');
     actualizarBadgesTemas(window.familia[window.perfilActualId]);
+    kidsNavTab('aventuras');
+};
+
+window.cerrarWordMatch = function() {
+    document.getElementById('wordmatch-overlay').classList.add('hidden');
+    window.speechSynthesis && window.speechSynthesis.cancel();
 };
 
 window.kidsNavTab = function(tab) {
     ['aventuras','tarjetas','shadowing','mapa'].forEach(t => {
         const btn = document.getElementById('knav-'+t);
         if (!btn) return;
-        if (t === tab) { btn.className = 'kids-nav-btn flex-1 py-2 rounded-xl text-xs font-extrabold transition-all bg-blue-600 text-white shadow-sm'; }
-        else { btn.className = 'kids-nav-btn flex-1 py-2 rounded-xl text-xs font-extrabold transition-all text-slate-500 hover:text-slate-700'; }
+        if (t === tab) {
+            btn.className = 'kids-nav-btn active flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold';
+        } else {
+            btn.className = 'kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500';
+        }
     });
     if (tab === 'aventuras') {
         document.getElementById('panel-tematicas').classList.remove('hidden');
@@ -2360,7 +2369,7 @@ window.kidsNavTab = function(tab) {
         document.getElementById('elige-practica-panel').classList.add('hidden');
         document.getElementById('zona-mision').classList.add('hidden');
     } else if (tab === 'tarjetas') {
-        abrirFlipCards ? abrirFlipCards() : mostrarFlipCards('Animals');
+        mostrarFlipCards(window._tarjetasTema || 'Animals');
     } else if (tab === 'shadowing') {
         const ov = document.getElementById('shadow-overlay');
         if (ov) { ov.classList.remove('hidden'); if(typeof iniciarShadowing==='function') iniciarShadowing(); }
