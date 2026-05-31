@@ -982,29 +982,53 @@
 </div>
 
 <!-- ═══ GRAN TESORO OVERLAY ═══ -->
-<div id="gran-tesoro-overlay" class="fixed inset-0 z-[300] hidden flex flex-col items-center justify-center touch-manipulation" style="background:linear-gradient(135deg,#78350f 0%,#92400e 40%,#b45309 100%);">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none" id="tesoro-confetti-container"></div>
-    <div class="relative z-10 w-full max-w-sm px-6 flex flex-col items-center gap-5">
-        <div class="text-8xl floating" style="filter:drop-shadow(0 0 24px gold)">🏆</div>
-        <h1 class="text-3xl font-extrabold text-yellow-300 text-center leading-tight drop-shadow-lg">¡GRAN TESORO!</h1>
-        <p class="text-yellow-100 text-sm text-center font-semibold">Completaste los 12 temas. ¡Sos un campeón del inglés!</p>
-
-        <!-- Final quiz -->
-        <div id="tesoro-quiz-container" class="w-full bg-white/10 backdrop-blur-sm rounded-3xl p-5 space-y-3">
-            <p class="text-yellow-200 text-xs font-bold text-center uppercase tracking-widest">Desafío Final 🔥</p>
-            <p id="tesoro-pregunta" class="text-white text-lg font-extrabold text-center leading-snug min-h-[56px]">Cargando...</p>
-            <div id="tesoro-opciones" class="grid grid-cols-2 gap-2"></div>
-            <p id="tesoro-feedback" class="text-center text-base font-bold min-h-[28px]"></p>
-        </div>
-
-        <div class="flex gap-3 w-full">
-            <button onclick="cargarTesoroQuiz()" class="flex-1 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-extrabold py-3 rounded-2xl text-sm active:scale-95 transition-all shadow-lg">🎲 Nueva pregunta</button>
-            <button onclick="cerrarGranTesoro()" class="flex-1 bg-white/20 hover:bg-white/30 text-white font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all">✕ Cerrar</button>
+<div id="gran-tesoro-overlay" class="fixed inset-0 z-[300] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#1e1b4b 0%,#312e81 50%,#1e3a5f 100%);">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarGranTesoro()" class="text-white/60 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <div class="flex items-center gap-2">
+            <span class="text-yellow-300 font-extrabold text-sm" id="wr-score-display">⭐ 0</span>
+            <span class="text-red-400 font-extrabold text-sm" id="wr-lives-display">❤️❤️❤️</span>
         </div>
     </div>
+
+    <!-- Game canvas area -->
+    <div class="flex-1 flex flex-col items-center justify-start px-4 gap-3 overflow-hidden">
+        <div class="text-center">
+            <h1 class="text-xl font-extrabold text-yellow-300 leading-tight">🏆 Word Rush</h1>
+            <p class="text-white/60 text-xs">¡Tocá para saltar y agarrá las estrellas!</p>
+        </div>
+
+        <!-- Canvas wrapper -->
+        <div class="relative w-full max-w-sm" style="aspect-ratio:2/1.1">
+            <canvas id="wr-canvas" class="w-full h-full rounded-2xl shadow-2xl" style="touch-action:none;"></canvas>
+            <!-- Start/End screen overlay on canvas -->
+            <div id="wr-start-screen" class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl gap-3" style="background:rgba(0,0,0,0.7)">
+                <div class="text-5xl">🏃</div>
+                <p class="text-white font-extrabold text-lg text-center px-4">¡Word Rush!</p>
+                <p class="text-white/70 text-xs text-center px-6">Tocá para saltar · Agarrá ⭐ estrellas · Respondé preguntas de inglés</p>
+                <button onclick="iniciarWordRush()" class="bg-yellow-400 text-yellow-900 font-extrabold px-8 py-3 rounded-2xl text-base active:scale-95 shadow-lg mt-2">¡Jugar! 🚀</button>
+            </div>
+            <div id="wr-end-screen" class="hidden absolute inset-0 flex flex-col items-center justify-center rounded-2xl gap-3" style="background:rgba(0,0,0,0.8)">
+                <div class="text-5xl" id="wr-end-emoji">💫</div>
+                <p class="text-white font-extrabold text-xl" id="wr-end-title">¡Bien jugado!</p>
+                <p class="text-yellow-300 font-bold text-lg" id="wr-end-score">0 estrellas</p>
+                <button onclick="iniciarWordRush()" class="bg-yellow-400 text-yellow-900 font-extrabold px-8 py-3 rounded-2xl text-base active:scale-95 shadow-lg">↺ Jugar de nuevo</button>
+                <button onclick="cerrarGranTesoro()" class="text-white/60 text-sm mt-1">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Question panel (shown when star caught) -->
+        <div id="wr-question-panel" class="hidden w-full max-w-sm bg-white/10 backdrop-blur-sm rounded-3xl p-4 space-y-3">
+            <p class="text-yellow-200 text-xs font-bold text-center uppercase tracking-widest">⭐ ¿Qué significa?</p>
+            <p id="wr-q-text" class="text-white text-lg font-extrabold text-center leading-snug"></p>
+            <div id="wr-q-options" class="grid grid-cols-2 gap-2"></div>
+            <p id="wr-q-feedback" class="text-center font-bold text-sm min-h-[20px]"></p>
+        </div>
+    </div>
+    <div class="pb-4"></div>
 </div>
 
-<!-- mapa-overlay: see above -->
 
 <!-- ═══ ADULTS INTERFACE ═══ -->
 <div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden" style="background:linear-gradient(160deg,#f0f4ff 0%,#faf8ff 60%,#f0fff8 100%);">
@@ -2577,68 +2601,310 @@ window.cerrarMapa = function() {
 window.abrirGranTesoro = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
     document.getElementById('gran-tesoro-overlay').classList.remove('hidden');
-    lanzarTesoroConfetti();
-    cargarTesoroQuiz();
+    wrResetUI();
 };
 
 window.cerrarGranTesoro = function() {
+    wrStop();
     document.getElementById('gran-tesoro-overlay').classList.add('hidden');
 };
 
-function lanzarTesoroConfetti() {
-    const container = document.getElementById('tesoro-confetti-container');
-    container.innerHTML = '';
-    const emojis = ['⭐','🌟','✨','💫','🎉','🏆','🎊','💛','🔥'];
-    for (let i = 0; i < 40; i++) {
-        const el = document.createElement('div');
-        el.style.cssText = `position:absolute;font-size:${16+Math.random()*24}px;left:${Math.random()*100}%;top:-40px;animation:confettiFall ${2+Math.random()*3}s linear ${Math.random()*2}s forwards;`;
-        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-        container.appendChild(el);
+// ─── WORD RUSH GAME ───────────────────────────────────────────────
+(function() {
+    const WR = {
+        canvas: null, ctx: null,
+        raf: null, running: false, paused: false,
+        W: 0, H: 0,
+        score: 0, lives: 3, speed: 3, frame: 0,
+        // player
+        px: 0, py: 0, vy: 0, onGround: false, jumping: false,
+        GROUND: 0, GRAVITY: 0.55, JUMP: -11,
+        // obstacles & stars
+        obstacles: [], stars: [],
+        obsCooldown: 0, starCooldown: 0,
+        // pending question
+        questionPending: false,
+        pendingCard: null,
+    };
+
+    function resize() {
+        const el = document.getElementById('wr-canvas');
+        if (!el) return;
+        WR.W = el.clientWidth;
+        WR.H = el.clientHeight;
+        el.width  = WR.W;
+        el.height = WR.H;
+        WR.GROUND = WR.H * 0.72;
+        WR.px = WR.W * 0.18;
+        if (!WR.running) WR.py = WR.GROUND;
     }
-}
 
-window.cargarTesoroQuiz = function() {
-    const allDecks = Object.values(FLIP_DECKS).flat();
-    const card = allDecks[Math.floor(Math.random() * allDecks.length)];
-    const wrong = [];
-    while (wrong.length < 3) {
-        const pick = allDecks[Math.floor(Math.random() * allDecks.length)];
-        if (pick.word !== card.word && !wrong.find(w => w.word === pick.word)) wrong.push(pick);
+    function randomCard() {
+        const allDecks = Object.values(FLIP_DECKS).flat();
+        return allDecks[Math.floor(Math.random() * allDecks.length)];
     }
-    const options = [...wrong.map(w => ({text: w.es, correct: false})), {text: card.es, correct: true}]
-        .sort(() => Math.random() - 0.5);
 
-    document.getElementById('tesoro-pregunta').textContent = `¿Cómo se dice "${card.word}" ${card.emoji} en español?`;
-    document.getElementById('tesoro-feedback').textContent = '';
-    hablarNativo(card.word);
+    function showQuestion(card) {
+        WR.paused = true;
+        WR.pendingCard = card;
+        WR.questionPending = true;
+        hablarNativo(card.word);
 
-    const opEl = document.getElementById('tesoro-opciones');
-    opEl.innerHTML = '';
-    const colors = ['#2563eb','#7c3aed','#dc2626','#16a34a'];
-    options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.style.cssText = `background:${colors[i]};color:#fff;border-radius:16px;padding:12px 8px;font-weight:800;font-size:13px;border:2px solid rgba(255,255,255,0.3);active-scale:0.95;`;
-        btn.textContent = opt.text;
-        btn.onclick = function() {
-            const fb = document.getElementById('tesoro-feedback');
-            if (opt.correct) {
-                playFX && playFX('correct');
-                fb.textContent = '🌟 ¡Correcto! +50 XP';
-                fb.style.color = '#fde68a';
-                const p = window.familia[window.perfilActualId];
-                if (p) { p.score += 50; guardarEstado(); document.getElementById('puntos-nena') && (document.getElementById('puntos-nena').innerText = p.score + ' XP'); }
-                lanzarEstrellas && lanzarEstrellas();
-                Array.from(opEl.children).forEach(b => b.disabled = true);
-            } else {
+        const allDecks = Object.values(FLIP_DECKS).flat();
+        const wrong = [];
+        while (wrong.length < 3) {
+            const pick = allDecks[Math.floor(Math.random() * allDecks.length)];
+            if (pick.word !== card.word && !wrong.find(w => w.word === pick.word)) wrong.push(pick);
+        }
+        const options = [...wrong.map(w => ({text: w.es, correct: false})), {text: card.es, correct: true}]
+            .sort(() => Math.random() - 0.5);
+
+        document.getElementById('wr-question-panel').classList.remove('hidden');
+        document.getElementById('wr-q-text').textContent = `${card.emoji} ¿Qué significa "${card.word}"?`;
+        document.getElementById('wr-q-feedback').textContent = '';
+        const opEl = document.getElementById('wr-q-options');
+        opEl.innerHTML = '';
+        const colors = ['#2563eb','#7c3aed','#dc2626','#16a34a'];
+        options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = `background:${colors[i]};color:#fff;border-radius:14px;padding:10px 8px;font-weight:800;font-size:13px;border:2px solid rgba(255,255,255,0.3);width:100%;`;
+            btn.textContent = opt.text;
+            btn.onclick = function() {
+                const fb = document.getElementById('wr-q-feedback');
+                if (opt.correct) {
+                    playFX && playFX('correct');
+                    fb.textContent = '🌟 ¡Correcto! +50 XP';
+                    fb.style.color = '#fde68a';
+                    WR.score++;
+                    updateScoreDisplay();
+                    const p = window.familia[window.perfilActualId];
+                    if (p) { p.score += 50; guardarEstado(); }
+                    Array.from(opEl.children).forEach(b => b.disabled = true);
+                    setTimeout(() => {
+                        document.getElementById('wr-question-panel').classList.add('hidden');
+                        WR.paused = false;
+                        WR.questionPending = false;
+                    }, 900);
+                } else {
+                    playFX && playFX('wrong');
+                    btn.style.opacity = '0.35';
+                    btn.disabled = true;
+                    fb.textContent = '🔍 ¡Intentá otra vez!';
+                    fb.style.color = '#fca5a5';
+                }
+            };
+            opEl.appendChild(btn);
+        });
+    }
+
+    function updateScoreDisplay() {
+        const el = document.getElementById('wr-score-display');
+        if (el) el.textContent = '⭐ ' + WR.score;
+    }
+    function updateLivesDisplay() {
+        const el = document.getElementById('wr-lives-display');
+        if (el) el.textContent = '❤️'.repeat(Math.max(0, WR.lives));
+    }
+
+    function spawnObstacle() {
+        const h = WR.H * (0.12 + Math.random() * 0.14);
+        WR.obstacles.push({ x: WR.W + 20, y: WR.GROUND - h, w: 22, h });
+    }
+    function spawnStar() {
+        const yOff = WR.H * (0.15 + Math.random() * 0.25);
+        WR.stars.push({ x: WR.W + 20, y: WR.GROUND - yOff, r: 14, card: randomCard(), collected: false });
+    }
+
+    function drawBackground(ctx) {
+        // sky gradient
+        const sky = ctx.createLinearGradient(0, 0, 0, WR.H);
+        sky.addColorStop(0, '#1e1b4b');
+        sky.addColorStop(1, '#312e81');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, WR.W, WR.H);
+        // stars bg
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        for (let i = 0; i < 18; i++) {
+            const sx = ((i * 137 + WR.frame * 0.3) % WR.W);
+            const sy = (i * 53) % (WR.GROUND - 10);
+            ctx.beginPath(); ctx.arc(sx, sy, 1.5, 0, Math.PI*2); ctx.fill();
+        }
+        // ground
+        const gr = ctx.createLinearGradient(0, WR.GROUND, 0, WR.H);
+        gr.addColorStop(0, '#4ade80');
+        gr.addColorStop(0.3, '#166534');
+        gr.addColorStop(1, '#14532d');
+        ctx.fillStyle = gr;
+        ctx.fillRect(0, WR.GROUND, WR.W, WR.H - WR.GROUND);
+    }
+
+    function drawPlayer(ctx) {
+        const x = WR.px, y = WR.py, r = WR.H * 0.07;
+        // body
+        ctx.save();
+        ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 12;
+        ctx.font = `${r*2.2}px serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText(WR.onGround ? '🏃' : '🦅', x, y + r);
+        ctx.restore();
+    }
+
+    function drawObstacles(ctx) {
+        WR.obstacles.forEach(o => {
+            ctx.save();
+            ctx.fillStyle = '#dc2626';
+            ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 8;
+            // cactus style
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+            ctx.fillStyle = '#fca5a5';
+            ctx.fillRect(o.x + 4, o.y, o.w - 8, 6);
+            ctx.restore();
+            // emoji on top
+            ctx.font = '18px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🌵', o.x + o.w/2, o.y + 2);
+        });
+    }
+
+    function drawStars(ctx) {
+        WR.stars.forEach(s => {
+            if (s.collected) return;
+            ctx.save();
+            ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 16;
+            ctx.font = '24px serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('⭐', s.x, s.y);
+            ctx.restore();
+            // word label
+            ctx.font = 'bold 9px sans-serif';
+            ctx.fillStyle = '#fde68a';
+            ctx.textAlign = 'center';
+            ctx.fillText(s.card.word, s.x, s.y + 18);
+        });
+    }
+
+    function collides(ax, ay, ar, bx, by, bw, bh) {
+        return ax + ar > bx && ax - ar < bx + bw && ay - ar*0.5 < by + bh && ay + ar > by;
+    }
+
+    function gameLoop() {
+        if (!WR.running) return;
+        WR.raf = requestAnimationFrame(gameLoop);
+        if (WR.paused) return;
+
+        const ctx = WR.ctx;
+        WR.frame++;
+        WR.speed = 3 + Math.floor(WR.frame / 300) * 0.5;
+
+        // physics
+        WR.vy += WR.GRAVITY;
+        WR.py += WR.vy;
+        if (WR.py >= WR.GROUND) { WR.py = WR.GROUND; WR.vy = 0; WR.onGround = true; }
+        else { WR.onGround = false; }
+
+        // obstacles
+        WR.obsCooldown--;
+        if (WR.obsCooldown <= 0) { spawnObstacle(); WR.obsCooldown = 90 + Math.floor(Math.random() * 80); }
+        WR.obstacles.forEach(o => o.x -= WR.speed);
+        WR.obstacles = WR.obstacles.filter(o => o.x > -40);
+
+        // stars
+        WR.starCooldown--;
+        if (WR.starCooldown <= 0) { spawnStar(); WR.starCooldown = 120 + Math.floor(Math.random() * 100); }
+        WR.stars.forEach(s => s.x -= WR.speed * 0.9);
+        WR.stars = WR.stars.filter(s => s.x > -40);
+
+        const pr = WR.H * 0.07;
+
+        // collision: obstacles
+        WR.obstacles.forEach(o => {
+            if (collides(WR.px, WR.py, pr * 0.65, o.x, o.y, o.w, o.h)) {
+                WR.lives--;
+                updateLivesDisplay();
                 playFX && playFX('wrong');
-                btn.style.opacity = '0.4';
-                fb.textContent = '🔍 ¡Intentá de nuevo!';
-                fb.style.color = '#fca5a5';
+                // push obstacle off screen immediately
+                o.x = -100;
+                if (WR.lives <= 0) { endGame(); return; }
             }
-        };
-        opEl.appendChild(btn);
-    });
-};
+        });
+
+        // collision: stars
+        WR.stars.forEach(s => {
+            if (s.collected) return;
+            const dx = WR.px - s.x, dy = WR.py - s.y;
+            if (Math.sqrt(dx*dx + dy*dy) < pr + s.r) {
+                s.collected = true;
+                showQuestion(s.card);
+            }
+        });
+
+        // draw
+        drawBackground(ctx);
+        drawObstacles(ctx);
+        drawStars(ctx);
+        drawPlayer(ctx);
+    }
+
+    function endGame() {
+        WR.running = false;
+        cancelAnimationFrame(WR.raf);
+        const endEl = document.getElementById('wr-end-screen');
+        document.getElementById('wr-question-panel').classList.add('hidden');
+        document.getElementById('wr-end-title').textContent = WR.score >= 5 ? '¡Increíble! 🏆' : WR.score >= 3 ? '¡Muy bien! 🌟' : '¡Sigue practicando!';
+        document.getElementById('wr-end-emoji').textContent = WR.score >= 5 ? '🏆' : WR.score >= 3 ? '⭐' : '💪';
+        document.getElementById('wr-end-score').textContent = WR.score + (WR.score === 1 ? ' estrella' : ' estrellas') + ' · +' + (WR.score * 50) + ' XP';
+        endEl.classList.remove('hidden');
+    }
+
+    window.wrResetUI = function() {
+        document.getElementById('wr-start-screen').classList.remove('hidden');
+        document.getElementById('wr-end-screen').classList.add('hidden');
+        document.getElementById('wr-question-panel').classList.add('hidden');
+        updateScoreDisplay();
+        updateLivesDisplay();
+    };
+
+    window.wrStop = function() {
+        WR.running = false;
+        if (WR.raf) cancelAnimationFrame(WR.raf);
+    };
+
+    window.iniciarWordRush = function() {
+        const canvas = document.getElementById('wr-canvas');
+        if (!canvas) return;
+        WR.canvas = canvas;
+        WR.ctx = canvas.getContext('2d');
+        resize();
+
+        // reset state
+        WR.running = true; WR.paused = false; WR.frame = 0;
+        WR.score = 0; WR.lives = 3; WR.speed = 3;
+        WR.obstacles = []; WR.stars = [];
+        WR.obsCooldown = 80; WR.starCooldown = 100;
+        WR.py = WR.GROUND; WR.vy = 0; WR.onGround = true;
+        WR.questionPending = false;
+
+        updateScoreDisplay(); updateLivesDisplay();
+        document.getElementById('wr-start-screen').classList.add('hidden');
+        document.getElementById('wr-end-screen').classList.add('hidden');
+        document.getElementById('wr-question-panel').classList.add('hidden');
+
+        // jump on tap/click/space
+        function doJump() {
+            if (!WR.running || WR.paused) return;
+            if (WR.onGround) { WR.vy = WR.JUMP; WR.onGround = false; }
+        }
+        canvas.onclick = doJump;
+        canvas.ontouchstart = e => { e.preventDefault(); doJump(); };
+
+        if (WR.raf) cancelAnimationFrame(WR.raf);
+        gameLoop();
+    };
+
+    // Handle resize
+    window.addEventListener('resize', () => { if (WR.running) resize(); });
+})();
+
 
 window.cargarEscenarioFijoAdulto = function(idEsc) {
     const esc = bancoEscenariosFijos[idEsc];
