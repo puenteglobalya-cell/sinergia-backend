@@ -871,8 +871,12 @@
                             <button onclick="mostrarFlipCards('Weather')"  class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🌦</button>
                             <button onclick="mostrarFlipCards('Family')"   class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">👨‍👩‍👧</button>
                             <button onclick="mostrarFlipCards('Feelings')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">😊</button>
-                            <button onclick="mostrarFlipCards('Koala')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🐨</button>
-                            <button onclick="mostrarFlipCards('Sea')"      class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🐙</button>
+                            <button onclick="mostrarFlipCards('Koala')"     class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🐨</button>
+                            <button onclick="mostrarFlipCards('Sea')"       class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🐙</button>
+                            <button onclick="mostrarFlipCards('Greetings')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">👋</button>
+                            <button onclick="mostrarFlipCards('Numbers')"   class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🔢</button>
+                            <button onclick="mostrarFlipCards('Colors')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🎨</button>
+                            <button onclick="mostrarFlipCards('Travel')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">✈️</button>
                         </div>
                     </div>
                 </div>
@@ -1311,6 +1315,34 @@ const FLIP_DECKS = {
         {emoji:'🐬',word:'DOLPHIN',es:'Delfín'},{emoji:'🦀',word:'CRAB',es:'Cangrejo'},
         {emoji:'⭐',word:'STARFISH',es:'Estrella de mar'},{emoji:'🐠',word:'FISH',es:'Pez'},
         {emoji:'🐳',word:'WHALE',es:'Ballena'},{emoji:'🦑',word:'SQUID',es:'Calamar'},
+    ],
+    Greetings: [
+        {emoji:'👋',word:'HELLO',es:'Hola'},{emoji:'👋',word:'GOODBYE',es:'Adiós'},
+        {emoji:'🙏',word:'PLEASE',es:'Por favor'},{emoji:'😊',word:'THANK YOU',es:'Gracias'},
+        {emoji:'☀️',word:'GOOD MORNING',es:'Buenos días'},{emoji:'🌙',word:'GOOD NIGHT',es:'Buenas noches'},
+        {emoji:'😔',word:'SORRY',es:'Lo siento'},{emoji:'❓',word:'HOW ARE YOU?',es:'¿Cómo estás?'},
+        {emoji:'👍',word:'GREAT!',es:'¡Genial!'},{emoji:'🤝',word:'NICE TO MEET YOU',es:'Mucho gusto'},
+    ],
+    Numbers: [
+        {emoji:'1️⃣',word:'ONE',es:'Uno'},{emoji:'2️⃣',word:'TWO',es:'Dos'},
+        {emoji:'3️⃣',word:'THREE',es:'Tres'},{emoji:'4️⃣',word:'FOUR',es:'Cuatro'},
+        {emoji:'5️⃣',word:'FIVE',es:'Cinco'},{emoji:'6️⃣',word:'SIX',es:'Seis'},
+        {emoji:'7️⃣',word:'SEVEN',es:'Siete'},{emoji:'8️⃣',word:'EIGHT',es:'Ocho'},
+        {emoji:'9️⃣',word:'NINE',es:'Nueve'},{emoji:'🔟',word:'TEN',es:'Diez'},
+    ],
+    Colors: [
+        {emoji:'❤️',word:'RED',es:'Rojo'},{emoji:'💙',word:'BLUE',es:'Azul'},
+        {emoji:'💛',word:'YELLOW',es:'Amarillo'},{emoji:'💚',word:'GREEN',es:'Verde'},
+        {emoji:'🟠',word:'ORANGE',es:'Naranja'},{emoji:'💜',word:'PURPLE',es:'Violeta'},
+        {emoji:'🩷',word:'PINK',es:'Rosa'},{emoji:'🖤',word:'BLACK',es:'Negro'},
+        {emoji:'🤍',word:'WHITE',es:'Blanco'},{emoji:'🟤',word:'BROWN',es:'Marrón'},
+    ],
+    Travel: [
+        {emoji:'✈️',word:'PLANE',es:'Avión'},{emoji:'🧳',word:'SUITCASE',es:'Valija'},
+        {emoji:'🗺️',word:'MAP',es:'Mapa'},{emoji:'🏨',word:'HOTEL',es:'Hotel'},
+        {emoji:'🛂',word:'PASSPORT',es:'Pasaporte'},{emoji:'🚕',word:'TAXI',es:'Taxi'},
+        {emoji:'📷',word:'CAMERA',es:'Cámara'},{emoji:'🗼',word:'MONUMENT',es:'Monumento'},
+        {emoji:'🌍',word:'WORLD',es:'Mundo'},{emoji:'🎫',word:'TICKET',es:'Ticket'},
     ],
 };
 
@@ -2340,8 +2372,8 @@ window._tarjetasTema = null;
 
 function mostrarEligePractica(idTema) {
     const temaToFlipDeck = {
-        greetings:'Animals', numbers:'Animals', colors:'Animals',
-        travel:'Animals', animals:'Animals', food:'Food', clothes:'Clothes',
+        greetings:'Greetings', numbers:'Numbers', colors:'Colors',
+        travel:'Travel', animals:'Animals', food:'Food', clothes:'Clothes',
         weather:'Weather', family:'Family', feelings:'Feelings',
         koala:'Koala', sea:'Sea'
     };
