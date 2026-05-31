@@ -80,13 +80,14 @@
         .scrollbar-none { scrollbar-width: none; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
 
-        /* Design system: Mesh background */
+        /* Design system: Mesh background — 4-corner radial gradient */
         .mesh-bg {
             background-color: #faf8ff;
             background-image:
-                radial-gradient(at 0% 0%,   rgba(0, 88, 190, 0.07) 0, transparent 50%),
-                radial-gradient(at 50% 0%,  rgba(254, 166, 25, 0.06) 0, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(0, 105, 71, 0.05) 0, transparent 50%);
+                radial-gradient(at 0% 0%,   rgba(0, 88, 190, 0.07)   0, transparent 50%),
+                radial-gradient(at 50% 0%,  rgba(254, 166, 25, 0.06)  0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 105, 71, 0.05)    0, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(253, 164, 175, 0.08) 0, transparent 50%);
         }
         /* Glass card */
         .glass-card {
@@ -95,7 +96,7 @@
             -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(218, 226, 253, 0.6);
         }
-        /* Neumorphic button: press down effect */
+        /* Neumorphic button */
         .neo-btn {
             box-shadow: 3px 3px 0px 0px rgba(0, 88, 190, 0.18);
             transition: box-shadow 0.15s ease, transform 0.15s ease;
@@ -112,12 +113,113 @@
             transform: translateY(-6px);
             box-shadow: 0 12px 28px rgba(0, 88, 190, 0.12);
         }
-        /* Floating animation for icons */
+        /* Glow on hover (profile cards, bento cards) */
+        .glow-effect {
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .glow-effect:hover {
+            box-shadow: 0 0 32px rgba(33, 112, 228, 0.35);
+            transform: translateY(-4px) scale(1.02);
+        }
+        /* Floating animation — 6s for a relaxed float */
         @keyframes floating {
             0%, 100% { transform: translateY(0px); }
             50%       { transform: translateY(-8px); }
         }
-        .floating { animation: floating 3.2s ease-in-out infinite; }
+        .floating { animation: floating 6s ease-in-out infinite; }
+        /* Slide-up entry for profile cards */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up-1 { animation: slideUp 0.45s ease-out 0.10s both; }
+        .slide-up-2 { animation: slideUp 0.45s ease-out 0.20s both; }
+        .slide-up-3 { animation: slideUp 0.45s ease-out 0.30s both; }
+        .slide-up-4 { animation: slideUp 0.45s ease-out 0.40s both; }
+        /* Pulse glow — mic active, AI typing */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 88, 190, 0); }
+            50%       { box-shadow: 0 0 0 10px rgba(0, 88, 190, 0.18); }
+        }
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        /* Mic pulse */
+        @keyframes pulse-mic {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+            50%       { box-shadow: 0 0 0 14px rgba(239,68,68,0.25); }
+        }
+        .pulse-mic { animation: pulse-mic 1.5s ease-in-out infinite; }
+        /* Word match success glow */
+        .success-glow {
+            box-shadow: 0 0 0 3px #4edea3, 0 0 20px rgba(78, 222, 163, 0.4);
+            border-color: #4edea3 !important;
+        }
+        /* Storyteller interactive words */
+        .interactive-word {
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.15s, color 0.15s;
+            padding: 1px 2px;
+        }
+        .interactive-word:hover { background: rgba(0,88,190,0.12); }
+        .active-word {
+            background: rgba(0, 88, 190, 0.18);
+            color: #0058be;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+        /* Custom scrollbar for adult glosario */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(194,198,214,0.6); border-radius: 9999px; }
+        /* Bento topic card (kids desktop view) */
+        .bento-topic {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            height: 10rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            cursor: pointer;
+            transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+        }
+        .bento-topic:hover { transform: translateY(-5px); box-shadow: 0 14px 32px rgba(0,0,0,0.14); }
+        .bento-topic:active { transform: scale(0.97); }
+        .bento-topic .ghost-emoji {
+            position: absolute;
+            right: -1rem;
+            top: -1rem;
+            font-size: 5.5rem;
+            opacity: 0.18;
+            user-select: none;
+            pointer-events: none;
+        }
+        .bento-topic .topic-title {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+        .bento-topic .topic-subtitle {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            position: relative;
+            z-index: 1;
+        }
+        /* Wave bars (AI speaking indicator) */
+        @keyframes wave-bar {
+            0%, 100% { height: 6px; }
+            50%       { height: 20px; }
+        }
+        .wave-bar { width: 4px; border-radius: 9999px; background: #0058be; display: inline-block; animation: wave-bar 1.2s ease-in-out infinite; }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.30s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        /* Podium shadows for leaderboard */
+        .podium-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 12px 24px rgba(0,0,0,0.06); }
         /* Top bar glass */
         .topbar-glass {
             background: rgba(255, 255, 255, 0.88);
@@ -133,7 +235,10 @@
 <div class="topbar-glass sticky top-0 z-40 px-4 py-2.5 flex justify-between items-center gap-3 shadow-sm">
     <div class="flex items-center gap-3 min-w-0 flex-1">
         <!-- Logo -->
-        <span class="font-extrabold text-base tracking-tight text-blue-700 flex-shrink-0 hidden sm:block">Sinergia</span>
+        <div class="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+            <div class="h-7 w-7 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl rotate-3 flex items-center justify-center text-white text-xs font-extrabold shadow-sm">S</div>
+            <span class="font-extrabold text-sm tracking-tight text-slate-800">Sinergia</span>
+        </div>
         <div id="profile-buttons-container" class="flex gap-1.5 flex-wrap min-w-0"></div>
     </div>
     <div class="flex gap-2 flex-shrink-0 items-center">
@@ -296,15 +401,18 @@
         <button onclick="document.getElementById('sb-overlay').classList.add('hidden');window.speechSynthesis.cancel();"
                 class="absolute top-3 right-3 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors z-30">✕</button>
         <div class="text-center space-y-1 pt-1">
-            <div class="text-4xl">🧩</div>
+            <div class="text-4xl floating">🧩</div>
             <h2 class="text-xl font-extrabold text-slate-800">Sentence Builder!</h2>
             <p id="sb-hint" class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá las palabras en orden</p>
         </div>
-        <div id="sb-built" class="min-h-[56px] bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-3 py-3 flex flex-wrap gap-2 items-center justify-center"></div>
+        <!-- Drop zone -->
+        <div id="sb-built" class="min-h-[56px] rounded-2xl px-3 py-3 flex flex-wrap gap-2 items-center justify-center transition-all"
+             style="background:#f8fafc;border:2px dashed #c7d2fe;min-height:60px;"></div>
+        <!-- Word bank -->
         <div id="sb-words" class="flex flex-wrap gap-2 justify-center"></div>
         <div class="flex gap-2">
-            <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">🔊 Escuchar</button>
-            <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">↩ Reiniciar</button>
+            <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95 neo-btn">🔊 Escuchar</button>
+            <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95 neo-btn">↩ Reiniciar</button>
         </div>
         <div id="sb-feedback" class="hidden text-center font-bold text-sm py-3 rounded-2xl border"></div>
     </div>
@@ -392,7 +500,7 @@
         <h2 id="glosario-title" class="text-white font-extrabold text-lg">⭐ Glosario</h2>
         <button onclick="document.getElementById('glosario-overlay').style.display='none'" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-800 transition-colors">✕</button>
     </div>
-    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-2" id="glosario-list"></div>
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-2 custom-scrollbar" id="glosario-list"></div>
     <div class="px-4 py-4 border-t border-slate-700 flex-shrink-0">
         <button onclick="if(confirm('¿Borrar todo el glosario?')){localStorage.removeItem(glosarioKey(window.perfilActualId));mostrarGlosario();}" class="w-full bg-rose-900/50 hover:bg-rose-900 text-rose-400 font-bold py-3 rounded-2xl text-sm transition-all active:scale-95">🗑 Borrar todo el glosario</button>
     </div>
@@ -454,32 +562,33 @@
 <div id="vista-infantil" class="flex-1 flex flex-col p-4 md:p-6 hidden"
      style="background: linear-gradient(135deg,#dbeafe 0%,#fef9c3 45%,#fce7f3 100%);">
 
-    <header class="max-w-lg mx-auto w-full mb-5">
-        <div class="glass-card rounded-3xl p-4 shadow-lg flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-md">⭐</div>
-                <div>
-                    <h1 id="saludo-nena" class="text-lg font-extrabold text-slate-800">Hello!</h1>
-                    <p id="nivel-nena-tag" class="text-xs text-slate-400 font-semibold">Level: Starter</p>
+    <header class="max-w-2xl mx-auto w-full mb-5">
+        <div class="glass-card rounded-3xl p-5 shadow-lg">
+            <div class="flex justify-between items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-md flex-shrink-0 floating">⭐</div>
+                    <div class="min-w-0">
+                        <h1 id="saludo-nena" class="text-lg font-extrabold text-slate-800 leading-tight">Hello!</h1>
+                        <p id="nivel-nena-tag" class="text-xs text-slate-400 font-semibold">Level: Starter</p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex gap-4 items-center">
-                <div class="text-center">
-                    <p class="text-xs font-bold text-orange-400 uppercase">Streak</p>
-                    <p class="text-lg font-extrabold text-orange-600">🔥<span id="racha-nena">0</span></p>
-                </div>
-                <div class="h-8 w-px bg-slate-200"></div>
-                <div class="text-center">
-                    <p class="text-xs font-bold text-blue-400 uppercase">Score</p>
-                    <p id="puntos-nena" class="text-lg font-extrabold text-blue-600">0 XP</p>
+                <div class="flex gap-3 items-center flex-shrink-0">
+                    <div class="bg-orange-50 border border-orange-100 rounded-2xl px-3 py-2 text-center podium-shadow">
+                        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Streak</p>
+                        <p class="text-base font-extrabold text-orange-600 leading-none mt-0.5">🔥<span id="racha-nena">0</span></p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl px-3 py-2 text-center podium-shadow">
+                        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">XP</p>
+                        <p id="puntos-nena" class="text-base font-extrabold text-blue-600 leading-none mt-0.5">0</p>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Progress bar shown after tier 1 unlocked -->
-    <div id="progress-bar-wrapper" class="max-w-lg mx-auto w-full mb-3 hidden">
-        <div class="glass-card rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm">
+    <div id="progress-bar-wrapper" class="max-w-2xl mx-auto w-full mb-3 hidden">
+        <div class="glass-card rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-sm">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap">Next prize</span>
             <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
                 <div id="progress-fill" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width:0%"></div>
@@ -488,57 +597,113 @@
         </div>
     </div>
 
-    <main class="flex-1 max-w-lg mx-auto w-full">
+    <main class="flex-1 max-w-2xl mx-auto w-full">
 
         <!-- Topic selector -->
-        <div id="panel-tematicas" class="space-y-3">
+        <div id="panel-tematicas" class="space-y-4">
             <div class="text-center">
                 <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
-                <p class="text-slate-500 text-sm mt-1">Deslizá para elegir tu tema</p>
+                <p class="text-slate-500 text-sm mt-1 md:hidden">Deslizá para elegir tu tema</p>
             </div>
-            <!-- Swipe hint -->
-            <p class="text-center text-[10px] text-slate-400 font-semibold tracking-wider animate-pulse">← deslizá →</p>
-            <!-- Horizontal snap carousel — no scroll general en mobile -->
-            <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 -mx-1 px-1" style="-webkit-overflow-scrolling:touch;">
-                <button onclick="seleccionarTematica('greetings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-blue-400 to-blue-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
-                    <div class="font-extrabold text-sm">Greetings</div>
+
+            <!-- Mobile: horizontal snap carousel -->
+            <div class="md:hidden">
+                <p class="text-center text-[10px] text-slate-400 font-semibold tracking-wider animate-pulse mb-2">← deslizá →</p>
+                <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 -mx-1 px-1" style="-webkit-overflow-scrolling:touch;">
+                    <button onclick="seleccionarTematica('greetings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-blue-400 to-blue-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
+                        <div class="font-extrabold text-sm">Greetings</div>
+                    </button>
+                    <button onclick="seleccionarTematica('numbers')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🔢</div>
+                        <div class="font-extrabold text-sm">Numbers</div>
+                    </button>
+                    <button onclick="seleccionarTematica('colors')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-rose-400 to-pink-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎨</div>
+                        <div class="font-extrabold text-sm">Colours</div>
+                    </button>
+                    <button onclick="seleccionarTematica('travel')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-emerald-400 to-teal-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">✈️</div>
+                        <div class="font-extrabold text-sm">Travel</div>
+                    </button>
+                    <button onclick="seleccionarTematica('animals')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-lime-400 to-green-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐾</div>
+                        <div class="font-extrabold text-sm">Animals</div>
+                    </button>
+                    <button onclick="seleccionarTematica('food')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-400 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🍕</div>
+                        <div class="font-extrabold text-sm">Food</div>
+                    </button>
+                    <button onclick="seleccionarTematica('clothes')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-fuchsia-400 to-purple-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👗</div>
+                        <div class="font-extrabold text-sm">Clothes</div>
+                    </button>
+                    <button onclick="seleccionarTematica('weather')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-sky-400 to-cyan-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🌦️</div>
+                        <div class="font-extrabold text-sm">Weather</div>
+                    </button>
+                    <button onclick="seleccionarTematica('family')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-pink-400 to-rose-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👨‍👩‍👧</div>
+                        <div class="font-extrabold text-sm">Family</div>
+                    </button>
+                    <button onclick="seleccionarTematica('feelings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-violet-400 to-indigo-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
+                        <div class="font-extrabold text-sm">Feelings</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Desktop: bento grid -->
+            <div class="hidden md:grid grid-cols-4 gap-4">
+                <button onclick="seleccionarTematica('greetings')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+                    <span class="ghost-emoji">👋</span>
+                    <span class="topic-title">Greetings</span>
+                    <span class="topic-subtitle">Hello & Hi!</span>
                 </button>
-                <button onclick="seleccionarTematica('numbers')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🔢</div>
-                    <div class="font-extrabold text-sm">Numbers</div>
+                <button onclick="seleccionarTematica('numbers')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                    <span class="ghost-emoji">🔢</span>
+                    <span class="topic-title">Numbers</span>
+                    <span class="topic-subtitle">Count to 100!</span>
                 </button>
-                <button onclick="seleccionarTematica('colors')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-rose-400 to-pink-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎨</div>
-                    <div class="font-extrabold text-sm">Colours</div>
+                <button onclick="seleccionarTematica('colors')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#ec4899,#db2777);">
+                    <span class="ghost-emoji">🎨</span>
+                    <span class="topic-title">Colours</span>
+                    <span class="topic-subtitle">Rainbow world</span>
                 </button>
-                <button onclick="seleccionarTematica('travel')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-emerald-400 to-teal-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">✈️</div>
-                    <div class="font-extrabold text-sm">Travel</div>
+                <button onclick="seleccionarTematica('travel')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#10b981,#059669);">
+                    <span class="ghost-emoji">✈️</span>
+                    <span class="topic-title">Travel</span>
+                    <span class="topic-subtitle">Explore!</span>
                 </button>
-                <button onclick="seleccionarTematica('animals')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-lime-400 to-green-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐾</div>
-                    <div class="font-extrabold text-sm">Animals</div>
+                <button onclick="seleccionarTematica('animals')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#84cc16,#65a30d);">
+                    <span class="ghost-emoji">🐾</span>
+                    <span class="topic-title">Animals</span>
+                    <span class="topic-subtitle">Wild & tame</span>
                 </button>
-                <button onclick="seleccionarTematica('food')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-400 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🍕</div>
-                    <div class="font-extrabold text-sm">Food</div>
+                <button onclick="seleccionarTematica('food')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#facc15,#eab308);">
+                    <span class="ghost-emoji">🍕</span>
+                    <span class="topic-title">Food</span>
+                    <span class="topic-subtitle">Yummy!</span>
                 </button>
-                <button onclick="seleccionarTematica('clothes')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-fuchsia-400 to-purple-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👗</div>
-                    <div class="font-extrabold text-sm">Clothes</div>
+                <button onclick="seleccionarTematica('clothes')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#a855f7,#9333ea);">
+                    <span class="ghost-emoji">👗</span>
+                    <span class="topic-title">Clothes</span>
+                    <span class="topic-subtitle">Fashion fun</span>
                 </button>
-                <button onclick="seleccionarTematica('weather')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-sky-400 to-cyan-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🌦️</div>
-                    <div class="font-extrabold text-sm">Weather</div>
+                <button onclick="seleccionarTematica('weather')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9);">
+                    <span class="ghost-emoji">🌦️</span>
+                    <span class="topic-title">Weather</span>
+                    <span class="topic-subtitle">Rain or shine</span>
                 </button>
-                <button onclick="seleccionarTematica('family')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-pink-400 to-rose-500 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👨‍👩‍👧</div>
-                    <div class="font-extrabold text-sm">Family</div>
+                <button onclick="seleccionarTematica('family')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#f43f5e,#e11d48);">
+                    <span class="ghost-emoji">👨‍👩‍👧</span>
+                    <span class="topic-title">Family</span>
+                    <span class="topic-subtitle">Together!</span>
                 </button>
-                <button onclick="seleccionarTematica('feelings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-violet-400 to-indigo-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
-                    <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
-                    <div class="font-extrabold text-sm">Feelings</div>
+                <button onclick="seleccionarTematica('feelings')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+                    <span class="ghost-emoji">🎵</span>
+                    <span class="topic-title">Feelings</span>
+                    <span class="topic-subtitle">How do you feel?</span>
                 </button>
             </div>
         </div>
@@ -586,30 +751,47 @@
 <!-- ═══ ADULTS INTERFACE ═══ -->
 <div id="vista-adultos" class="flex-1 flex flex-col p-4 md:p-6 hidden" style="background:linear-gradient(160deg,#f0f4ff 0%,#faf8ff 60%,#f0fff8 100%);">
 
-    <header class="max-w-4xl mx-auto w-full mb-5">
-        <div class="glass-card rounded-2xl p-5 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="space-y-2 flex-1">
-                <div class="flex items-center gap-3">
-                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
-                    <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-xs font-extrabold px-2.5 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
-                </div>
-                <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
-                <div id="adulto-nivel-progress" class="space-y-1 hidden">
-                    <div class="flex justify-between items-center">
-                        <span id="adulto-nivel-label" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></span>
-                        <span id="adulto-nivel-xp" class="text-xs font-bold text-blue-500"></span>
+    <header class="max-w-4xl mx-auto w-full mb-5 space-y-4">
+        <!-- Hero row -->
+        <div class="glass-card rounded-2xl p-5 shadow-md">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="space-y-2 flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conversational English · AI</span>
+                        <span id="adulto-racha-badge" class="hidden bg-orange-50 border border-orange-200 text-orange-600 text-xs font-extrabold px-2.5 py-0.5 rounded-full">🔥 <span id="adulto-racha-num">0</span> streak</span>
                     </div>
-                    <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div id="adulto-nivel-fill" class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-700" style="width:0%"></div>
+                    <h1 id="subtitulo-adulto" class="text-xl font-extrabold text-slate-900">Active Explorer</h1>
+                    <div id="adulto-nivel-progress" class="space-y-1 hidden">
+                        <div class="flex justify-between items-center">
+                            <span id="adulto-nivel-label" class="text-xs font-bold text-slate-400 uppercase tracking-wide"></span>
+                            <span id="adulto-nivel-xp" class="text-xs font-bold text-blue-500"></span>
+                        </div>
+                        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="adulto-nivel-fill" class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-700" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stat chips -->
+                <div class="flex gap-3 flex-shrink-0">
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-100 rounded-2xl px-4 py-3 text-center podium-shadow">
+                        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Daily Streak</p>
+                        <p class="text-lg font-extrabold text-orange-600 leading-none mt-1">🔥 <span id="adulto-streak-display">0</span></p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl px-4 py-3 text-center podium-shadow">
+                        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Total XP</p>
+                        <p class="text-lg font-extrabold text-blue-600 leading-none mt-1" id="adulto-xp-display">0</p>
                     </div>
                 </div>
             </div>
-            <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-4 rounded-xl w-full md:w-72 shadow-sm">
-                <p class="font-extrabold text-slate-500 mb-3 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
-                <div id="racha-familiar-badge" class="hidden flex items-center justify-center gap-1 mb-2"></div>
-<ol id="leaderboard-list" class="space-y-2 text-sm"></ol>
+        </div>
+        <!-- Leaderboard row -->
+        <div class="glass-card rounded-2xl p-4 shadow-md">
+            <div class="flex items-center justify-between mb-3">
+                <p class="font-extrabold text-slate-700 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
+                <div id="racha-familiar-badge" class="hidden flex items-center gap-1"></div>
             </div>
+            <ol id="leaderboard-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm"></ol>
         </div>
     </header>
 
@@ -669,7 +851,16 @@
             <!-- Current exchange -->
             <div class="p-5 space-y-4 bg-white/60 min-h-[160px]">
                 <div class="flex items-end gap-3">
-                    <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">AI</div>
+                    <div class="relative flex-shrink-0">
+                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">AI</div>
+                        <!-- Wave bars — visible while AI is speaking -->
+                        <div id="ai-wave-indicator" class="hidden absolute -bottom-1 -right-1 flex items-end gap-px bg-white rounded-full px-1 py-0.5 shadow-sm" style="gap:2px;">
+                            <span class="wave-bar" style="height:6px;"></span>
+                            <span class="wave-bar" style="height:6px;"></span>
+                            <span class="wave-bar" style="height:6px;"></span>
+                            <span class="wave-bar" style="height:6px;"></span>
+                        </div>
+                    </div>
                     <div class="flex-1 min-w-0">
                         <div id="chat-prompt" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm font-medium shadow-sm leading-relaxed"></div>
                     </div>
@@ -1278,7 +1469,7 @@ function wmSelectES(idx) {
         const btnEN = document.getElementById(`wm-en-${wmState.selectedEN}`);
         [btnEN, btnES].forEach(b => {
             if (b) {
-                b.className = 'w-full py-3 px-3 bg-emerald-100 border-2 border-emerald-400 text-emerald-700 font-extrabold rounded-2xl text-sm transition-all text-center';
+                b.className = 'w-full py-3 px-3 bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-extrabold rounded-2xl text-sm text-center success-glow';
                 b.disabled = true;
             }
         });
@@ -1448,17 +1639,15 @@ function actualizarLeaderboardUI() {
     const sorted = Object.values(window.familia)
         .sort((a,b) => (b.scoreSemanal||b.score) - (a.scoreSemanal||a.score));
     list.innerHTML = sorted.map((p,i) => {
-        const medal = ['🥇','🥈','🥉','🏅'][i] || '';
-        const pts   = p.scoreSemanal !== undefined ? p.scoreSemanal : p.score;
-        const colors= PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
-        const isFirst = i === 0;
-        return `<li class="flex justify-between items-center gap-2 px-3 py-2 rounded-xl ${isFirst?'bg-blue-50 border border-blue-100':''}">
-            <div class="flex items-center gap-2">
-                <span class="text-base leading-none">${medal}</span>
-                <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">${p.nombre[0]}</div>
-                <span class="font-bold text-slate-700 text-xs">${p.nombre.split(' ')[0]}</span>
-            </div>
-            <span class="${isFirst?'text-blue-700':'text-slate-500'} font-extrabold text-xs">${pts} XP</span>
+        const medal  = ['🥇','🥈','🥉','🏅'][i] || '';
+        const pts    = p.scoreSemanal !== undefined ? p.scoreSemanal : p.score;
+        const colors = PROFILE_COLORS[p.id] || 'from-slate-400 to-slate-600';
+        const ringCls= i === 0 ? 'ring-2 ring-yellow-300' : '';
+        return `<li class="flex flex-col items-center gap-1.5 bg-white/70 border border-slate-100 rounded-2xl py-3 px-2 podium-shadow ${i===0?'bg-gradient-to-b from-yellow-50/80 to-white/70 border-yellow-200':''}">
+            <span class="text-xl leading-none">${medal}</span>
+            <div class="h-9 w-9 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold ${ringCls}">${p.nombre[0]}</div>
+            <span class="font-bold text-slate-700 text-xs text-center leading-tight">${p.nombre.split(' ')[0]}</span>
+            <span class="font-extrabold text-[11px] ${i===0?'text-yellow-600':'text-slate-400'}">${pts} XP</span>
         </li>`;
     }).join('');
 }
@@ -1501,10 +1690,8 @@ function renderWordClickablePrompt(text, translation, containerId) {
         const word = token.replace(/[^a-zA-Z']/g, '');
         const span = document.createElement('span');
         span.textContent = token;
-        span.style.cssText = 'cursor:pointer;border-radius:4px;padding:0 2px;transition:background 0.12s;';
+        span.className = 'interactive-word';
         span.addEventListener('click', e => { e.stopPropagation(); chatWordTap(span, word || token); });
-        span.addEventListener('mouseenter', () => { span.style.background = 'rgba(99,179,237,0.18)'; });
-        span.addEventListener('mouseleave', () => { span.style.background = ''; });
         wrapper.appendChild(span);
     });
 
@@ -1657,6 +1844,11 @@ function actualizarNivelAdulto(p) {
         rachaN.innerText = p.racha;
         badge.classList.toggle('hidden', p.racha < 2);
     }
+    // Update header stat chips
+    const streakDisp = document.getElementById('adulto-streak-display');
+    if (streakDisp) streakDisp.innerText = p.racha || 0;
+    const xpDisp = document.getElementById('adulto-xp-display');
+    if (xpDisp) xpDisp.innerText = (p.score || 0) + ' XP';
     const bar = document.getElementById('adulto-nivel-progress');
     if (!bar) return;
     const nivelIdx = NIVEL_KEYS.indexOf(p.nivel);
@@ -1956,6 +2148,11 @@ function inicializarVoces() {
 
 let _ttsTimer = null;
 window.isAudioThreadMuted = false;
+function _setAIWave(on) {
+    const w = document.getElementById('ai-wave-indicator');
+    if (w) w.classList.toggle('hidden', !on);
+}
+
 function hablarNativo(texto, rate = null) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
@@ -1970,7 +2167,9 @@ function hablarNativo(texto, rate = null) {
         u.lang = 'en-US';
         u.rate = rate || window.voiceRateOverride || 0.85;
         // Unblock audio thread on error so next call isn't silently skipped
-        u.onerror = () => { window.isAudioThreadMuted = false; };
+        u.onerror = () => { window.isAudioThreadMuted = false; _setAIWave(false); };
+        u.onend   = () => { _setAIWave(false); };
+        _setAIWave(true);
         window.speechSynthesis.speak(u);
     }, 120);
 }
@@ -2066,7 +2265,7 @@ window.alternarMic = function() {
         ['wave-ring-1','wave-ring-2'].forEach(id => document.getElementById(id).classList.remove('hidden'));
         document.getElementById('mic-icon').classList.add('hidden');
         document.getElementById('mic-eq').classList.remove('hidden');
-        document.getElementById('btn-mic-adulto').classList.add('border-rose-500');
+        document.getElementById('btn-mic-adulto').classList.add('border-rose-500', 'pulse-mic');
         document.getElementById('mic-status-text').innerText = '🔴 Listening… speak now!';
         window.reconocimientoVoz.start();
     } else {
@@ -2079,7 +2278,7 @@ function detenerMicUI() {
     ['wave-ring-1','wave-ring-2'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('mic-icon').classList.remove('hidden');
     document.getElementById('mic-eq').classList.add('hidden');
-    document.getElementById('btn-mic-adulto').classList.remove('border-rose-500');
+    document.getElementById('btn-mic-adulto').classList.remove('border-rose-500', 'pulse-mic');
     document.getElementById('mic-status-text').innerText = 'Tap to speak in English';
 }
 
@@ -2199,10 +2398,11 @@ function renderizarBotonesPerfil() {
     const container = document.getElementById('profile-buttons-container');
     if (!container) return;
     container.innerHTML = '';
-    Object.values(window.familia).forEach(p => {
+    const slideClasses = ['slide-up-1','slide-up-2','slide-up-3','slide-up-4'];
+    Object.values(window.familia).forEach((p, i) => {
         const colors = PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
         const btn = document.createElement('button');
-        btn.className  = 'profile-btn flex items-center gap-1.5 bg-white hover:bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm transition-all active:scale-95';
+        btn.className  = `profile-btn flex items-center gap-1.5 bg-white hover:bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm transition-all active:scale-95 ${slideClasses[i]||''}`;
         btn.dataset.id = p.id;
         btn.innerHTML  = `
             <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">${p.nombre[0]}</div>
@@ -2230,7 +2430,7 @@ function renderizarSelectorEscenariosAdultos() {
         const s = SCENARIO_STYLES[e.id]||{icon:'📍',bg:'bg-slate-50 border-slate-200'};
         const btn = document.createElement('button');
         btn.id        = `btn-esc-${e.id}`;
-        btn.className = `border p-3 rounded-xl font-bold text-xs text-center adventure-card ${s.bg}`;
+        btn.className = `border p-3 rounded-xl font-bold text-xs text-center adventure-card glow-effect ${s.bg}`;
         btn.innerHTML = `<div class="text-2xl mb-1.5 floating">${s.icon}</div><div>${e.titulo}</div>`;
         btn.onclick   = () => window.cargarEscenarioFijoAdulto(e.id);
         container.appendChild(btn);
@@ -2789,7 +2989,8 @@ function cargarTextoEnStoryteller(text) {
         const span  = document.createElement('span');
         span.id = 'st-' + d.idx;
         span.dataset.word = clean;
-        span.style.cssText = 'transition:background 0.12s;border-radius:4px;padding:0 3px;cursor:pointer;color:#e2e8f0;';
+        span.className = 'interactive-word';
+        span.style.color = '#e2e8f0';
         span.innerHTML = safe;
         span.addEventListener('click', () => stWordTap(span, clean, d.idx));
         container.appendChild(span);
@@ -2994,15 +3195,13 @@ let _storyTimers = []; // fallback timer IDs for browsers without onboundary
 function stHighlight(idx) {
     if (_storyActive >= 0) {
         const prev = document.getElementById(`st-${_storyActive}`);
-        if (prev) { prev.style.background=''; prev.style.color='#e2e8f0'; prev.style.fontWeight=''; prev.style.borderRadius=''; }
+        if (prev) { prev.classList.remove('active-word'); prev.style.color='#e2e8f0'; }
     }
     _storyActive = idx;
     const el = document.getElementById(`st-${idx}`);
     if (el) {
-        el.style.background   = '#fde047';
-        el.style.color        = '#0f172a';
-        el.style.fontWeight   = '800';
-        el.style.borderRadius = '4px';
+        el.classList.add('active-word');
+        el.style.color = '';
         el.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
 }
@@ -3010,7 +3209,7 @@ function stHighlight(idx) {
 function stClearHighlight() {
     if (_storyActive >= 0) {
         const el = document.getElementById(`st-${_storyActive}`);
-        if (el) { el.style.background=''; el.style.color='#e2e8f0'; el.style.fontWeight=''; el.style.borderRadius=''; }
+        if (el) { el.classList.remove('active-word'); el.style.color='#e2e8f0'; }
         _storyActive = -1;
     }
     _storyTimers.forEach(clearTimeout);
@@ -3233,10 +3432,8 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 const word = token.replace(/[^a-zA-Z']/g,'');
                 const sp = document.createElement('span');
                 sp.textContent = token;
-                sp.style.cssText = 'cursor:pointer;border-radius:3px;padding:0 1px;transition:background 0.1s;';
+                sp.className = 'interactive-word';
                 sp.addEventListener('click', () => chatWordTap(sp, word || token));
-                sp.addEventListener('mouseenter', () => { sp.style.background='rgba(99,179,237,0.2)'; });
-                sp.addEventListener('mouseleave', () => { sp.style.background=''; });
                 aiBubble.appendChild(sp);
             });
             const starBtn = document.createElement('button');
