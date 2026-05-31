@@ -398,6 +398,58 @@
     </div>
 </div>
 
+<!-- ═══ IDIOMS MODAL ═══ -->
+<div id="idioms-overlay" class="fixed inset-0 flex flex-col z-[150]" style="background:rgba(10,15,30,0.97);display:none;">
+    <div class="flex items-center justify-between px-4 py-4 border-b border-slate-700 flex-shrink-0">
+        <div>
+            <h2 class="text-white font-extrabold text-lg">💡 Idiom del Día</h2>
+            <p id="idiom-counter" class="text-slate-400 text-xs mt-0.5"></p>
+        </div>
+        <button onclick="document.getElementById('idioms-overlay').style.display='none';window.speechSynthesis.cancel();" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-800 transition-colors">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-4 max-w-xl mx-auto w-full">
+        <!-- Main idiom card -->
+        <div class="bg-gradient-to-br from-blue-700 to-indigo-800 rounded-3xl p-6 text-center space-y-3 shadow-2xl">
+            <p class="text-blue-200 text-xs font-bold uppercase tracking-widest">✨ Idiom</p>
+            <h3 id="idiom-phrase" class="text-white text-2xl font-extrabold leading-snug"></h3>
+            <button onclick="hablarNativo(document.getElementById('idiom-phrase').innerText.replace(/[\"«»]/g,'').trim())"
+                    class="mt-1 bg-white/20 hover:bg-white/30 text-white font-bold px-5 py-2 rounded-xl text-sm active:scale-95 transition-all neo-btn">
+                🔊 Escuchar
+            </button>
+        </div>
+        <!-- Context -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-1.5">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">📍 Cuándo usarlo</p>
+            <p id="idiom-context" class="text-slate-200 text-sm leading-relaxed"></p>
+        </div>
+        <!-- Example -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">💬 Ejemplo en contexto</p>
+            <p id="idiom-example" class="text-white text-sm font-semibold leading-relaxed italic"></p>
+            <button onclick="hablarNativo(document.getElementById('idiom-example').innerText)"
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-xl text-xs active:scale-95 transition-all">
+                🔊 Escuchar ejemplo
+            </button>
+        </div>
+        <!-- Usage tip -->
+        <div class="bg-amber-900/40 border border-amber-700/40 rounded-2xl p-4">
+            <p class="text-amber-300 text-xs font-bold uppercase tracking-wider mb-1">💡 Tip de uso</p>
+            <p id="idiom-usage" class="text-amber-100 text-sm leading-relaxed"></p>
+        </div>
+        <!-- Actions -->
+        <div class="flex gap-3 pb-6">
+            <button onclick="guardarIdiomEnGlosario()" id="idiom-save-btn"
+                    class="flex-1 bg-amber-500 hover:bg-amber-400 text-white font-bold py-3.5 rounded-2xl text-sm active:scale-95 transition-all neo-btn">
+                ⭐ Guardar en glosario
+            </button>
+            <button onclick="mostrarIdiomAleatorio()"
+                    class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-2xl text-sm active:scale-95 transition-all neo-btn">
+                🎲 Siguiente idiom
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ KIDS INTERFACE ═══ -->
 <div id="vista-infantil" class="flex-1 flex flex-col p-4 md:p-6 hidden"
      style="background: linear-gradient(135deg,#dbeafe 0%,#fef9c3 45%,#fce7f3 100%);">
@@ -578,6 +630,9 @@
                     </button>
                     <button onclick="iniciarStoryteller()" class="bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 neo-btn">
                         📖 Storyteller
+                    </button>
+                    <button onclick="mostrarIdiomDelDia()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 neo-btn">
+                        💡 Idioms
                     </button>
                     <button onclick="mostrarGlosario()" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2 active:scale-95 border border-slate-200">
                         ⭐ Glosario
@@ -1266,16 +1321,29 @@ function wmComplete() {
     }, 3500);
 }
 
-window.familia = JSON.parse(localStorage.getItem('sinergia_familia')) || {
+const _FAMILIA_DEFAULT = {
     perfil1: { id:'perfil1', nombre:'Juliana',     tipo:'infantil', nivel:'Starter',            score:0, racha:0, misionIndex:0, temaProgress:{} },
     perfil2: { id:'perfil2', nombre:'Emilia',      tipo:'infantil', nivel:'Elementary',         score:0, racha:0, misionIndex:0, temaProgress:{} },
     perfil3: { id:'perfil3', nombre:'María Elena', tipo:'adulto',   nivel:'Pre-Intermediate',   score:0, racha:0 },
     perfil4: { id:'perfil4', nombre:'Maxi',        tipo:'adulto',   nivel:'Upper-Intermediate', score:0, racha:0 }
 };
-// Migrate old profiles that lack temaProgress / racha
+try {
+    const raw = localStorage.getItem('sinergia_familia');
+    window.familia = raw ? JSON.parse(raw) : _FAMILIA_DEFAULT;
+    // Validate: if any required profile is missing or corrupt, fall back to default
+    if (!window.familia || typeof window.familia !== 'object' ||
+        !['perfil1','perfil2','perfil3','perfil4'].every(k => window.familia[k]?.nombre)) {
+        window.familia = JSON.parse(JSON.stringify(_FAMILIA_DEFAULT));
+    }
+} catch(e) {
+    window.familia = JSON.parse(JSON.stringify(_FAMILIA_DEFAULT));
+}
+// Migrate old profiles that lack temaProgress / racha / scoreSemanal
 Object.values(window.familia).forEach(p => {
     if (!p.temaProgress) p.temaProgress = {};
     if (p.racha === undefined) p.racha = 0;
+    if (p.scoreSemanal === undefined) p.scoreSemanal = 0;
+    if (p.misionIndex === undefined) p.misionIndex = 0;
 });
 
 window.perfilActualId   = 'perfil1';
@@ -1558,15 +1626,23 @@ function shuffle(arr) {
 }
 
 // Per-theme random queues so we don't repeat until all questions are seen
-const _temaQueues = {};
+const _temaQueues  = {};
+const _temaLastIdx = {};
 function obtenerPregunta(idTema, temaIdx) {
     const banco = MISIONES[idTema];
     const tier  = (temaIdx >= 4) ? 'tier2' : 'tier1';
     const key   = idTema + '_' + tier;
     if (!_temaQueues[key] || _temaQueues[key].length === 0) {
-        _temaQueues[key] = shuffle(banco[tier].map((_, i) => i));
+        let newQueue = shuffle(banco[tier].map((_, i) => i));
+        // Prevent immediate repeat: if refilled queue starts with last-seen, rotate it
+        const last = _temaLastIdx[key];
+        if (last !== undefined && newQueue.length > 1 && newQueue[0] === last) {
+            newQueue.push(newQueue.shift());
+        }
+        _temaQueues[key] = newQueue;
     }
     const idx = _temaQueues[key].shift();
+    _temaLastIdx[key] = idx;
     const q   = { ...banco[tier][idx] };
     q.opciones = shuffle(q.opciones);
     return q;
@@ -1765,14 +1841,26 @@ window.aplicarTema = function(bgClass, metaColor) {
     const isDark = bgClass === 'bg-slate-900';
     body.classList.toggle('text-slate-100', isDark);
     body.classList.toggle('text-slate-900', !isDark);
-    // Adapt config panel, top bar cards and modals for dark mode
+    // Adapt config panel for dark mode
     const panel = document.getElementById('config-panel');
     if (panel) {
-        panel.className = panel.className.replace(/bg-\S+/, '');
-        panel.classList.add(isDark ? 'bg-slate-800' : 'bg-white');
+        panel.className = panel.className.replace(/bg-\S+\/?\S*/, '');
+        panel.classList.add(isDark ? 'bg-slate-800' : 'bg-white/95');
         panel.classList.toggle('border-slate-700', isDark);
         panel.classList.toggle('border-slate-200', !isDark);
     }
+    // Adapt glass-card elements for dark mode
+    document.querySelectorAll('.glass-card').forEach(el => {
+        el.style.background   = isDark ? 'rgba(30,41,59,0.85)' : '';
+        el.style.borderColor  = isDark ? 'rgba(71,85,105,0.6)' : '';
+    });
+    // Adapt scenario buttons for dark mode
+    document.querySelectorAll('#grid-escenarios-adultos button, #grid-escenarios-custom button').forEach(el => {
+        el.style.filter = isDark ? 'brightness(0.75) saturate(0.8)' : '';
+    });
+    // Adapt adults header text for dark mode
+    const sub = document.getElementById('subtitulo-adulto');
+    if (sub) sub.classList.toggle('text-slate-100', isDark);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = metaColor;
     localStorage.setItem('sinergia_tema', bgClass + '|' + metaColor);
@@ -1881,6 +1969,8 @@ function hablarNativo(texto, rate = null) {
         if (v[window.voiceIndexSeleccionada]) u.voice = v[window.voiceIndexSeleccionada];
         u.lang = 'en-US';
         u.rate = rate || window.voiceRateOverride || 0.85;
+        // Unblock audio thread on error so next call isn't silently skipped
+        u.onerror = () => { window.isAudioThreadMuted = false; };
         window.speechSynthesis.speak(u);
     }, 120);
 }
@@ -1911,7 +2001,8 @@ function playFX(tipo) {
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.42);
         }
-        setTimeout(() => ctx.close(), 600);
+        // Close context after oscillator finishes — avoids "AudioContext was not closed" warnings
+        osc.onended = () => { try { ctx.close(); } catch(_) {} };
     } catch(e) {}
 }
 
@@ -2172,7 +2263,11 @@ function renderizarEscenariosCustom() {
 
 window.agregarEscenarioCustom = function() {
     const input = document.getElementById('custom-scene-input');
-    const textoSanitizado = input.value.trim().replace(/[`"\\]/g, "'").replace(/</g,'').replace(/>/g,'');
+    const textoSanitizado = input.value.trim()
+        .replace(/[<>&"'`\\{}]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 120);
     if (!textoSanitizado) return;
     const customs = cargarEscenariosCustom();
     customs.unshift({ titulo: textoSanitizado, systemInfo: textoSanitizado });
@@ -2238,6 +2333,73 @@ verificarRachaFamiliar();
 verificarResetSemanal();
 actualizarRachaFamiliarUI();
 window.cambiarPerfil('perfil1');
+
+// ── Idioms Section ────────────────────────────────────────────────────────────
+const IDIOM_BANK = [
+    { idiom:'Break the ice',          context:'Al inicio de una reunión o primer contacto con alguien nuevo', example:'He told a quick story to break the ice before the Q3 presentation.', usage:'Úsalo cuando haya tensión o silencio incómodo al empezar una conversación formal.' },
+    { idiom:'Hit the ground running',  context:'Al empezar un nuevo proyecto o puesto con energía inmediata', example:'She hit the ground running and had the treasury report done by Monday.', usage:'Demuestra que arrancaste a toda velocidad sin necesitar tiempo de adaptación.' },
+    { idiom:'On the same page',        context:'En reuniones para asegurar que todos entiendan y estén de acuerdo', example:"Before we finalize the IFRS numbers, let's make sure we're all on the same page.", usage:'Confirma entendimiento compartido. Muy frecuente en emails y reuniones de equipo.' },
+    { idiom:'Touch base',              context:'Contacto rápido y profesional para hacer seguimiento', example:'I need to touch base with the oil desk before the market closes.', usage:"Es informal y amigable. Ideal para emails: 'Just wanted to touch base on...'" },
+    { idiom:'The ball is in your court', context:'En negociaciones, cuando esperás que la otra parte actúe', example:"We've submitted our bid. The ball is in their court now.", usage:'Indica que ya hiciste tu parte y ahora la responsabilidad es del otro.' },
+    { idiom:'Burn the midnight oil',   context:'Cuando trabajás muy tarde para terminar algo importante', example:'The SAP TRM team burned the midnight oil to meet the go-live deadline.', usage:'Implica esfuerzo y dedicación. Positivo, aunque sugiere mucha presión de tiempo.' },
+    { idiom:'Move the goalposts',      context:'Cuando los requisitos o condiciones cambian inesperadamente', example:'They moved the goalposts again — now they want daily hedging reports.', usage:'Tiene connotación negativa. Úsalo para expresar frustración por cambios injustos.' },
+    { idiom:'A ballpark figure',       context:'Cuando te piden una estimación aproximada en contexto financiero', example:'Can you give me a ballpark figure for the pipeline expansion cost?', usage:'Aclara que el número es aproximado. Libera presión de ser exacto en primera instancia.' },
+    { idiom:'Cut corners',             context:'Cuando alguien omite pasos importantes para ahorrar tiempo o dinero', example:"We can't cut corners on the compliance audit — regulators will flag it.", usage:'Tiene connotación negativa: implica sacrificar calidad por conveniencia.' },
+    { idiom:'Read between the lines',  context:'Cuando hay un mensaje implícito que no se dice directamente', example:"Reading between the lines, I think they're open to renegotiating the margin.", usage:'Útil en diplomacia corporativa y negociaciones donde no todo se dice explícitamente.' },
+    { idiom:'Seal the deal',           context:'Al cerrar exitosamente un contrato o acuerdo de negocios', example:'The dinner in Doha sealed the deal on the LNG supply contract.', usage:'Indica cierre definitivo. Muy usado en ventas, banca y relaciones comerciales.' },
+    { idiom:'Get the ball rolling',    context:'Para iniciar un proyecto o proceso que está estancado', example:"Let's get the ball rolling on the Q4 hedging strategy before rates move.", usage:'Implica acción y momentum. Úsalo para proponer empezar algo concreto.' },
+    { idiom:'Ahead of the curve',      context:'Cuando una empresa o persona está más avanzada que la competencia', example:'Implementing TRM now keeps the treasury team ahead of the curve.', usage:'Positivo. Indica ventaja competitiva o visión anticipada del mercado.' },
+    { idiom:'Pull the plug',           context:'Al cancelar un proyecto o inversión definitivamente', example:'The board pulled the plug on the refinery expansion due to oil price volatility.', usage:'Indica decisión definitiva de parar. Generalmente implica una pérdida o fracaso.' },
+    { idiom:'Keep me in the loop',     context:'Al delegar y pedir que te informen del progreso', example:'Keep me in the loop on the barrel negotiations — especially if the price drops.', usage:'Muy común en emails corporativos. Pide actualizaciones sin microgestionar.' },
+    { idiom:'Back to square one',      context:'Cuando un plan falla y hay que empezar desde cero', example:'The client rejected the proposal — we are back to square one on the TRM rollout.', usage:'Expresa decepción por tener que reiniciar. Úsalo con honestidad y sin catastrofismo.' },
+    { idiom:'Bite the bullet',         context:'Al aceptar una decisión difícil o costosa que no se puede evitar', example:'We bit the bullet and accepted the higher freight rate to secure the shipment.', usage:'Muestra valentía para enfrentar situaciones duras. Frecuente en decisiones financieras.' },
+    { idiom:'Think outside the box',   context:'En sesiones de brainstorming o cuando el enfoque estándar no funciona', example:"To hedge this exposure we need to think outside the box — traditional swaps won't work.", usage:'Pide creatividad y nuevas perspectivas. Muy usado en reuniones de estrategia.' },
+    { idiom:'Go back to the drawing board', context:'Cuando un plan falla y hay que replantearlo completamente', example:'The SAP configuration had too many errors — we went back to the drawing board.', usage:'Similar a "back to square one" pero implica rediseño, no sólo reinicio.' },
+    { idiom:'At the end of the day',   context:'Para resumir o llegar a la conclusión más importante', example:'At the end of the day, cash flow is what keeps the operation running.', usage:'Introduce la conclusión final. Muy frecuente en presentaciones y debates de negocios.' },
+];
+
+let _idiomActualIdx = -1;
+
+window.mostrarIdiomDelDia = function() {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+    _idiomActualIdx = dayOfYear % IDIOM_BANK.length;
+    _renderIdiom(_idiomActualIdx);
+    document.getElementById('idioms-overlay').style.display = 'flex';
+};
+
+window.mostrarIdiomAleatorio = function() {
+    let next;
+    do { next = Math.floor(Math.random() * IDIOM_BANK.length); } while (next === _idiomActualIdx && IDIOM_BANK.length > 1);
+    _idiomActualIdx = next;
+    _renderIdiom(_idiomActualIdx);
+};
+
+function _renderIdiom(idx) {
+    const it = IDIOM_BANK[idx];
+    document.getElementById('idiom-phrase').textContent  = '“' + it.idiom + '”';
+    document.getElementById('idiom-context').textContent = it.context;
+    document.getElementById('idiom-example').textContent = it.example;
+    document.getElementById('idiom-usage').textContent   = it.usage;
+    document.getElementById('idiom-counter').textContent = `${idx + 1} de ${IDIOM_BANK.length} idioms`;
+    const btn = document.getElementById('idiom-save-btn');
+    if (btn) { btn.textContent = '⭐ Guardar en glosario'; btn.disabled = false; }
+    hablarNativo(it.idiom);
+}
+
+window.guardarIdiomEnGlosario = function() {
+    const p   = window.familia[window.perfilActualId];
+    const it  = IDIOM_BANK[_idiomActualIdx];
+    const items = cargarGlosario(p.id);
+    items.unshift({
+        texto: `"${it.idiom}" — ${it.example}`,
+        fecha: new Date().toLocaleDateString('es-AR'),
+        nivel: p.nivel
+    });
+    if (items.length > 100) items.pop();
+    guardarGlosario(p.id, items);
+    const btn = document.getElementById('idiom-save-btn');
+    if (btn) { btn.textContent = '✅ Guardado'; btn.disabled = true; }
+};
 
 // ── Session Timer ─────────────────────────────────────────────────────────────
 let _sessionStart = Date.now();
@@ -2353,11 +2515,11 @@ window.addEventListener('beforeinstallprompt', e => {
     _installPrompt = e;
     document.getElementById('btn-instalar-pwa').classList.remove('hidden');
 });
-// iOS overscroll prevention on game overlays
-['wordmatch-overlay','sb-overlay','flipcards-overlay'].forEach(id => {
+// iOS overscroll prevention on game overlays (contains overscroll to each modal)
+['wordmatch-overlay','sb-overlay','flipcards-overlay','idioms-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('touchmove', e => {
-        if (e.target.closest('.overflow-y-auto')) return;
+        if (e.target.closest('.overflow-y-auto, .flex-1')) return;
         e.preventDefault();
     }, { passive: false });
 });
@@ -2382,18 +2544,15 @@ window.iniciarShadowing = async function() {
     document.getElementById('shadow-mic-area').classList.add('hidden');
     document.getElementById('shadow-result-area').classList.add('hidden');
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ action:'generate_shadowing', level: p.nivel })
-        });
-        const data = await res.json();
+        const data = await geminiSafeFetch({ action:'generate_shadowing', level: p.nivel });
         if (data.error) throw new Error(data.error);
         shadowState = { lines: data.lines, currentLine: 0, scores: [], recognition: null, listening: false };
         document.getElementById('shadow-context').innerText = data.title;
         renderShadowLines();
         setTimeout(() => playNextShadowLine(), 500);
     } catch(e) {
-        document.getElementById('shadow-lines').innerHTML = `<p class='text-red-400 text-sm text-center py-8'>${e.message}</p>`;
+        const msg = e.message === 'timeout' ? '⏱ Tiempo agotado — verificá tu conexión' : `⚠️ ${e.message}`;
+        document.getElementById('shadow-lines').innerHTML = `<p class='text-amber-400 text-sm text-center py-8'>${msg}</p>`;
     }
 };
 
@@ -2487,11 +2646,7 @@ async function evaluarLineaShadowing(said) {
     const expected = shadowState.lines[i].text;
     const p = window.familia[window.perfilActualId];
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ action:'evaluate_shadowing', textInput: said, expected, level: p.nivel })
-        });
-        const data = await res.json();
+        const data = await geminiSafeFetch({ action:'evaluate_shadowing', textInput: said, expected, level: p.nivel });
         if (data.error) throw new Error(data.error);
         shadowState.scores.push(data.score);
 
@@ -2591,11 +2746,7 @@ window.cargarNuevoStory = async function() {
     showEl('storyteller-loading');
     storytellerStop();
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ action:'generate_story', level: p.nivel })
-        });
-        const data = await res.json();
+        const data = await geminiSafeFetch({ action:'generate_story', level: p.nivel });
         if (data.error) throw new Error(data.error);
         document.getElementById('storyteller-category').innerText = '✨ Historia generada por IA · ' + p.nivel;
         document.getElementById('storyteller-title').innerText    = data.title || '';
@@ -2680,11 +2831,7 @@ window.stWordTap = async function(el, word, idx) {
     tip.style.top  = top  + 'px';
     // translate via Gemini
     try {
-        const res  = await fetch('https://project-5y7mn.vercel.app/api/gemini', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ action:'translate_word', word })
-        });
-        const data = await res.json();
+        const data = await geminiSafeFetch({ action:'translate_word', word });
         if (tip.isConnected) tip.textContent = data.translation || word;
     } catch(e) { if (tip.isConnected) tip.textContent = '—'; }
     // auto-dismiss after 2.5s
