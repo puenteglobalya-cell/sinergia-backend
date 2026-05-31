@@ -107,7 +107,7 @@
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">🎙 English Voice</label>
                 <select id="voice-selector" onchange="cambiarVozSistema()" class="w-full bg-slate-50 border border-slate-200 text-sm p-3 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300"></select>
                 <div class="flex flex-wrap gap-2 mt-1" id="voice-preset-btns"></div>
-                <p class="text-xs text-slate-400">Presets eligen la voz más cercana al acento en tu dispositivo</p>
+                <p class="text-xs text-slate-400">Presets eligen la voz más cercana al acento en tu dispositivo. 🌙 Gulf usa ritmo pausado — las voces árabes nativas solo están disponibles en algunos Android/Windows.</p>
             </div>
             <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center justify-between">
                 <div>
@@ -244,12 +244,14 @@
 </div>
 
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
-<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60] hidden p-4 touch-manipulation select-none">
-    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop mb-0 sm:mb-0">
-        <div class="text-center space-y-1">
+<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[250] hidden p-4 touch-manipulation select-none">
+    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop relative">
+        <button onclick="document.getElementById('sb-overlay').classList.add('hidden');window.speechSynthesis.cancel();"
+                class="absolute top-3 right-3 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors z-30">✕</button>
+        <div class="text-center space-y-1 pt-1">
             <div class="text-4xl">🧩</div>
             <h2 class="text-xl font-extrabold text-slate-800">Sentence Builder!</h2>
-            <p class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá las palabras en orden</p>
+            <p id="sb-hint" class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Tocá las palabras en orden</p>
         </div>
         <div id="sb-built" class="min-h-[56px] bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-3 py-3 flex flex-wrap gap-2 items-center justify-center"></div>
         <div id="sb-words" class="flex flex-wrap gap-2 justify-center"></div>
@@ -257,7 +259,7 @@
             <button onclick="sbListen()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">🔊 Escuchar</button>
             <button onclick="sbReset()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95">↩ Reiniciar</button>
         </div>
-        <div id="sb-feedback" class="hidden text-center font-bold text-sm py-3 rounded-2xl"></div>
+        <div id="sb-feedback" class="hidden text-center font-bold text-sm py-3 rounded-2xl border"></div>
     </div>
 </div>
 
@@ -395,8 +397,10 @@
                 <h2 class="text-2xl font-extrabold text-slate-800">Choose your adventure! 🚀</h2>
                 <p class="text-slate-500 text-sm mt-1">Deslizá para elegir tu tema</p>
             </div>
+            <!-- Swipe hint -->
+            <p class="text-center text-[10px] text-slate-400 font-semibold tracking-wider animate-pulse">← deslizá →</p>
             <!-- Horizontal snap carousel — no scroll general en mobile -->
-            <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-1 -mx-1 px-1">
+            <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 -mx-1 px-1" style="-webkit-overflow-scrolling:touch;">
                 <button onclick="seleccionarTematica('greetings')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-blue-400 to-blue-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
                     <div class="text-4xl group-hover:scale-110 transition-transform duration-200">👋</div>
                     <div class="font-extrabold text-sm">Greetings</div>
@@ -770,6 +774,8 @@ window.mostrarSentenceBuilder = function() {
     sbRender();
     document.getElementById('sb-feedback').classList.add('hidden');
     document.getElementById('sb-overlay').classList.remove('hidden');
+    const hint = document.getElementById('sb-hint');
+    if (hint) hint.textContent = useDistractor ? '⚠️ Una palabra es una trampa — ¡descubrila!' : 'Tocá las palabras en orden';
     hablarNativo(useDistractor ? 'Sentence Builder! One word is a trap!' : 'Sentence Builder! Put the words in the right order!');
 };
 
@@ -816,28 +822,37 @@ function sbCheck() {
     const attempt = sbState.built.join(' ');
     const correct = sbState.sentence.sentence;
     const fb = document.getElementById('sb-feedback');
-    fb.classList.remove('hidden','bg-emerald-50','text-emerald-700','bg-rose-50','text-rose-700');
+    if (!fb) return;
+    fb.classList.remove('hidden','bg-emerald-50','text-emerald-700','border-emerald-200','bg-rose-50','text-rose-700','border-rose-200');
+
     if (attempt === correct) {
         const sbWinFrases = ['🏆 Perfect sentence!','🌟 Brilliant! That\'s right!','⭐ Excellent! Well done!','🎉 Amazing! Perfect!'];
         fb.innerText = sbWinFrases[Math.floor(Math.random() * sbWinFrases.length)];
-        fb.classList.add('bg-emerald-50','text-emerald-700');
+        fb.classList.add('bg-emerald-50','text-emerald-700','border-emerald-200');
+        playFX('correct');
         hablarNativo('Perfect! ' + correct);
         const p = window.familia[window.perfilActualId];
         p.score += 100; p.scoreSemanal = (p.scoreSemanal||0) + 100;
+        registrarXpRachaFamiliar(p.id, 100);
         guardarEstado();
-        document.getElementById('puntos-nena').innerText = p.score + ' XP';
+        const ptsEl = document.getElementById('puntos-nena');
+        if (ptsEl) ptsEl.innerText = p.score + ' XP';
         actualizarLeaderboardUI();
         setTimeout(() => {
             document.getElementById('sb-overlay').classList.add('hidden');
-            window.volverATematicas();
-        }, 3200);
+            fb.classList.add('hidden');
+            if (p.tipo === 'infantil' && typeof window.volverATematicas === 'function') {
+                window.volverATematicas();
+            }
+        }, 2500);
     } else {
-        const sbLoseFrases = ['🔍 Not quite — try again!','🎧 Listen and try again!','💪 Almost! One more try!','🔄 Keep trying — you can do it!'];
+        const sbLoseFrases = ['🔍 Not quite — try again!','🎧 Listen and try again!','💪 Almost! One more try!','🔄 Keep trying!'];
         fb.innerText = sbLoseFrases[Math.floor(Math.random() * sbLoseFrases.length)];
-        fb.classList.add('bg-rose-50','text-rose-700');
+        fb.classList.add('bg-rose-50','text-rose-700','border-rose-200');
+        playFX('wrong');
         document.getElementById('sb-card').classList.add('wrong-shake');
         setTimeout(() => document.getElementById('sb-card').classList.remove('wrong-shake'), 400);
-        setTimeout(() => sbReset(), 900);
+        setTimeout(() => sbReset(), 1200);
     }
 }
 
@@ -1409,17 +1424,47 @@ async function chatWordTap(el, word) {
         const data = await geminiSafeFetch({ action:'translate_word', word });
         if (!tip.isConnected) return;
         const p = window.familia[window.perfilActualId];
-        const entry = `${word} — ${data.translation || '?'}`;
-        tip.innerHTML = `
-            <span style="color:#94a3b8;font-size:0.72rem;">${word}</span>
-            <span style="color:#fde047;font-weight:700;">${data.translation || '?'}</span>
-            <button style="background:#7c3aed;color:#fff;font-size:0.72rem;padding:2px 8px;border-radius:8px;border:none;cursor:pointer;font-weight:700;"
-                onclick="guardarEnGlosario('${p.id}',\`${entry.replace(/`/g,"'")}\`,'_chatWordTip');this.textContent='✅';setTimeout(()=>this.textContent='⭐ Guardar',1200);">⭐ Guardar</button>`;
+        const translation = data.translation || '?';
+        const entry = `${word} — ${translation}`;
+
+        // Build tooltip with DOM nodes — no inline onclick, no escaping issues
+        tip.innerHTML = '';
+        const wordSpan = document.createElement('span');
+        wordSpan.style.cssText = 'color:#94a3b8;font-size:0.72rem;';
+        wordSpan.textContent = word;
+
+        const transSpan = document.createElement('span');
+        transSpan.style.cssText = 'color:#fde047;font-weight:700;';
+        transSpan.textContent = translation;
+
+        const saveBtn = document.createElement('button');
+        saveBtn.style.cssText = 'background:#7c3aed;color:#fff;font-size:0.72rem;padding:3px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:700;';
+        saveBtn.textContent = '⭐ Guardar';
+        saveBtn.addEventListener('click', () => {
+            const items = cargarGlosario(p.id);
+            items.unshift({ texto: entry, fecha: new Date().toLocaleDateString('es-AR'), nivel: p.nivel || '' });
+            if (items.length > 100) items.pop();
+            guardarGlosario(p.id, items);
+            saveBtn.textContent = '✅ Guardado';
+            saveBtn.style.background = '#059669';
+            setTimeout(() => { if (tip.isConnected) tip.remove(); }, 1000);
+        });
+
+        tip.appendChild(wordSpan);
+        tip.appendChild(transSpan);
+        tip.appendChild(saveBtn);
     } catch(e) {
-        if (tip.isConnected) tip.innerHTML = `<span style="color:#f87171;font-size:0.72rem;">Sin conexión</span>`;
+        if (tip.isConnected) {
+            tip.innerHTML = '';
+            const errSpan = document.createElement('span');
+            errSpan.style.cssText = 'color:#f87171;font-size:0.72rem;';
+            errSpan.textContent = 'Sin conexión';
+            tip.appendChild(errSpan);
+        }
     }
 
-    setTimeout(() => { if (tip.isConnected) tip.remove(); if (_chatWordTooltip === tip) _chatWordTooltip = null; }, 4000);
+    // Auto-close after 6s (longer so user can tap Save)
+    setTimeout(() => { if (tip.isConnected) tip.remove(); if (_chatWordTooltip === tip) _chatWordTooltip = null; }, 6000);
 }
 
 window.mostrarGlosario = function() {
