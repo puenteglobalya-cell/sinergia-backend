@@ -650,6 +650,14 @@
                         <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🎵</div>
                         <div class="font-extrabold text-sm">Feelings</div>
                     </button>
+                    <button onclick="seleccionarTematica('koala')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-slate-400 to-slate-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐨</div>
+                        <div class="font-extrabold text-sm">Koala</div>
+                    </button>
+                    <button onclick="seleccionarTematica('sea')" class="group snap-start flex-shrink-0 bg-gradient-to-br from-cyan-400 to-blue-600 p-4 rounded-3xl shadow-lg text-center space-y-1 transition-all active:scale-95 text-white w-28">
+                        <div class="text-4xl group-hover:scale-110 transition-transform duration-200">🐙</div>
+                        <div class="font-extrabold text-sm">Sea Animals</div>
+                    </button>
                 </div>
             </div>
 
@@ -705,6 +713,16 @@
                     <span class="topic-title">Feelings</span>
                     <span class="topic-subtitle">How do you feel?</span>
                 </button>
+                <button onclick="seleccionarTematica('koala')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#64748b,#475569);">
+                    <span class="ghost-emoji">🐨</span>
+                    <span class="topic-title">Koala</span>
+                    <span class="topic-subtitle">Australia 🇦🇺</span>
+                </button>
+                <button onclick="seleccionarTematica('sea')" class="bento-topic glow-effect" style="background:linear-gradient(135deg,#06b6d4,#0284c7);">
+                    <span class="ghost-emoji">🐙</span>
+                    <span class="topic-title">Sea Animals</span>
+                    <span class="topic-subtitle">Ocean world 🌊</span>
+                </button>
             </div>
         </div>
 
@@ -712,12 +730,14 @@
         <div id="flipcards-launcher" class="mt-3">
             <p class="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">🃏 Tarjetas Mágicas — elegí un tema</p>
             <div class="flex flex-wrap gap-2 justify-center">
-                <button onclick="mostrarFlipCards('Animals')"  class="bg-lime-500   text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🐾 Animals</button>
-                <button onclick="mostrarFlipCards('Food')"     class="bg-orange-400 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🍕 Food</button>
-                <button onclick="mostrarFlipCards('Clothes')"  class="bg-purple-500 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">👗 Clothes</button>
-                <button onclick="mostrarFlipCards('Weather')"  class="bg-sky-500    text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🌦 Weather</button>
-                <button onclick="mostrarFlipCards('Family')"   class="bg-rose-500   text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">👨‍👩‍👧 Family</button>
-                <button onclick="mostrarFlipCards('Feelings')" class="bg-violet-500 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">😊 Feelings</button>
+                <button onclick="mostrarFlipCards('Animals')"    class="bg-lime-500   text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🐾 Animals</button>
+                <button onclick="mostrarFlipCards('Food')"       class="bg-orange-400 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🍕 Food</button>
+                <button onclick="mostrarFlipCards('Clothes')"    class="bg-purple-500 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">👗 Clothes</button>
+                <button onclick="mostrarFlipCards('Weather')"    class="bg-sky-500    text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🌦 Weather</button>
+                <button onclick="mostrarFlipCards('Family')"     class="bg-rose-500   text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">👨‍👩‍👧 Family</button>
+                <button onclick="mostrarFlipCards('Feelings')"   class="bg-violet-500 text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">😊 Feelings</button>
+                <button onclick="mostrarFlipCards('Koala')"      class="bg-slate-500  text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🐨 Koala</button>
+                <button onclick="mostrarFlipCards('Sea')"        class="bg-cyan-500   text-white text-sm font-bold px-4 py-2 rounded-2xl active:scale-95 transition-all shadow">🐙 Sea</button>
             </div>
         </div>
 
@@ -990,6 +1010,17 @@ const FLIP_DECKS = {
         {emoji:'😴',word:'SLEEPY',es:'Con sueño'},{emoji:'😂',word:'FUNNY',es:'Gracioso'},
         {emoji:'🤗',word:'LOVED',es:'Querido'},{emoji:'😎',word:'COOL',es:'Genial'},
     ],
+    Koala: [
+        {emoji:'🐨',word:'KOALA',es:'Koala'},{emoji:'🌿',word:'EUCALYPTUS',es:'Eucalipto'},
+        {emoji:'🇦🇺',word:'AUSTRALIA',es:'Australia'},{emoji:'💤',word:'SLEEP',es:'Dormir'},
+        {emoji:'🐾',word:'MARSUPIAL',es:'Marsupial'},{emoji:'🌳',word:'TREE',es:'Árbol'},
+    ],
+    Sea: [
+        {emoji:'🐙',word:'OCTOPUS',es:'Pulpo'},{emoji:'🦈',word:'SHARK',es:'Tiburón'},
+        {emoji:'🐬',word:'DOLPHIN',es:'Delfín'},{emoji:'🦀',word:'CRAB',es:'Cangrejo'},
+        {emoji:'⭐',word:'STARFISH',es:'Estrella de mar'},{emoji:'🐠',word:'FISH',es:'Pez'},
+        {emoji:'🐳',word:'WHALE',es:'Ballena'},{emoji:'🦑',word:'SQUID',es:'Calamar'},
+    ],
 };
 
 let fcState = { deck:[], idx:0, flipped:false };
@@ -1171,6 +1202,14 @@ const WORD_MATCH_BANK = [
     {en:'dog',          es:'perro'},
     {en:'sun',          es:'sol'},
     {en:'happy',        es:'feliz'},
+    {en:'koala',        es:'koala'},
+    {en:'eucalyptus',   es:'eucalipto'},
+    {en:'octopus',      es:'pulpo'},
+    {en:'dolphin',      es:'delfín'},
+    {en:'shark',        es:'tiburón'},
+    {en:'crab',         es:'cangrejo'},
+    {en:'whale',        es:'ballena'},
+    {en:'starfish',     es:'estrella de mar'},
 ];
 
 const MISIONES = {
@@ -1396,6 +1435,50 @@ Object.assign(MISIONES, {
               opciones:[{texto:"Scared 😨",correcta:false},{texto:"Happy and excited! 🎵",correcta:true},{texto:"Sleepy 😴",correcta:false}] },
             { pregunta:"A friend is sad 😢 You say…", audioText:"Your friend is sad. What do you say?",
               opciones:[{texto:"Are you okay? 🤗",correcta:true},{texto:"Goodbye!",correcta:false},{texto:"I am happy!",correcta:false}] },
+        ]
+    },
+    koala: {
+        tier1: [
+            { pregunta:"🐨 This animal is called a…", audioText:"What is this cute grey animal called?",
+              opciones:[{texto:"Koala 🐨",correcta:true},{texto:"Bear 🐻",correcta:false}] },
+            { pregunta:"🌿 Koalas eat…", audioText:"What do koalas eat?",
+              opciones:[{texto:"Fish 🐟",correcta:false},{texto:"Eucalyptus leaves 🌿",correcta:true}] },
+            { pregunta:"🐨 Koalas live in…", audioText:"Where do koalas live?",
+              opciones:[{texto:"Australia 🇦🇺",correcta:true},{texto:"Africa 🌍",correcta:false}] },
+            { pregunta:"💤 Koalas sleep how many hours a day?", audioText:"How many hours a day do koalas sleep?",
+              opciones:[{texto:"22 hours! 💤",correcta:true},{texto:"4 hours",correcta:false}] },
+        ],
+        tier2: [
+            { pregunta:"🐨 What type of animal is a koala?", audioText:"What type of animal is a koala?",
+              opciones:[{texto:"A marsupial 🐨",correcta:true},{texto:"A reptile 🦎",correcta:false},{texto:"A bird 🐦",correcta:false}] },
+            { pregunta:"🌿 Why do koalas eat eucalyptus?", audioText:"Why do koalas eat eucalyptus leaves?",
+              opciones:[{texto:"It is their favourite food 🌿",correcta:true},{texto:"It is the only food in the sea",correcta:false},{texto:"They don't eat plants",correcta:false}] },
+            { pregunta:"🐾 Koala babies are called…", audioText:"What are koala babies called?",
+              opciones:[{texto:"Cubs 🐻",correcta:false},{texto:"Joeys 🐨",correcta:true},{texto:"Pups 🐶",correcta:false}] },
+            { pregunta:"🐨 Complete: The koala ___ on a tree.", audioText:"Complete the sentence: The koala blank on a tree.",
+              opciones:[{texto:"sleeps 💤",correcta:true},{texto:"swims 🏊",correcta:false},{texto:"flies ✈️",correcta:false}] },
+        ]
+    },
+    sea: {
+        tier1: [
+            { pregunta:"🐟 This animal swims in the sea…", audioText:"What animal swims in the sea?",
+              opciones:[{texto:"Fish 🐟",correcta:true},{texto:"Cat 🐱",correcta:false}] },
+            { pregunta:"🐙 This sea animal has 8 arms…", audioText:"This sea animal has eight arms. What is it?",
+              opciones:[{texto:"Shark 🦈",correcta:false},{texto:"Octopus 🐙",correcta:true}] },
+            { pregunta:"🐬 This friendly sea animal is a…", audioText:"This friendly sea animal that jumps and plays. What is it?",
+              opciones:[{texto:"Dolphin 🐬",correcta:true},{texto:"Crab 🦀",correcta:false}] },
+            { pregunta:"🦀 This red animal walks sideways…", audioText:"This red animal walks sideways. What is it?",
+              opciones:[{texto:"Starfish ⭐",correcta:false},{texto:"Crab 🦀",correcta:true}] },
+        ],
+        tier2: [
+            { pregunta:"🦈 The biggest fish in the sea is a…", audioText:"What is the biggest fish in the sea?",
+              opciones:[{texto:"Whale Shark 🦈",correcta:true},{texto:"Goldfish 🐟",correcta:false},{texto:"Crab 🦀",correcta:false}] },
+            { pregunta:"🐠 What do fish breathe with?", audioText:"What do fish breathe with?",
+              opciones:[{texto:"Lungs like us",correcta:false},{texto:"Gills 🐠",correcta:true},{texto:"Their mouth only",correcta:false}] },
+            { pregunta:"⭐ A starfish has ___ arms.", audioText:"How many arms does a starfish have?",
+              opciones:[{texto:"5 arms ⭐",correcta:true},{texto:"8 arms 🐙",correcta:false},{texto:"2 arms",correcta:false}] },
+            { pregunta:"🐬 Complete: The dolphin ___ out of the water.", audioText:"Complete: The dolphin blank out of the water.",
+              opciones:[{texto:"jumps 🐬",correcta:true},{texto:"sleeps 💤",correcta:false},{texto:"eats 🍕",correcta:false}] },
         ]
     }
 });
