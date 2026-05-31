@@ -284,11 +284,11 @@
 <!-- TOP BAR -->
 <div class="topbar-glass sticky top-0 z-40 px-4 py-2.5 flex justify-between items-center gap-3 shadow-sm">
     <div class="flex items-center gap-3 min-w-0 flex-1">
-        <!-- Logo -->
-        <div class="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+        <!-- Logo — tap to return to profile selector -->
+        <button onclick="document.getElementById('profile-select-overlay').style.display='flex'" title="Cambiar perfil" class="hidden sm:flex items-center gap-1.5 flex-shrink-0 active:scale-95 transition-all rounded-xl px-1 py-0.5 hover:bg-slate-100">
             <div class="h-7 w-7 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl rotate-3 flex items-center justify-center text-white text-xs font-extrabold shadow-sm">S</div>
             <span class="font-extrabold text-sm tracking-tight text-slate-800">Sinergia</span>
-        </div>
+        </button>
         <div id="profile-buttons-container" class="flex gap-1.5 flex-wrap min-w-0"></div>
     </div>
     <div class="flex gap-2 flex-shrink-0 items-center">
@@ -714,7 +714,7 @@
             <div class="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
                 <div id="progress-fill" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width:0%"></div>
             </div>
-            <span id="progress-label" class="text-xs font-extrabold text-orange-600 whitespace-nowrap">🎁❓</span>
+            <button id="progress-label" onclick="mostrarPrizeTooltip()" class="text-xs font-extrabold text-orange-600 whitespace-nowrap active:scale-95 transition-all" title="¿Qué premio sigue?">🎁❓</button>
         </div>
     </div>
 
@@ -1166,6 +1166,59 @@
 
 <!-- ═══ LOGIC ═══ -->
 <script type="text/javascript">
+
+// ── Safe localStorage wrapper ──────────────────────────────────────────────
+function lsSet(key, value) {
+    try { localStorage.setItem(key, value); }
+    catch(e) {
+        console.warn('localStorage full:', e);
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;font-weight:700;padding:10px 18px;border-radius:12px;z-index:9999;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,0.2)';
+        msg.textContent = '⚠️ Almacenamiento lleno. Borrá historial o glosario para continuar.';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 5000);
+    }
+}
+
+// ── AI rate limiter ────────────────────────────────────────────────────────
+const AI_COOLDOWN_MS = 4000;
+const _aiLastCall = {};
+function aiCooldownOk(key) {
+    const now = Date.now();
+    if (_aiLastCall[key] && now - _aiLastCall[key] < AI_COOLDOWN_MS) return false;
+    _aiLastCall[key] = now;
+    return true;
+}
+function withAICooldown(key, btn, asyncFn) {
+    if (!aiCooldownOk(key)) return;
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.style.cursor = 'not-allowed'; }
+    asyncFn().finally(() => {
+        setTimeout(() => {
+            if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+        }, AI_COOLDOWN_MS);
+    });
+}
+
+// ── Escape key closes any open overlay ────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    const overlays = [
+        ['flipcards-overlay',   () => document.getElementById('flipcards-overlay').classList.add('hidden')],
+        ['wordmatch-overlay',   () => window.cerrarWordMatch && window.cerrarWordMatch()],
+        ['gem-overlay',         () => window.cerrarGemMatch && window.cerrarGemMatch()],
+        ['shadow-overlay',      () => window.cerrarShadowing && window.cerrarShadowing()],
+        ['sb-overlay',          () => document.getElementById('sb-overlay').classList.add('hidden')],
+        ['mapa-overlay',        () => window.cerrarMapa && window.cerrarMapa()],
+        ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
+        ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
+        ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
+        ['glosario-overlay',    () => { document.getElementById('glosario-overlay').style.display='none'; }],
+    ];
+    for (const [id, fn] of overlays) {
+        const el = document.getElementById(id);
+        if (el && el.style.display !== 'none' && !el.classList.contains('hidden')) { fn(); break; }
+    }
+});
 
 function quitarEmojis(str) {
     return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
@@ -1880,9 +1933,9 @@ const bancoEscenariosFijos = {
 function cargarEscenariosCustom() {
     try { return JSON.parse(localStorage.getItem('sinergia_escenarios_custom') || '[]'); } catch(e) { return []; }
 }
-function guardarEscenariosCustom(arr) { localStorage.setItem('sinergia_escenarios_custom', JSON.stringify(arr)); }
+function guardarEscenariosCustom(arr) { lsSet('sinergia_escenarios_custom', JSON.stringify(arr)); }
 
-function guardarEstado() { localStorage.setItem('sinergia_familia', JSON.stringify(window.familia)); }
+function guardarEstado() { lsSet('sinergia_familia', JSON.stringify(window.familia)); }
 
 // ── Liga Semanal ──────────────────────────────────────────────────────────────
 function getWeekNumber() {
@@ -1898,7 +1951,7 @@ function obtenerRachaFamiliar() {
     try { return JSON.parse(localStorage.getItem('sinergia_racha_familiar') || '{"racha":0,"ultimoDia":"","xpDia":{}}'); }
     catch(e) { return { racha:0, ultimoDia:'', xpDia:{} }; }
 }
-function guardarRachaFamiliar(data) { localStorage.setItem('sinergia_racha_familiar', JSON.stringify(data)); }
+function guardarRachaFamiliar(data) { lsSet('sinergia_racha_familiar', JSON.stringify(data)); }
 
 function verificarRachaFamiliar() {
     const rf  = obtenerRachaFamiliar();
@@ -1977,7 +2030,7 @@ function actualizarLeaderboardUI() {
 // ── Personal Glossary ─────────────────────────────────────────────────────────
 function glosarioKey(perfilId) { return `sinergia_glosario_${perfilId}`; }
 function cargarGlosario(perfilId) { try { return JSON.parse(localStorage.getItem(glosarioKey(perfilId)) || '[]'); } catch(e) { return []; } }
-function guardarGlosario(perfilId, items) { localStorage.setItem(glosarioKey(perfilId), JSON.stringify(items)); }
+function guardarGlosario(perfilId, items) { lsSet(glosarioKey(perfilId), JSON.stringify(items)); }
 
 window.guardarEnGlosario = function(perfilId, texto, btnContainerId) {
     const items = cargarGlosario(perfilId);
@@ -2215,9 +2268,24 @@ function actualizarBarraProgreso(p) {
     if (p.misionIndex === 0) { wrapper.classList.add('hidden'); return; }
     wrapper.classList.remove('hidden');
     fill.style.width  = (sinceLastGame / 4 * 100) + '%';
-    // Mystery chest — don't reveal the exact progress to keep dopamine alive
-    label.innerText = sinceLastGame === 3 ? '🎁!' : '🎁❓';
+    const remaining = 4 - sinceLastGame;
+    label.textContent = sinceLastGame === 3 ? '🎁!' : '🎁❓';
+    label.title = sinceLastGame === 3 ? '¡Premio listo! Completá una misión más.' : `Faltan ${remaining} misiones para el próximo premio 🎁`;
 }
+
+window.mostrarPrizeTooltip = function() {
+    const p = window.familia[window.perfilActualId];
+    if (!p) return;
+    const sinceLastGame = p.misionIndex % 4;
+    const remaining = 4 - sinceLastGame;
+    const msg = document.createElement('div');
+    msg.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);background:#1e1b4b;color:#fff;font-weight:700;padding:12px 20px;border-radius:16px;z-index:9999;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.3);text-align:center;max-width:260px;line-height:1.5';
+    msg.innerHTML = sinceLastGame >= 3
+        ? '🎁 ¡Premio listo!<br><span style="font-weight:400;font-size:12px">Completá 1 misión más para abrirlo.</span>'
+        : `🎯 Faltan <b>${remaining}</b> misiones<br><span style="font-weight:400;font-size:12px">para ganar tu próximo premio.</span>`;
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 3000);
+};
 
 window.cambiarPerfil = function(id) {
     window.perfilActualId = id;
@@ -2498,7 +2566,7 @@ window.aplicarTema = function(bgClass, metaColor) {
     if (sub) sub.classList.toggle('text-slate-100', isDark);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = metaColor;
-    localStorage.setItem('sinergia_tema', bgClass + '|' + metaColor);
+    lsSet('sinergia_tema', bgClass + '|' + metaColor);
     document.querySelectorAll('#theme-color-btns button').forEach(b => b.style.outline = '');
     const active = [...document.querySelectorAll('#theme-color-btns button')].find(b => b.getAttribute('onclick')?.includes(bgClass));
     if (active) active.style.outline = '3px solid #3b82f6';
@@ -3274,7 +3342,7 @@ function guardarSesion(perfilId, duracionMs) {
             if (idx >= 0) sesiones[idx].minutos += Math.round(ms / 60000);
             else sesiones.unshift({ fecha: hoy, minutos: Math.round(ms / 60000) });
             if (sesiones.length > 30) sesiones.pop();
-            localStorage.setItem(key, JSON.stringify(sesiones));
+            lsSet(key, JSON.stringify(sesiones));
         });
         _sessionSaveBuf = {};
     }, 800);
@@ -3588,7 +3656,11 @@ window.iniciarStoryteller = function() {
     if (!_storyText) cargarNuevoStory();
 };
 
-window.cargarNuevoStory = async function() {
+window.cargarNuevoStory = function() {
+    const btn = document.querySelector('[onclick="cargarNuevoStory()"]');
+    withAICooldown('nuevo_story', btn, _cargarNuevoStory);
+};
+async function _cargarNuevoStory() {
     const p = window.familia[window.perfilActualId];
     showEl('storyteller-loading');
     storytellerStop();
@@ -3690,7 +3762,7 @@ window.stWordTap = async function(el, word, idx) {
 function cargarTextosCustom() {
     try { return JSON.parse(localStorage.getItem('sinergia_textos_custom') || '[]'); } catch(e) { return []; }
 }
-function guardarTextosCustom(arr) { localStorage.setItem('sinergia_textos_custom', JSON.stringify(arr)); }
+function guardarTextosCustom(arr) { lsSet('sinergia_textos_custom', JSON.stringify(arr)); }
 
 window.mostrarBiblioteca = function(abrirStoryteller = false) {
     if (abrirStoryteller) {
@@ -3966,7 +4038,11 @@ const OFFLINE_FALLBACKS = {
     generate_story:    { title:"Sin conexión", text:"There is no internet connection right now. Please check your signal and try again." },
 };
 
-window.generarEscenarioSorpresaAI = async function() {
+window.generarEscenarioSorpresaAI = function() {
+    const btn = document.querySelector('[onclick="generarEscenarioSorpresaAI()"]');
+    withAICooldown('random_scene', btn, _generarEscenarioSorpresaAI);
+};
+async function _generarEscenarioSorpresaAI() {
     document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
     limpiarHistorialChat();
     document.getElementById('chat-prompt').innerHTML = "<span class='text-blue-400 animate-pulse text-sm'>Preparing your scene…</span>";
