@@ -1276,6 +1276,85 @@ window.guardarEnGlosario = function(perfilId, texto, btnContainerId) {
     if (btn) { btn.textContent = '✅'; setTimeout(() => { btn.textContent = '⭐'; }, 1200); }
 };
 
+// ── Word-tap in adult chat prompt ─────────────────────────────────────────────
+let _chatWordTooltip = null;
+
+function renderWordClickablePrompt(text, translation, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Translation toggle line
+    const transSpan = document.createElement('span');
+    transSpan.className = 'block text-slate-400 text-xs italic mt-2 hidden';
+    transSpan.textContent = translation || '';
+
+    // Build word spans
+    const wrapper = document.createElement('span');
+    wrapper.className = 'leading-relaxed';
+    text.split(/(\s+)/).forEach(token => {
+        if (!/\S/.test(token)) { wrapper.appendChild(document.createTextNode(token)); return; }
+        const word = token.replace(/[^a-zA-Z']/g, '');
+        const span = document.createElement('span');
+        span.textContent = token;
+        span.style.cssText = 'cursor:pointer;border-radius:4px;padding:0 2px;transition:background 0.12s;';
+        span.addEventListener('click', e => { e.stopPropagation(); chatWordTap(span, word || token); });
+        span.addEventListener('mouseenter', () => { span.style.background = 'rgba(99,179,237,0.18)'; });
+        span.addEventListener('mouseleave', () => { span.style.background = ''; });
+        wrapper.appendChild(span);
+    });
+
+    // Globe toggle button
+    const globeBtn = document.createElement('span');
+    globeBtn.className = 'text-blue-300 text-[10px] ml-1 cursor-pointer';
+    globeBtn.textContent = '🌐';
+    globeBtn.title = 'Ver traducción';
+    globeBtn.addEventListener('click', () => transSpan.classList.toggle('hidden'));
+
+    container.appendChild(wrapper);
+    container.appendChild(globeBtn);
+    container.appendChild(transSpan);
+}
+
+async function chatWordTap(el, word) {
+    if (!word) return;
+    hablarNativo(word, 0.85);
+
+    // Remove previous tooltip
+    if (_chatWordTooltip && _chatWordTooltip.isConnected) _chatWordTooltip.remove();
+    _chatWordTooltip = null;
+
+    const tip = document.createElement('div');
+    tip.style.cssText = 'position:fixed;background:#1e293b;color:#f1f5f9;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:12px;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,0.55);pointer-events:auto;z-index:500;display:flex;align-items:center;gap:8px;';
+    tip.innerHTML = `<span class="text-slate-300 text-xs">…</span>`;
+
+    const rect = el.getBoundingClientRect();
+    const tipW = 200;
+    let left = Math.min(rect.left, window.innerWidth - tipW - 8);
+    let top  = rect.top - 44;
+    if (top < 8) top = rect.bottom + 6;
+    tip.style.left = left + 'px';
+    tip.style.top  = top + 'px';
+    document.body.appendChild(tip);
+    _chatWordTooltip = tip;
+
+    try {
+        const data = await geminiSafeFetch({ action:'translate_word', word });
+        if (!tip.isConnected) return;
+        const p = window.familia[window.perfilActualId];
+        const entry = `${word} — ${data.translation || '?'}`;
+        tip.innerHTML = `
+            <span style="color:#94a3b8;font-size:0.72rem;">${word}</span>
+            <span style="color:#fde047;font-weight:700;">${data.translation || '?'}</span>
+            <button style="background:#7c3aed;color:#fff;font-size:0.72rem;padding:2px 8px;border-radius:8px;border:none;cursor:pointer;font-weight:700;"
+                onclick="guardarEnGlosario('${p.id}',\`${entry.replace(/`/g,"'")}\`,'_chatWordTip');this.textContent='✅';setTimeout(()=>this.textContent='⭐ Guardar',1200);">⭐ Guardar</button>`;
+    } catch(e) {
+        if (tip.isConnected) tip.innerHTML = `<span style="color:#f87171;font-size:0.72rem;">Sin conexión</span>`;
+    }
+
+    setTimeout(() => { if (tip.isConnected) tip.remove(); if (_chatWordTooltip === tip) _chatWordTooltip = null; }, 4000);
+}
+
 window.mostrarGlosario = function() {
     const p     = window.familia[window.perfilActualId];
     const items = cargarGlosario(p.id);
@@ -1284,7 +1363,7 @@ window.mostrarGlosario = function() {
     const title   = document.getElementById('glosario-title');
     title.textContent = `⭐ Glosario de ${p.nombre}`;
     list.innerHTML = items.length === 0
-        ? '<p class="text-slate-400 text-sm text-center py-8">Aún no guardaste ningún término.<br>Tocá ⭐ en el feedback de una conversación.</p>'
+        ? '<p class="text-slate-400 text-sm text-center py-8">Aún no guardaste ningún término.<br>Tocá cualquier palabra del chat para traducirla y guardarla ⭐.</p>'
         : items.map((it,i) => `
             <div class="bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700 flex justify-between items-start gap-3">
                 <div>
@@ -2612,11 +2691,7 @@ window.generarEscenarioSorpresaAI = async function() {
         window.escenarioAdultoActivo = { titulo: data.setup_title, prompt: data.ai_opening, systemInfo:'International travel roleplay scenario', initialPrompt: data.ai_opening };
         window._lastAIReply = data.ai_opening;
         document.getElementById('escenario-titulo').innerText = `🎲 ${data.setup_title}`;
-        document.getElementById('chat-prompt').innerHTML = `
-            <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
-                "${data.ai_opening}" <span class="text-blue-300 text-[10px]">🌐</span>
-            </span>
-            <span class="block text-slate-400 text-xs italic mt-1 hidden">${data.ai_opening_translation || ''}</span>`;
+        renderWordClickablePrompt(data.ai_opening, data.ai_opening_translation || '', 'chat-prompt');
         hablarNativo(data.ai_opening);
     } catch(e) {
         const fb = OFFLINE_FALLBACKS.generate_scenario;
@@ -2722,11 +2797,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         // Update chat-prompt with new AI line
         window.escenarioAdultoActivo.prompt = data.reply;
         window._lastAIReply = data.reply;
-        document.getElementById('chat-prompt').innerHTML = `
-            <span class="cursor-pointer select-none" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Tap to translate">
-                "${data.reply}" <span class="text-blue-300 text-[10px]">🌐</span>
-            </span>
-            <span class="block text-slate-400 text-xs italic mt-1 hidden transition-opacity duration-500${(p.interaccionesEscena||0) > 5 ? ' opacity-20 hover:opacity-100' : ''}">${data.translation || ''}</span>`;
+        renderWordClickablePrompt(data.reply, data.translation || '', 'chat-prompt');
         hablarNativo(data.reply);
     } catch(e) {
         const fb = OFFLINE_FALLBACKS.evaluate_voice;
