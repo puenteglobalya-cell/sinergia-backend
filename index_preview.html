@@ -708,6 +708,10 @@
                     onclick="kidsNavTab('mapa')">
                 <span class="text-base">🌟</span>Mapa
             </button>
+            <button id="knav-ahorcado" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
+                    onclick="kidsNavTab('ahorcado')">
+                <span class="text-base">🔤</span>Ahorcado
+            </button>
         </div>
     </nav>
 
@@ -966,6 +970,49 @@
         </div>
 
     </main>
+</div>
+
+<!-- ═══ AHORCADO ═══ -->
+<div id="ahorcado-overlay" class="fixed inset-0 z-[200] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 50%,#0c1a2e 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarAhorcado()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">🔤 Ahorcado</h2>
+        <div class="flex items-center gap-2">
+            <span id="ah-xp-display" class="text-yellow-300 font-bold text-xs">+0 XP</span>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-4 pb-6 flex flex-col items-center gap-4">
+
+        <!-- Hint -->
+        <div class="text-center mt-1">
+            <span id="ah-hint-emoji" class="text-5xl">🐾</span>
+            <p id="ah-hint-text" class="text-white/60 text-sm font-semibold mt-1"></p>
+        </div>
+
+        <!-- Gallows canvas -->
+        <canvas id="ah-canvas" width="220" height="180" class="rounded-2xl" style="background:rgba(255,255,255,0.05);"></canvas>
+
+        <!-- Word slots -->
+        <div id="ah-slots" class="flex flex-wrap justify-center gap-2"></div>
+
+        <!-- Wrong letters -->
+        <div class="text-center">
+            <p class="text-white/40 text-xs mb-1">Letras incorrectas:</p>
+            <p id="ah-wrong-letters" class="text-red-400 font-bold text-sm tracking-widest min-h-[20px]"></p>
+        </div>
+
+        <!-- Feedback -->
+        <div id="ah-feedback" class="hidden text-center px-4 py-3 rounded-2xl font-extrabold text-lg w-full max-w-xs"></div>
+
+        <!-- Keyboard -->
+        <div id="ah-keyboard" class="flex flex-wrap justify-center gap-1.5 max-w-sm w-full"></div>
+
+        <!-- Next word button -->
+        <button id="ah-next-btn" onclick="ahorcadoNuevaPalabra()" class="hidden bg-yellow-400 text-yellow-900 font-extrabold px-8 py-3 rounded-2xl text-sm active:scale-95 shadow-lg">
+            🎲 Nueva palabra
+        </button>
+    </div>
 </div>
 
 <!-- ═══ MAPA DE AVENTURAS ═══ -->
@@ -1268,6 +1315,7 @@ document.addEventListener('keydown', function(e) {
         ['sb-overlay',          () => document.getElementById('sb-overlay').classList.add('hidden')],
         ['mapa-overlay',        () => window.cerrarMapa && window.cerrarMapa()],
         ['gran-tesoro-overlay', () => window.cerrarGranTesoro && window.cerrarGranTesoro()],
+        ['ahorcado-overlay',    () => window.cerrarAhorcado && window.cerrarAhorcado()],
         ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
         ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
         ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
@@ -2522,7 +2570,7 @@ window.cerrarWordMatch = function() {
 };
 
 window.kidsNavTab = function(tab) {
-    ['aventuras','tarjetas','shadowing','mapa'].forEach(t => {
+    ['aventuras','tarjetas','shadowing','mapa','ahorcado'].forEach(t => {
         const btn = document.getElementById('knav-'+t);
         if (!btn) return;
         if (t === tab) {
@@ -2543,6 +2591,8 @@ window.kidsNavTab = function(tab) {
         if (ov) { ov.classList.remove('hidden'); if(typeof iniciarShadowing==='function') iniciarShadowing(); }
     } else if (tab === 'mapa') {
         window.abrirMapa && window.abrirMapa();
+    } else if (tab === 'ahorcado') {
+        window.abrirAhorcado && window.abrirAhorcado();
     }
 };
 
@@ -2597,6 +2647,165 @@ window.abrirMapa = function() {
 window.cerrarMapa = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
 };
+
+// ─── AHORCADO ─────────────────────────────────────────────────────
+(function() {
+    const MAX_ERRORS = 6;
+    let word = '', hint = '', hintEmoji = '', guessed = new Set(), errors = 0, sessionXP = 0, gameOver = false;
+
+    const PARTS = [
+        // head
+        ctx => { ctx.beginPath(); ctx.arc(110, 50, 18, 0, Math.PI*2); ctx.stroke(); },
+        // body
+        ctx => { ctx.beginPath(); ctx.moveTo(110, 68); ctx.lineTo(110, 120); ctx.stroke(); },
+        // left arm
+        ctx => { ctx.beginPath(); ctx.moveTo(110, 80); ctx.lineTo(80, 105); ctx.stroke(); },
+        // right arm
+        ctx => { ctx.beginPath(); ctx.moveTo(110, 80); ctx.lineTo(140, 105); ctx.stroke(); },
+        // left leg
+        ctx => { ctx.beginPath(); ctx.moveTo(110, 120); ctx.lineTo(82, 152); ctx.stroke(); },
+        // right leg
+        ctx => { ctx.beginPath(); ctx.moveTo(110, 120); ctx.lineTo(138, 152); ctx.stroke(); },
+    ];
+
+    function drawGallows(canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        // base
+        ctx.beginPath(); ctx.moveTo(20, 172); ctx.lineTo(180, 172); ctx.stroke();
+        // pole
+        ctx.beginPath(); ctx.moveTo(50, 172); ctx.lineTo(50, 20); ctx.stroke();
+        // top
+        ctx.beginPath(); ctx.moveTo(50, 20); ctx.lineTo(110, 20); ctx.stroke();
+        // rope
+        ctx.beginPath(); ctx.moveTo(110, 20); ctx.lineTo(110, 32); ctx.stroke();
+
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 3;
+        for (let i = 0; i < errors; i++) PARTS[i](ctx);
+    }
+
+    function renderSlots() {
+        const el = document.getElementById('ah-slots');
+        el.innerHTML = '';
+        [...word].forEach(ch => {
+            const slot = document.createElement('div');
+            const revealed = guessed.has(ch) || gameOver;
+            slot.style.cssText = `width:32px;height:40px;border-bottom:3px solid ${revealed ? '#4ade80' : '#94a3b8'};display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:18px;font-weight:800;color:${guessed.has(ch) ? '#4ade80' : gameOver ? '#f87171' : 'transparent'};transition:color 0.2s;`;
+            slot.textContent = ch;
+            el.appendChild(slot);
+        });
+    }
+
+    function renderKeyboard() {
+        const el = document.getElementById('ah-keyboard');
+        el.innerHTML = '';
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+            const btn = document.createElement('button');
+            const isWrong  = guessed.has(letter) && !word.includes(letter);
+            const isRight  = guessed.has(letter) && word.includes(letter);
+            const disabled = guessed.has(letter) || gameOver;
+            btn.textContent = letter;
+            btn.disabled = disabled;
+            btn.style.cssText = `width:34px;height:34px;border-radius:10px;font-weight:800;font-size:13px;border:none;cursor:${disabled?'default':'pointer'};transition:all 0.15s;` +
+                (isWrong  ? 'background:#fee2e2;color:#f87171;' :
+                 isRight  ? 'background:#dcfce7;color:#16a34a;' :
+                 disabled ? 'background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.2);' :
+                            'background:rgba(255,255,255,0.15);color:#fff;');
+            btn.onclick = () => guessLetter(letter);
+            el.appendChild(btn);
+        });
+    }
+
+    function guessLetter(letter) {
+        if (guessed.has(letter) || gameOver) return;
+        guessed.add(letter);
+        const canvas = document.getElementById('ah-canvas');
+
+        if (word.includes(letter)) {
+            playFX && playFX('correct');
+            renderSlots();
+            renderKeyboard();
+            // check win
+            const allRevealed = [...word].every(ch => guessed.has(ch));
+            if (allRevealed) {
+                gameOver = true;
+                sessionXP += 80;
+                document.getElementById('ah-xp-display').textContent = '+' + sessionXP + ' XP';
+                const p = window.familia[window.perfilActualId];
+                if (p) { p.score += 80; guardarEstado(); }
+                lanzarEstrellas && lanzarEstrellas();
+                showFeedback('🎉 ¡Correcto! "' + word + '"', '#dcfce7', '#166534');
+                document.getElementById('ah-next-btn').classList.remove('hidden');
+            }
+        } else {
+            errors++;
+            playFX && playFX('wrong');
+            drawGallows(canvas);
+            renderKeyboard();
+            document.getElementById('ah-wrong-letters').textContent =
+                [...guessed].filter(l => !word.includes(l)).join('  ');
+            if (errors >= MAX_ERRORS) {
+                gameOver = true;
+                renderSlots();
+                hablarNativo(word.toLowerCase());
+                showFeedback('💀 Era: ' + word, '#fee2e2', '#991b1b');
+                document.getElementById('ah-next-btn').classList.remove('hidden');
+            }
+        }
+    }
+
+    function showFeedback(msg, bg, color) {
+        const el = document.getElementById('ah-feedback');
+        el.textContent = msg;
+        el.style.background = bg;
+        el.style.color = color;
+        el.classList.remove('hidden');
+    }
+
+    window.ahorcadoNuevaPalabra = function() {
+        const allDecks = Object.values(FLIP_DECKS).flat();
+        // Only words with 3+ letters for fair gameplay
+        const pool = allDecks.filter(c => c.word.replace(/[^A-Z]/g,'').length >= 3);
+        const card = pool[Math.floor(Math.random() * pool.length)];
+        word = card.word.replace(/[^A-Z]/g, ''); // letters only (handles multi-word → show full)
+        // For multi-word cards, keep spaces visible
+        const raw = card.word.toUpperCase();
+        word = raw;
+        hint = card.es;
+        hintEmoji = card.emoji;
+
+        guessed = new Set([' ']); // spaces are auto-revealed
+        errors = 0;
+        gameOver = false;
+
+        document.getElementById('ah-hint-emoji').textContent = hintEmoji;
+        document.getElementById('ah-hint-text').textContent = 'En español: "' + hint + '"';
+        document.getElementById('ah-wrong-letters').textContent = '';
+        document.getElementById('ah-feedback').classList.add('hidden');
+        document.getElementById('ah-next-btn').classList.add('hidden');
+
+        drawGallows(document.getElementById('ah-canvas'));
+        renderSlots();
+        renderKeyboard();
+        hablarNativo(card.word);
+    };
+
+    window.abrirAhorcado = function() {
+        sessionXP = 0;
+        document.getElementById('ah-xp-display').textContent = '+0 XP';
+        document.getElementById('ahorcado-overlay').classList.remove('hidden');
+        ahorcadoNuevaPalabra();
+    };
+
+    window.cerrarAhorcado = function() {
+        document.getElementById('ahorcado-overlay').classList.add('hidden');
+    };
+})();
+
 
 window.abrirGranTesoro = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
@@ -3264,7 +3473,8 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         hablarNativo(frase[0]);
 
         if (p.misionIndex % 4 === 0) {
-            const juego = Math.random() < 0.5 ? window.mostrarWordMatch : window.mostrarSentenceBuilder;
+            const bonusGames = [window.mostrarWordMatch, window.mostrarSentenceBuilder, window.abrirAhorcado];
+            const juego = bonusGames[Math.floor(Math.random() * bonusGames.length)];
             setTimeout(() => juego(), 2800);
         } else {
             setTimeout(() => window.seleccionarTematica(idTema), 2600);
