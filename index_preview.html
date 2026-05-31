@@ -2773,7 +2773,7 @@ window.cerrarMapa = function() {
         const card = pool[Math.floor(Math.random() * pool.length)];
         word = card.word.replace(/[^A-Z]/g, ''); // letters only (handles multi-word → show full)
         // For multi-word cards, keep spaces visible
-        const raw = card.word.toUpperCase();
+        const raw = card.word.toUpperCase().replace(/[^A-Z ]/g, '').trim();
         word = raw;
         hint = card.es;
         hintEmoji = card.emoji;
