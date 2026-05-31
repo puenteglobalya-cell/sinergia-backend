@@ -190,12 +190,12 @@
 </div>
 
 <!-- ═══ NIVEL UP MODAL ═══ -->
-<div id="nivel-up-overlay" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] hidden">
-    <div class="bg-white rounded-3xl p-8 text-center space-y-4 shadow-2xl wm-pop max-w-xs mx-4">
+<div id="nivel-up-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] hidden">
+    <div class="bg-white rounded-3xl p-8 text-center space-y-4 shadow-2xl wm-pop max-w-xs mx-4" style="box-shadow:0 24px 64px rgba(0,88,190,0.18),0 2px 8px rgba(0,0,0,0.08);">
         <div class="text-6xl" id="nivel-up-icon">🚀</div>
         <h2 class="text-2xl font-extrabold text-slate-800">¡Subiste de nivel!</h2>
         <p id="nivel-up-msg" class="text-slate-500 text-sm leading-relaxed"></p>
-        <button onclick="document.getElementById('nivel-up-overlay').classList.add('hidden')" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold px-8 py-3 rounded-2xl w-full active:scale-95 transition-all">¡Genial! 🎉</button>
+        <button onclick="document.getElementById('nivel-up-overlay').classList.add('hidden')" class="text-white font-bold px-8 py-3 rounded-2xl w-full active:scale-95 transition-all neo-btn" style="background:linear-gradient(135deg,#0058be,#4f46e5);">¡Genial! 🎉</button>
     </div>
 </div>
 
@@ -291,8 +291,8 @@
 </div>
 
 <!-- ═══ SENTENCE BUILDER MODAL ═══ -->
-<div id="sb-overlay" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[250] hidden p-4 touch-manipulation select-none">
-    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 wm-pop relative">
+<div id="sb-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[250] hidden p-4 touch-manipulation select-none">
+    <div id="sb-card" class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 wm-pop relative" style="box-shadow:0 24px 64px rgba(0,88,190,0.18),0 2px 8px rgba(0,0,0,0.08);">
         <button onclick="document.getElementById('sb-overlay').classList.add('hidden');window.speechSynthesis.cancel();"
                 class="absolute top-3 right-3 h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors z-30">✕</button>
         <div class="text-center space-y-1 pt-1">
@@ -602,17 +602,17 @@
         </div>
 
         <div id="zona-conversacion-adulto" class="glass-card rounded-2xl shadow-md overflow-hidden hidden">
-            <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-3 flex justify-between items-center">
+            <div class="bg-gradient-to-r from-blue-700 to-indigo-700 px-5 py-3 flex justify-between items-center">
                 <h2 id="escenario-titulo" class="text-sm font-bold text-white tracking-wide">Scene</h2>
                 <div class="flex gap-2">
-                    <button onclick="repetirEscena()" class="text-xs bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">↩ Again</button>
-                    <button onclick="escucharEscenarioActual()" class="text-xs bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">🔊 Listen</button>
+                    <button onclick="repetirEscena()" class="text-xs bg-white/15 hover:bg-white/25 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">↩ Again</button>
+                    <button onclick="escucharEscenarioActual()" class="text-xs bg-white/15 hover:bg-white/25 text-white font-semibold px-3 py-2 rounded-xl transition-colors active:scale-95 flex items-center gap-1.5">🔊 Listen</button>
                 </div>
             </div>
             <!-- Chat history (accumulated past turns) -->
             <div id="chat-history" class="hidden max-h-52 overflow-y-auto px-5 pt-4 pb-2 space-y-3 border-b border-slate-100 bg-slate-50/30"></div>
             <!-- Current exchange -->
-            <div class="p-5 space-y-4 bg-slate-50/60 min-h-[160px]">
+            <div class="p-5 space-y-4 bg-white/60 min-h-[160px]">
                 <div class="flex items-end gap-3">
                     <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">AI</div>
                     <div class="flex-1 min-w-0">
@@ -639,12 +639,13 @@
                     </div>
                 </div>
             </div>
-            <div class="px-5 py-6 pb-safe bg-white border-t border-slate-100 flex flex-col items-center gap-4">
+            <div class="px-5 py-6 pb-safe bg-white/80 backdrop-blur-sm border-t border-slate-100/60 flex flex-col items-center gap-4">
                 <div class="relative flex items-center justify-center h-24 w-24">
                     <div id="wave-ring-1" class="absolute inset-0 rounded-full bg-rose-400/20 hidden mic-wave"></div>
                     <div id="wave-ring-2" class="absolute inset-0 rounded-full bg-rose-400/12 hidden mic-wave-2"></div>
                     <button id="btn-mic-adulto" onclick="alternarMic()"
-                        class="relative h-20 w-20 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all z-10 border-2 border-slate-600">
+                        class="relative h-20 w-20 bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all z-10"
+                        style="box-shadow:0 0 0 4px rgba(0,88,190,0.15),0 8px 24px rgba(0,88,190,0.35);">
                         <span id="mic-icon" class="text-3xl">🎙️</span>
                         <!-- Equalizer bars shown while recording -->
                         <span id="mic-eq" class="hidden absolute inset-0 flex items-end justify-center gap-0.5 pb-3">
@@ -1379,11 +1380,17 @@ function actualizarLeaderboardUI() {
     const sorted = Object.values(window.familia)
         .sort((a,b) => (b.scoreSemanal||b.score) - (a.scoreSemanal||a.score));
     list.innerHTML = sorted.map((p,i) => {
-        const medal = ['🥇','🥈','🥉','4️⃣'][i] || '';
+        const medal = ['🥇','🥈','🥉','🏅'][i] || '';
         const pts   = p.scoreSemanal !== undefined ? p.scoreSemanal : p.score;
-        return `<li class="flex justify-between items-center text-xs">
-            <span class="font-bold text-slate-700">${medal} ${p.nombre.split(' ')[0]}</span>
-            <span class="text-blue-600 font-extrabold">${pts} XP</span>
+        const colors= PROFILE_COLORS[p.id]||'from-slate-400 to-slate-600';
+        const isFirst = i === 0;
+        return `<li class="flex justify-between items-center gap-2 px-3 py-2 rounded-xl ${isFirst?'bg-blue-50 border border-blue-100':''}">
+            <div class="flex items-center gap-2">
+                <span class="text-base leading-none">${medal}</span>
+                <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">${p.nombre[0]}</div>
+                <span class="font-bold text-slate-700 text-xs">${p.nombre.split(' ')[0]}</span>
+            </div>
+            <span class="${isFirst?'text-blue-700':'text-slate-500'} font-extrabold text-xs">${pts} XP</span>
         </li>`;
     }).join('');
 }
@@ -1684,7 +1691,7 @@ window.seleccionarTematica = function(idTema) {
     tema.opciones.forEach(opt => {
         const { emoji, texto } = separarEmojiTexto(opt.texto);
         const btn = document.createElement('button');
-        btn.className = 'select-none bg-white hover:scale-105 active:scale-95 p-4 rounded-3xl shadow-md border-2 border-transparent hover:border-blue-200 transition-all text-slate-800 flex flex-col items-center justify-center gap-2 min-h-[96px]';
+        btn.className = 'select-none bg-white active:scale-95 p-4 rounded-3xl shadow-md border-2 border-transparent hover:border-blue-200 adventure-card text-slate-800 flex flex-col items-center justify-center gap-2 min-h-[96px]';
         if (emoji) {
             btn.innerHTML = `<span class="text-5xl leading-none">${emoji}</span><span class="font-extrabold text-sm leading-tight text-center">${texto}</span>`;
         } else {
