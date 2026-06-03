@@ -973,6 +973,45 @@
     </main>
 </div>
 
+<!-- ═══ ADULT GAME PICKER ═══ -->
+<div id="adult-gamepicker-overlay" class="fixed inset-0 z-[195] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#0f172a 0%,#1e293b 60%,#0c1a2e 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden')" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">🎮 Juegos — Nivel adulto</h2>
+        <div class="w-12"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 pb-8 flex flex-col items-center gap-4 pt-2">
+        <p class="text-white/40 text-xs text-center">Vocabulario adaptado a tu nivel · XP doble 🔥</p>
+        <div class="grid grid-cols-2 gap-3 w-full max-w-sm">
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirAhorcadoAdulto()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#1e3a5f,#1e40af)">
+                <span class="text-4xl">🔤</span>
+                <span class="text-white font-extrabold text-sm">Ahorcado</span>
+                <span class="text-white/50 text-xs text-center">Phrasal verbs · Idioms</span>
+            </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirAnagramaAdulto()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#064e3b,#065f46)">
+                <span class="text-4xl">🔀</span>
+                <span class="text-white font-extrabold text-sm">Anagrama</span>
+                <span class="text-white/50 text-xs text-center">Business · Academic</span>
+            </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirSopaLetrasAdulto()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+                <span class="text-4xl">🔍</span>
+                <span class="text-white font-extrabold text-sm">Sopa de Letras</span>
+                <span class="text-white/50 text-xs text-center">Vocabulario avanzado</span>
+            </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirCrucigramaAdulto()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#2e1065,#4c1d95)">
+                <span class="text-4xl">✏️</span>
+                <span class="text-white font-extrabold text-sm">Crucigrama</span>
+                <span class="text-white/50 text-xs text-center">Definiciones en español</span>
+            </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.mostrarWordMatch()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl col-span-2" style="background:linear-gradient(135deg,#7c2d12,#9a3412)">
+                <span class="text-4xl">🎯</span>
+                <span class="text-white font-extrabold text-sm">Word Match — Nivel avanzado</span>
+                <span class="text-white/50 text-xs text-center">Unir expresiones con sus significados</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ GAME PICKER ═══ -->
 <div id="gamepicker-overlay" class="fixed inset-0 z-[195] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#1e1b4b 0%,#312e81 60%,#1e3a5f 100%);">
     <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
@@ -1297,7 +1336,10 @@
                     </button>
                 </div>
                 <!-- Secondary actions -->
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="abrirJuegosAdulto()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95 shadow-sm">
+                        🎮 Juegos
+                    </button>
                     <button onclick="mostrarGlosario()" class="bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95 border border-slate-200 shadow-sm">
                         ⭐ Glosario
                     </button>
@@ -2831,15 +2873,83 @@ window.cerrarMapa = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
 };
 
+// ─── ADULT WORD DECKS ─────────────────────────────────────────────
+const ADULT_DECKS = {
+    Phrasal: [
+        {emoji:'📤',word:'GIVE UP',es:'Rendirse'},{emoji:'🔍',word:'LOOK INTO',es:'Investigar'},
+        {emoji:'✅',word:'CARRY OUT',es:'Llevar a cabo'},{emoji:'🤝',word:'DEAL WITH',es:'Tratar'},
+        {emoji:'🏃',word:'RUN OUT OF',es:'Quedarse sin'},{emoji:'💡',word:'COME UP WITH',es:'Idear'},
+        {emoji:'🚀',word:'SET UP',es:'Establecer'},{emoji:'📋',word:'FOLLOW UP',es:'Hacer seguimiento'},
+        {emoji:'🔑',word:'FIGURE OUT',es:'Descubrir'},{emoji:'🔄',word:'TAKE OVER',es:'Hacerse cargo'},
+        {emoji:'✈️',word:'CHECK IN',es:'Registrarse'},{emoji:'🚪',word:'TURN DOWN',es:'Rechazar'},
+        {emoji:'🎯',word:'FOCUS ON',es:'Concentrarse en'},{emoji:'📈',word:'BUILD UP',es:'Aumentar'},
+        {emoji:'🔗',word:'LINK UP',es:'Conectar'},{emoji:'🌊',word:'FALL THROUGH',es:'Fracasar'},
+        {emoji:'🛑',word:'CUT OFF',es:'Cortar / Interrumpir'},{emoji:'🏆',word:'PULL OFF',es:'Lograr algo difícil'},
+    ],
+    Business: [
+        {emoji:'📊',word:'REVENUE',es:'Ingresos'},{emoji:'🤝',word:'NEGOTIATION',es:'Negociación'},
+        {emoji:'📈',word:'FORECAST',es:'Pronóstico'},{emoji:'💼',word:'STAKEHOLDER',es:'Parte interesada'},
+        {emoji:'🎯',word:'MILESTONE',es:'Hito'},{emoji:'💰',word:'BUDGET',es:'Presupuesto'},
+        {emoji:'📣',word:'PROPOSAL',es:'Propuesta'},{emoji:'🌐',word:'STRATEGY',es:'Estrategia'},
+        {emoji:'⚡',word:'WORKFLOW',es:'Flujo de trabajo'},{emoji:'🔑',word:'LEVERAGE',es:'Ventaja'},
+        {emoji:'📱',word:'FEEDBACK',es:'Retroalimentación'},{emoji:'📋',word:'AGENDA',es:'Agenda'},
+        {emoji:'🏗️',word:'BENCHMARK',es:'Punto de referencia'},{emoji:'🎪',word:'OVERHEAD',es:'Gastos generales'},
+        {emoji:'🔗',word:'PARTNERSHIP',es:'Asociación'},{emoji:'📐',word:'FRAMEWORK',es:'Marco de trabajo'},
+        {emoji:'🏆',word:'ACQUISITION',es:'Adquisición'},{emoji:'📉',word:'DEFICIT',es:'Déficit'},
+    ],
+    Academic: [
+        {emoji:'🧠',word:'HYPOTHESIS',es:'Hipótesis'},{emoji:'📚',word:'ANALYSIS',es:'Análisis'},
+        {emoji:'🔬',word:'METHODOLOGY',es:'Metodología'},{emoji:'📝',word:'ABSTRACT',es:'Resumen'},
+        {emoji:'💡',word:'INNOVATION',es:'Innovación'},{emoji:'🔭',word:'PHENOMENON',es:'Fenómeno'},
+        {emoji:'📊',word:'STATISTICS',es:'Estadísticas'},{emoji:'🌍',word:'SUSTAINABLE',es:'Sostenible'},
+        {emoji:'⚖️',word:'LEGISLATION',es:'Legislación'},{emoji:'🔄',word:'INTEGRATION',es:'Integración'},
+        {emoji:'💼',word:'IMPLEMENTATION',es:'Implementación'},{emoji:'🎯',word:'OBJECTIVE',es:'Objetivo'},
+        {emoji:'🏗️',word:'INFRASTRUCTURE',es:'Infraestructura'},{emoji:'🔍',word:'EVALUATION',es:'Evaluación'},
+        {emoji:'📐',word:'CORRELATION',es:'Correlación'},{emoji:'🌐',word:'GLOBALIZATION',es:'Globalización'},
+    ],
+    Idioms: [
+        {emoji:'🌧️',word:'RAINING CATS AND DOGS',es:'Lloviendo a cántaros'},
+        {emoji:'🦷',word:'BITE THE BULLET',es:'Armarse de valor'},
+        {emoji:'🥄',word:'SPILL THE BEANS',es:'Revelar el secreto'},
+        {emoji:'🐦',word:'KILL TWO BIRDS',es:'Matar dos pájaros de un tiro'},
+        {emoji:'🧊',word:'BREAK THE ICE',es:'Romper el hielo'},
+        {emoji:'🎯',word:'HIT THE NAIL',es:'Dar en el clavo'},
+        {emoji:'🌊',word:'UNDER THE WEATHER',es:'Sentirse mal'},
+        {emoji:'🚀',word:'ONCE IN A BLUE MOON',es:'Muy raramente'},
+        {emoji:'🎪',word:'BEAT AROUND THE BUSH',es:'Andarse con rodeos'},
+        {emoji:'🏆',word:'THE BALL IS IN YOUR COURT',es:'La decisión es tuya'},
+        {emoji:'🛌',word:'HIT THE SACK',es:'Irse a dormir'},
+        {emoji:'📦',word:'THINKING OUTSIDE THE BOX',es:'Pensar de forma creativa'},
+    ],
+};
+
+// Get word pool for current profile
+function getWordPool() {
+    const p = window.familia && window.familia[window.perfilActualId];
+    if (p && p.tipo === 'adulto') return Object.values(ADULT_DECKS).flat();
+    return Object.values(FLIP_DECKS).flat();
+}
+
+// Adult game wrappers — set flag then open shared overlay
+window.abrirJuegosAdulto = function() {
+    document.getElementById('adult-gamepicker-overlay').classList.remove('hidden');
+};
+window.abrirAhorcadoAdulto   = function() { window._adultMode=true; window.abrirAhorcado(); };
+window.abrirAnagramaAdulto   = function() { window._adultMode=true; window.abrirAnagrama(); };
+window.abrirSopaLetrasAdulto = function() { window._adultMode=true; window.abrirSopaLetras(); };
+window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrirCrucigrama(); };
+
 // ─── SOPA DE LETRAS ───────────────────────────────────────────────
 (function(){
-    const SZ=10,CS=32;
+    const SZ=10,CS=36; // bigger cells = bigger font, easier to read
     let grid=[],words=[],found=new Set(),selecting=false;
     let sr=-1,sc=-1,er=-1,ec=-1,canvas,ctx,slXP=0;
 
     function pickWords(){
-        const all=Object.values(FLIP_DECKS).flat()
-            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=3&&w.length<=7&&!c.word.includes(' ');});
+        const pool2 = window._adultMode ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
+        const maxLen = window._adultMode ? 9 : 7;
+        const all=pool2
+            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=3&&w.length<=maxLen&&!c.word.includes(' ');});
         const pool=[...all],picked=[],used=new Set();
         while(picked.length<6&&pool.length){
             const i=Math.floor(Math.random()*pool.length);
@@ -2887,10 +2997,10 @@ window.cerrarMapa = function() {
             ctx.beginPath();ctx.moveTo(0,i*CS);ctx.lineTo(SZ*CS,i*CS);ctx.stroke();
         }
         // letters
-        ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.font=`bold 17px monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
         for(let r=0;r<SZ;r++)for(let c=0;c<SZ;c++){
             const isFound=words.some(w=>w.found&&w.cells.some(([wr,wc])=>wr===r&&wc===c));
-            ctx.fillStyle=isFound?'#4ade80':'rgba(226,232,240,0.9)';
+            ctx.fillStyle=isFound?'#4ade80':'rgba(226,232,240,0.95)';
             ctx.fillText(grid[r][c],c*CS+CS/2,r*CS+CS/2);
         }
     }
@@ -2964,8 +3074,8 @@ window.cerrarMapa = function() {
         canvas.onpointerup=()=>{if(!selecting)return;selecting=false;checkSel();sr=sc=er=ec=-1;draw();};
     };
 
-    window.abrirSopaLetras=function(){document.getElementById('sopaletras-overlay').classList.remove('hidden');iniciarSopaLetras();};
-    window.cerrarSopaLetras=function(){document.getElementById('sopaletras-overlay').classList.add('hidden');};
+    window.abrirSopaLetras=function(){document.getElementById('sopaletras-overlay').classList.remove('hidden');iniciarSopaLetras(); setTimeout(()=>window._adultMode=false,0);};
+    window.cerrarSopaLetras=function(){window._adultMode=false;document.getElementById('sopaletras-overlay').classList.add('hidden');};
 })();
 
 // ─── CRUCIGRAMA ────────────────────────────────────────────────────
@@ -3125,8 +3235,9 @@ window.cerrarMapa = function() {
         cwInput={};cwActive=null;cwCursor=0;cwXP=0;
         document.getElementById('cw-xp').textContent='+0 XP';
         document.getElementById('cw-feedback').textContent='';
-        const all=Object.values(FLIP_DECKS).flat()
-            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=4&&w.length<=8&&!c.word.includes(' ');});
+        const srcDecks2 = window._adultMode ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
+        const all=srcDecks2
+            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=4&&w.length<=(window._adultMode?10:8)&&!c.word.includes(' ');});
         const pool=[...all],picked=[],used=new Set();
         while(picked.length<6&&pool.length){
             const i=Math.floor(Math.random()*pool.length);
@@ -3173,7 +3284,10 @@ window.cerrarMapa = function() {
         [...agWord].forEach((ch, i) => {
             const slot = document.createElement('div');
             const filled = agAnswer[i];
-            slot.style.cssText = `min-width:36px;height:44px;border-bottom:3px solid ${filled?'#4ade80':'rgba(255,255,255,0.4)'};display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:20px;font-weight:800;color:#fff;`;
+            const correct = filled && filled.letter === ch;
+            const borderColor = filled ? (correct ? '#4ade80' : '#fb923c') : 'rgba(255,255,255,0.35)';
+            const textColor   = filled ? (correct ? '#4ade80' : '#fff') : 'transparent';
+            slot.style.cssText = `min-width:36px;height:44px;border-bottom:3px solid ${borderColor};display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:20px;font-weight:800;color:${textColor};transition:color 0.15s,border-color 0.15s;`;
             slot.textContent = filled ? filled.letter : '';
             el.appendChild(slot);
         });
@@ -3222,11 +3336,12 @@ window.cerrarMapa = function() {
     };
 
     window.anagramaNuevaPalabra = function() {
-        const allDecks = Object.values(FLIP_DECKS).flat();
-        // Only words 3-10 chars, no spaces (single words work best for anagram)
-        const pool = allDecks.filter(c => {
+        const srcDecks = window._adultMode ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
+        const maxLen = window._adultMode ? 12 : 10;
+        // Only single words (no spaces) — anagram works best with single tokens
+        const pool = srcDecks.filter(c => {
             const letters = c.word.replace(/[^A-Z]/g,'');
-            return letters.length >= 3 && letters.length <= 10 && !c.word.includes(' ');
+            return letters.length >= 3 && letters.length <= maxLen && !c.word.includes(' ');
         });
         const card = pool[Math.floor(Math.random() * pool.length)];
         agWord = card.word.toUpperCase().replace(/[^A-Z]/g,'');
@@ -3380,9 +3495,8 @@ window.cerrarMapa = function() {
     }
 
     window.ahorcadoNuevaPalabra = function() {
-        const allDecks = Object.values(FLIP_DECKS).flat();
-        // Only words with 3+ letters for fair gameplay
-        const pool = allDecks.filter(c => c.word.replace(/[^A-Z]/g,'').length >= 3);
+        const srcDecks = window._adultMode ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
+        const pool = srcDecks.filter(c => c.word.replace(/[^A-Z]/g,'').length >= 3);
         const card = pool[Math.floor(Math.random() * pool.length)];
         word = card.word.replace(/[^A-Z]/g, ''); // letters only (handles multi-word → show full)
         // For multi-word cards, keep spaces visible
