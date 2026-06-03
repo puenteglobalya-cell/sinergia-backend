@@ -401,6 +401,7 @@
         <div class="flex gap-2 justify-center">
             <button onclick="storytellerPlay()" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold px-6 py-3 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2">▶ Play</button>
             <button onclick="storytellerStop()" class="bg-slate-600 hover:bg-slate-500 text-white font-bold px-6 py-3 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2">⏹ Stop</button>
+            <button id="btn-traducciones" onclick="toggleTraducciones()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-4 py-3 rounded-2xl text-sm active:scale-95 transition-all" title="Mostrar/ocultar traducciones">🌐</button>
         </div>
         <div class="space-y-2 px-1">
             <div class="flex justify-between items-center">
@@ -4930,6 +4931,9 @@ async function _cargarNuevoStory() {
 };
 
 function cargarTextoEnStoryteller(text) {
+    _tradMode = false; _tradCache = {};
+    const btnT = document.getElementById('btn-traducciones');
+    if (btnT) { btnT.textContent = '🌐'; btnT.style.background = ''; btnT.style.color = ''; }
     _storyText = text;
     const container = document.getElementById('storyteller-text');
     let charPos = 0;
@@ -4962,7 +4966,15 @@ function cargarTextoEnStoryteller(text) {
 let _stTooltip     = null;
 let _stResumeMarker = null; // span previously marked as resume point
 window.stWordTap = async function(el, word, idx) {
-    hablarNativo(word, window._storySpeed || 0.85);
+    // Speak at the current story speed — bypass hablarNativo's mute lock
+    // because the story player may have set isAudioThreadMuted = true
+    window.speechSynthesis.cancel();
+    const _u = new SpeechSynthesisUtterance(word);
+    const _v = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    if (_v[window.voiceIndexSeleccionada]) _u.voice = _v[window.voiceIndexSeleccionada];
+    _u.lang = 'en-US';
+    _u.rate = parseFloat(window._storySpeed) || 0.85;
+    window.speechSynthesis.speak(_u);
 
     // Set resume point for storytellerPlay()
     _storyResumeIdx = idx;
@@ -5196,46 +5208,46 @@ window.storytellerPlay = function() {
         _storyResumeIdx = -1;
     }
 
-    const u = new SpeechSynthesisUtterance(textToSpeak);
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
-    u.lang = 'en-US';
-    u.rate = window._storySpeed || 1.0;
+    // Small delay after cancel() to let the browser flush — critical on iOS/Android
+    setTimeout(() => {
+        const u = new SpeechSynthesisUtterance(textToSpeak);
+        const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+        if (voices[window.voiceIndexSeleccionada]) u.voice = voices[window.voiceIndexSeleccionada];
+        u.lang = 'en-US';
+        u.rate = parseFloat(window._storySpeed) || 1.0;
 
-    let boundaryFired = false;
+        let boundaryFired = false;
 
-    // Primary: onboundary (Chrome desktop, Firefox)
-    u.onboundary = e => {
-        if (e.name !== 'word') return;
-        boundaryFired = true;
-        const found = wordTokens.find(d =>
-            (e.charIndex + charOffset) >= d.start &&
-            (e.charIndex + charOffset) <  d.start + d.token.length
-        );
-        if (found) stHighlight(found.idx);
-    };
+        u.onboundary = e => {
+            if (e.name !== 'word') return;
+            boundaryFired = true;
+            const found = wordTokens.find(d =>
+                (e.charIndex + charOffset) >= d.start &&
+                (e.charIndex + charOffset) <  d.start + d.token.length
+            );
+            if (found) stHighlight(found.idx);
+        };
 
-    u.onstart = () => {
-        // Fallback: schedule highlights by estimated time per word
-        // fires only if onboundary doesn't work (Safari iOS, Chrome Android)
-        setTimeout(() => {
-            if (boundaryFired) return; // onboundary works — skip fallback
-            const rate      = window._storySpeed || 1.0;
-            const msPerChar = 65 / rate; // ~65ms per char at rate=1
-            const slice     = wordTokens.slice(startTokenIdx);
-            slice.forEach((token, i) => {
-                const relStart  = token.start - charOffset;
-                const delay     = Math.max(0, relStart * msPerChar);
-                const id = setTimeout(() => stHighlight(token.idx), delay);
-                _storyTimers.push(id);
-            });
-        }, 120);
-    };
+        u.onstart = () => {
+            setTimeout(() => {
+                if (boundaryFired) return;
+                const rate      = parseFloat(window._storySpeed) || 1.0;
+                const msPerChar = 65 / rate;
+                const slice     = wordTokens.slice(startTokenIdx);
+                slice.forEach((token) => {
+                    const relStart  = token.start - charOffset;
+                    const delay     = Math.max(0, relStart * msPerChar);
+                    const id = setTimeout(() => stHighlight(token.idx), delay);
+                    _storyTimers.push(id);
+                });
+            }, 120);
+        };
 
-    u.onend = u.onerror = () => { stClearHighlight(); };
+        u.onend = u.onerror = () => { stClearHighlight(); };
 
-    _storyUtter = u;
-    window.speechSynthesis.speak(u);
+        _storyUtter = u;
+        window.speechSynthesis.speak(u);
+    }, 60);
 };
 
 window.storytellerStop = function() {
@@ -5249,6 +5261,95 @@ window.cerrarStoryteller = function() {
     storytellerStop();
     hideEl('storyteller-overlay');
 };
+
+// ── Traducciones inline ────────────────────────────────────────────
+let _tradMode = false;
+let _tradCache = {}; // word.lower -> spanish
+
+window.toggleTraducciones = async function() {
+    _tradMode = !_tradMode;
+    const btn = document.getElementById('btn-traducciones');
+    if (btn) {
+        btn.style.background = _tradMode ? '#1d4ed8' : '';
+        btn.style.color = _tradMode ? '#fff' : '';
+        btn.textContent = _tradMode ? '🌐 ON' : '🌐';
+    }
+
+    if (_tradMode) {
+        // Collect unique words from current story
+        const uniqueWords = [...new Set(
+            _storyWords
+                .filter(d => d.isWord)
+                .map(d => d.token.replace(/[^a-zA-Z']/g,'').toLowerCase())
+                .filter(w => w.length > 1)
+        )];
+        const toFetch = uniqueWords.filter(w => !_tradCache[w]);
+
+        if (toFetch.length > 0) {
+            // One API call for all missing words
+            if (btn) { btn.textContent = '🌐 …'; btn.disabled = true; }
+            try {
+                const data = await geminiSafeFetch({
+                    action: 'translate_words_bulk',
+                    words: toFetch,
+                    targetLang: 'es'
+                });
+                // expect data.translations = { word: "traduccion", ... }
+                if (data.translations) {
+                    Object.assign(_tradCache, data.translations);
+                } else if (Array.isArray(data)) {
+                    data.forEach(item => { if (item.word && item.es) _tradCache[item.word.toLowerCase()] = item.es; });
+                }
+            } catch(e) {
+                // Fallback: use FLIP_DECKS as local dictionary
+                Object.values(FLIP_DECKS).flat().forEach(c => {
+                    const key = c.word.toLowerCase().replace(/[^a-z]/g,'');
+                    if (key) _tradCache[key] = c.es;
+                });
+            } finally {
+                if (btn) { btn.textContent = '🌐 ON'; btn.disabled = false; }
+            }
+        }
+
+        applyTraducciones();
+    } else {
+        removeTraducciones();
+    }
+};
+
+function applyTraducciones() {
+    _storyWords.forEach(d => {
+        if (!d.isWord) return;
+        const el = document.getElementById('st-' + d.idx);
+        if (!el) return;
+        const key = d.token.replace(/[^a-zA-Z']/g,'').toLowerCase();
+        const trad = _tradCache[key];
+        if (!trad) return;
+        // Wrap in a ruby-style element
+        const wrapper = document.createElement('span');
+        wrapper.id = 'st-wrap-' + d.idx;
+        wrapper.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;vertical-align:bottom;';
+        const wordSpan = document.createElement('span');
+        wordSpan.innerHTML = el.innerHTML;
+        wordSpan.style.cssText = el.style.cssText;
+        wordSpan.className = el.className;
+        const tradSpan = document.createElement('span');
+        tradSpan.style.cssText = 'font-size:0.6em;color:#94a3b8;font-weight:600;line-height:1.1;white-space:nowrap;max-width:70px;overflow:hidden;text-overflow:ellipsis;';
+        tradSpan.textContent = trad;
+        wrapper.appendChild(wordSpan);
+        wrapper.appendChild(tradSpan);
+        el.parentNode.insertBefore(wrapper, el);
+        el.style.display = 'none';
+    });
+}
+
+function removeTraducciones() {
+    document.querySelectorAll('[id^="st-wrap-"]').forEach(w => w.remove());
+    _storyWords.forEach(d => {
+        const el = document.getElementById('st-' + d.idx);
+        if (el) el.style.display = '';
+    });
+}
 </script>
 
 <!-- ═══ VERCEL CONNECTION ═══ -->
