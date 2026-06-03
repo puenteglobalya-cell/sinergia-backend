@@ -708,9 +708,9 @@
                     onclick="kidsNavTab('mapa')">
                 <span class="text-base">🌟</span>Mapa
             </button>
-            <button id="knav-ahorcado" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
-                    onclick="kidsNavTab('ahorcado')">
-                <span class="text-base">🔤</span>Ahorcado
+            <button id="knav-juegos" class="kids-nav-btn flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-[11px] font-extrabold text-slate-500"
+                    onclick="kidsNavTab('juegos')">
+                <span class="text-base">🎮</span>Juegos
             </button>
         </div>
     </nav>
@@ -970,6 +970,69 @@
         </div>
 
     </main>
+</div>
+
+<!-- ═══ GAME PICKER ═══ -->
+<div id="gamepicker-overlay" class="fixed inset-0 z-[195] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#1e1b4b 0%,#312e81 60%,#1e3a5f 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarGamePicker()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">🎮 Juegos</h2>
+        <div class="w-12"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 pb-8 flex flex-col items-center gap-4 pt-4">
+        <p class="text-white/50 text-xs text-center">Elegí un juego para ganar XP</p>
+        <div class="grid grid-cols-2 gap-4 w-full max-w-sm">
+            <button onclick="cerrarGamePicker();window.abrirAhorcado()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
+                <span class="text-5xl">🔤</span>
+                <span class="text-white font-extrabold text-sm">Ahorcado</span>
+                <span class="text-white/50 text-xs text-center">Adiviná letras</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirAnagrama()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#134e4a,#065f46)">
+                <span class="text-5xl">🔀</span>
+                <span class="text-white font-extrabold text-sm">Anagrama</span>
+                <span class="text-white/50 text-xs text-center">Ordená las letras</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.mostrarWordMatch()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#78350f,#b45309)">
+                <span class="text-5xl">🎯</span>
+                <span class="text-white font-extrabold text-sm">Word Match</span>
+                <span class="text-white/50 text-xs text-center">Unir palabras</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.mostrarSentenceBuilder()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#4c1d95,#6d28d9)">
+                <span class="text-5xl">🧩</span>
+                <span class="text-white font-extrabold text-sm">Frases</span>
+                <span class="text-white/50 text-xs text-center">Armá oraciones</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ ANAGRAMA ═══ -->
+<div id="anagrama-overlay" class="fixed inset-0 z-[200] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#134e4a 0%,#065f46 50%,#064e3b 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarAnagrama()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">🔀 Anagrama</h2>
+        <span id="ag-xp-display" class="text-yellow-300 font-bold text-xs">+0 XP</span>
+    </div>
+    <div class="flex-1 overflow-y-auto px-4 pb-6 flex flex-col items-center gap-5">
+        <!-- Hint -->
+        <div class="text-center mt-2">
+            <span id="ag-emoji" class="text-6xl">🐾</span>
+            <p id="ag-hint" class="text-white/70 text-sm font-semibold mt-2"></p>
+            <p class="text-emerald-300 text-xs mt-1">Ordená las letras para formar la palabra en inglés</p>
+        </div>
+        <!-- Answer slots (letters tapped so far) -->
+        <div id="ag-answer" class="flex flex-wrap justify-center gap-2 min-h-[52px]"></div>
+        <!-- Feedback -->
+        <div id="ag-feedback" class="text-center font-extrabold text-lg min-h-[28px]"></div>
+        <!-- Scrambled letter tiles -->
+        <div id="ag-tiles" class="flex flex-wrap justify-center gap-2 max-w-xs"></div>
+        <!-- Controls -->
+        <div class="flex gap-3">
+            <button onclick="agBorrar()" class="bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-2.5 rounded-2xl text-sm active:scale-95">⌫ Borrar</button>
+            <button onclick="agComprobar()" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-900 font-extrabold px-6 py-2.5 rounded-2xl text-sm active:scale-95 shadow-lg">✓ Comprobar</button>
+        </div>
+        <button id="ag-next-btn" onclick="anagramaNuevaPalabra()" class="hidden bg-yellow-400 text-yellow-900 font-extrabold px-8 py-3 rounded-2xl text-sm active:scale-95 shadow-lg">🎲 Nueva palabra</button>
+    </div>
 </div>
 
 <!-- ═══ AHORCADO ═══ -->
@@ -1316,6 +1379,8 @@ document.addEventListener('keydown', function(e) {
         ['mapa-overlay',        () => window.cerrarMapa && window.cerrarMapa()],
         ['gran-tesoro-overlay', () => window.cerrarGranTesoro && window.cerrarGranTesoro()],
         ['ahorcado-overlay',    () => window.cerrarAhorcado && window.cerrarAhorcado()],
+        ['anagrama-overlay',    () => window.cerrarAnagrama && window.cerrarAnagrama()],
+        ['gamepicker-overlay',  () => window.cerrarGamePicker && window.cerrarGamePicker()],
         ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
         ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
         ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
@@ -1373,6 +1438,12 @@ const FLIP_DECKS = {
         {emoji:'🦁',word:'LION',es:'León'},{emoji:'🐘',word:'ELEPHANT',es:'Elefante'},
         {emoji:'🐠',word:'FISH',es:'Pez'},{emoji:'🐦',word:'BIRD',es:'Pájaro'},
         {emoji:'🐰',word:'RABBIT',es:'Conejo'},{emoji:'🐢',word:'TURTLE',es:'Tortuga'},
+        {emoji:'🐴',word:'HORSE',es:'Caballo'},{emoji:'🐻',word:'BEAR',es:'Oso'},
+        {emoji:'🐒',word:'MONKEY',es:'Mono'},{emoji:'🐧',word:'PENGUIN',es:'Pingüino'},
+        {emoji:'🐮',word:'COW',es:'Vaca'},{emoji:'🐑',word:'SHEEP',es:'Oveja'},
+        {emoji:'🦆',word:'DUCK',es:'Pato'},{emoji:'🦋',word:'BUTTERFLY',es:'Mariposa'},
+        {emoji:'🐊',word:'CROCODILE',es:'Cocodrilo'},{emoji:'🦊',word:'FOX',es:'Zorro'},
+        {emoji:'🦒',word:'GIRAFFE',es:'Jirafa'},{emoji:'🐺',word:'WOLF',es:'Lobo'},
     ],
     Food:     [
         {emoji:'🍎',word:'APPLE',es:'Manzana'},{emoji:'🍌',word:'BANANA',es:'Banana'},
@@ -1380,55 +1451,94 @@ const FLIP_DECKS = {
         {emoji:'🍕',word:'PIZZA',es:'Pizza'},{emoji:'🍦',word:'ICE CREAM',es:'Helado'},
         {emoji:'🍰',word:'CAKE',es:'Torta'},{emoji:'🥚',word:'EGG',es:'Huevo'},
         {emoji:'🍞',word:'BREAD',es:'Pan'},{emoji:'🧀',word:'CHEESE',es:'Queso'},
+        {emoji:'🍊',word:'ORANGE',es:'Naranja'},{emoji:'🍇',word:'GRAPES',es:'Uvas'},
+        {emoji:'🍉',word:'WATERMELON',es:'Sandía'},{emoji:'🥛',word:'MILK',es:'Leche'},
+        {emoji:'🍗',word:'CHICKEN',es:'Pollo'},{emoji:'🍚',word:'RICE',es:'Arroz'},
+        {emoji:'🥑',word:'AVOCADO',es:'Palta'},{emoji:'🍫',word:'CHOCOLATE',es:'Chocolate'},
+        {emoji:'🍿',word:'POPCORN',es:'Pochoclo'},{emoji:'🥜',word:'PEANUT',es:'Maní'},
+        {emoji:'🫐',word:'BLUEBERRY',es:'Arándano'},{emoji:'🍋',word:'LEMON',es:'Limón'},
     ],
     Clothes:  [
         {emoji:'👕',word:'T-SHIRT',es:'Remera'},{emoji:'👖',word:'PANTS',es:'Pantalón'},
         {emoji:'👗',word:'DRESS',es:'Vestido'},{emoji:'🧦',word:'SOCKS',es:'Medias'},
         {emoji:'👟',word:'SHOES',es:'Zapatos'},{emoji:'🧢',word:'CAP',es:'Gorra'},
         {emoji:'🧥',word:'COAT',es:'Abrigo'},{emoji:'🎒',word:'BACKPACK',es:'Mochila'},
+        {emoji:'🎩',word:'HAT',es:'Sombrero'},{emoji:'🧣',word:'SCARF',es:'Bufanda'},
+        {emoji:'🧤',word:'GLOVES',es:'Guantes'},{emoji:'👔',word:'SHIRT',es:'Camisa'},
+        {emoji:'👢',word:'BOOTS',es:'Botas'},{emoji:'🩴',word:'SANDALS',es:'Sandalias'},
+        {emoji:'👙',word:'SWIMSUIT',es:'Traje de baño'},{emoji:'🥾',word:'SNEAKERS',es:'Zapatillas'},
+        {emoji:'🕶️',word:'SUNGLASSES',es:'Anteojos de sol'},{emoji:'⌚',word:'WATCH',es:'Reloj'},
     ],
     Weather:  [
         {emoji:'☀️',word:'SUNNY',es:'Soleado'},{emoji:'🌧️',word:'RAINY',es:'Lluvioso'},
         {emoji:'❄️',word:'SNOWY',es:'Nevado'},{emoji:'🌬️',word:'WINDY',es:'Ventoso'},
         {emoji:'⛅',word:'CLOUDY',es:'Nublado'},{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},
         {emoji:'⛈️',word:'STORMY',es:'Tormentoso'},{emoji:'🌡️',word:'HOT',es:'Calor'},
+        {emoji:'🥶',word:'COLD',es:'Frío'},{emoji:'🌫️',word:'FOGGY',es:'Neblina'},
+        {emoji:'⚡',word:'LIGHTNING',es:'Relámpago'},{emoji:'🌩️',word:'THUNDER',es:'Trueno'},
+        {emoji:'🧊',word:'FREEZING',es:'Congelado'},{emoji:'🌤️',word:'WARM',es:'Cálido'},
+        {emoji:'🌨️',word:'HAIL',es:'Granizo'},{emoji:'💧',word:'WET',es:'Mojado'},
     ],
     Family:   [
         {emoji:'👨',word:'DAD',es:'Papá'},{emoji:'👩',word:'MUM',es:'Mamá'},
         {emoji:'👧',word:'SISTER',es:'Hermana'},{emoji:'👦',word:'BROTHER',es:'Hermano'},
         {emoji:'👴',word:'GRANDPA',es:'Abuelo'},{emoji:'👵',word:'GRANDMA',es:'Abuela'},
         {emoji:'👶',word:'BABY',es:'Bebé'},{emoji:'🐶',word:'PET',es:'Mascota'},
+        {emoji:'👨‍👩‍👧',word:'FAMILY',es:'Familia'},{emoji:'🤝',word:'FRIEND',es:'Amigo'},
+        {emoji:'👨‍🦳',word:'UNCLE',es:'Tío'},{emoji:'👩‍🦳',word:'AUNT',es:'Tía'},
+        {emoji:'🧒',word:'COUSIN',es:'Primo'},{emoji:'👶',word:'SON',es:'Hijo'},
+        {emoji:'👧',word:'DAUGHTER',es:'Hija'},{emoji:'🐈',word:'KITTEN',es:'Gatito'},
     ],
     Feelings: [
         {emoji:'😊',word:'HAPPY',es:'Feliz'},{emoji:'😢',word:'SAD',es:'Triste'},
         {emoji:'😡',word:'ANGRY',es:'Enojado'},{emoji:'😨',word:'SCARED',es:'Asustado'},
         {emoji:'😴',word:'SLEEPY',es:'Con sueño'},{emoji:'😂',word:'FUNNY',es:'Gracioso'},
         {emoji:'🤗',word:'LOVED',es:'Querido'},{emoji:'😎',word:'COOL',es:'Genial'},
+        {emoji:'🤩',word:'EXCITED',es:'Emocionado'},{emoji:'😲',word:'SURPRISED',es:'Sorprendido'},
+        {emoji:'😫',word:'TIRED',es:'Cansado'},{emoji:'🥱',word:'BORED',es:'Aburrido'},
+        {emoji:'😰',word:'NERVOUS',es:'Nervioso'},{emoji:'😳',word:'SHY',es:'Tímido'},
+        {emoji:'🤒',word:'SICK',es:'Enfermo'},{emoji:'🥰',word:'IN LOVE',es:'Enamorado'},
+        {emoji:'😤',word:'PROUD',es:'Orgulloso'},{emoji:'🤔',word:'CONFUSED',es:'Confundido'},
     ],
     Koala: [
         {emoji:'🐨',word:'KOALA',es:'Koala'},{emoji:'🌿',word:'EUCALYPTUS',es:'Eucalipto'},
         {emoji:'🇦🇺',word:'AUSTRALIA',es:'Australia'},{emoji:'💤',word:'SLEEP',es:'Dormir'},
         {emoji:'🐾',word:'MARSUPIAL',es:'Marsupial'},{emoji:'🌳',word:'TREE',es:'Árbol'},
+        {emoji:'🌴',word:'JUNGLE',es:'Selva'},{emoji:'🌱',word:'BRANCH',es:'Rama'},
+        {emoji:'🧗',word:'CLIMB',es:'Trepar'},{emoji:'🌙',word:'NOCTURNAL',es:'Nocturno'},
+        {emoji:'🐨',word:'CUB',es:'Cría'},{emoji:'🍃',word:'LEAF',es:'Hoja'},
+        {emoji:'🏞️',word:'NATURE',es:'Naturaleza'},{emoji:'🦘',word:'KANGAROO',es:'Canguro'},
     ],
     Sea: [
         {emoji:'🐙',word:'OCTOPUS',es:'Pulpo'},{emoji:'🦈',word:'SHARK',es:'Tiburón'},
         {emoji:'🐬',word:'DOLPHIN',es:'Delfín'},{emoji:'🦀',word:'CRAB',es:'Cangrejo'},
-        {emoji:'⭐',word:'STARFISH',es:'Estrella de mar'},{emoji:'🐠',word:'FISH',es:'Pez'},
-        {emoji:'🐳',word:'WHALE',es:'Ballena'},{emoji:'🦑',word:'SQUID',es:'Calamar'},
+        {emoji:'⭐',word:'STARFISH',es:'Estrella de mar'},{emoji:'🐳',word:'WHALE',es:'Ballena'},
+        {emoji:'🦑',word:'SQUID',es:'Calamar'},{emoji:'🪸',word:'CORAL',es:'Coral'},
+        {emoji:'🌊',word:'WAVE',es:'Ola'},{emoji:'🐚',word:'SHELL',es:'Concha'},
+        {emoji:'🪼',word:'JELLYFISH',es:'Medusa'},{emoji:'🦞',word:'LOBSTER',es:'Langosta'},
+        {emoji:'🐡',word:'BLOWFISH',es:'Pez globo'},{emoji:'🏖️',word:'BEACH',es:'Playa'},
+        {emoji:'⚓',word:'ANCHOR',es:'Ancla'},{emoji:'🧜',word:'MERMAID',es:'Sirena'},
     ],
     Greetings: [
         {emoji:'👋',word:'HELLO',es:'Hola'},{emoji:'👋',word:'GOODBYE',es:'Adiós'},
         {emoji:'🙏',word:'PLEASE',es:'Por favor'},{emoji:'😊',word:'THANK YOU',es:'Gracias'},
         {emoji:'☀️',word:'GOOD MORNING',es:'Buenos días'},{emoji:'🌙',word:'GOOD NIGHT',es:'Buenas noches'},
-        {emoji:'😔',word:'SORRY',es:'Lo siento'},{emoji:'❓',word:'HOW ARE YOU?',es:'¿Cómo estás?'},
-        {emoji:'👍',word:'GREAT!',es:'¡Genial!'},{emoji:'🤝',word:'NICE TO MEET YOU',es:'Mucho gusto'},
+        {emoji:'😔',word:'SORRY',es:'Lo siento'},{emoji:'👍',word:'GREAT',es:'Genial'},
+        {emoji:'🤝',word:'NICE TO MEET YOU',es:'Mucho gusto'},{emoji:'🌅',word:'GOOD AFTERNOON',es:'Buenas tardes'},
+        {emoji:'🤗',word:'WELCOME',es:'Bienvenido'},{emoji:'🙋',word:'EXCUSE ME',es:'Disculpame'},
+        {emoji:'🥂',word:'CHEERS',es:'Salud'},{emoji:'🎂',word:'HAPPY BIRTHDAY',es:'Feliz cumpleaños'},
+        {emoji:'🤞',word:'GOOD LUCK',es:'Buena suerte'},{emoji:'💪',word:'WELL DONE',es:'Bien hecho'},
     ],
     Numbers: [
-        {emoji:'1️⃣',word:'ONE',es:'Uno'},{emoji:'2️⃣',word:'TWO',es:'Dos'},
-        {emoji:'3️⃣',word:'THREE',es:'Tres'},{emoji:'4️⃣',word:'FOUR',es:'Cuatro'},
-        {emoji:'5️⃣',word:'FIVE',es:'Cinco'},{emoji:'6️⃣',word:'SIX',es:'Seis'},
-        {emoji:'7️⃣',word:'SEVEN',es:'Siete'},{emoji:'8️⃣',word:'EIGHT',es:'Ocho'},
-        {emoji:'9️⃣',word:'NINE',es:'Nueve'},{emoji:'🔟',word:'TEN',es:'Diez'},
+        {emoji:'0️⃣',word:'ZERO',es:'Cero'},{emoji:'1️⃣',word:'ONE',es:'Uno'},
+        {emoji:'2️⃣',word:'TWO',es:'Dos'},{emoji:'3️⃣',word:'THREE',es:'Tres'},
+        {emoji:'4️⃣',word:'FOUR',es:'Cuatro'},{emoji:'5️⃣',word:'FIVE',es:'Cinco'},
+        {emoji:'6️⃣',word:'SIX',es:'Seis'},{emoji:'7️⃣',word:'SEVEN',es:'Siete'},
+        {emoji:'8️⃣',word:'EIGHT',es:'Ocho'},{emoji:'9️⃣',word:'NINE',es:'Nueve'},
+        {emoji:'🔟',word:'TEN',es:'Diez'},{emoji:'1️⃣1️⃣',word:'ELEVEN',es:'Once'},
+        {emoji:'1️⃣2️⃣',word:'TWELVE',es:'Doce'},{emoji:'2️⃣0️⃣',word:'TWENTY',es:'Veinte'},
+        {emoji:'💯',word:'HUNDRED',es:'Cien'},{emoji:'🔢',word:'FIRST',es:'Primero'},
+        {emoji:'✌️',word:'SECOND',es:'Segundo'},{emoji:'🥉',word:'THIRD',es:'Tercero'},
     ],
     Colors: [
         {emoji:'❤️',word:'RED',es:'Rojo'},{emoji:'💙',word:'BLUE',es:'Azul'},
@@ -1436,6 +1546,9 @@ const FLIP_DECKS = {
         {emoji:'🟠',word:'ORANGE',es:'Naranja'},{emoji:'💜',word:'PURPLE',es:'Violeta'},
         {emoji:'🩷',word:'PINK',es:'Rosa'},{emoji:'🖤',word:'BLACK',es:'Negro'},
         {emoji:'🤍',word:'WHITE',es:'Blanco'},{emoji:'🟤',word:'BROWN',es:'Marrón'},
+        {emoji:'🩶',word:'GREY',es:'Gris'},{emoji:'🌟',word:'GOLD',es:'Dorado'},
+        {emoji:'⬜',word:'SILVER',es:'Plateado'},{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},
+        {emoji:'🫐',word:'INDIGO',es:'Índigo'},{emoji:'🌊',word:'TURQUOISE',es:'Turquesa'},
     ],
     Travel: [
         {emoji:'✈️',word:'PLANE',es:'Avión'},{emoji:'🧳',word:'SUITCASE',es:'Valija'},
@@ -1443,6 +1556,11 @@ const FLIP_DECKS = {
         {emoji:'🛂',word:'PASSPORT',es:'Pasaporte'},{emoji:'🚕',word:'TAXI',es:'Taxi'},
         {emoji:'📷',word:'CAMERA',es:'Cámara'},{emoji:'🗼',word:'MONUMENT',es:'Monumento'},
         {emoji:'🌍',word:'WORLD',es:'Mundo'},{emoji:'🎫',word:'TICKET',es:'Ticket'},
+        {emoji:'🚌',word:'BUS',es:'Colectivo'},{emoji:'🚂',word:'TRAIN',es:'Tren'},
+        {emoji:'🚢',word:'SHIP',es:'Barco'},{emoji:'🏖️',word:'BEACH',es:'Playa'},
+        {emoji:'🏛️',word:'MUSEUM',es:'Museo'},{emoji:'💰',word:'MONEY',es:'Dinero'},
+        {emoji:'🗓️',word:'BOOKING',es:'Reserva'},{emoji:'🛃',word:'CUSTOMS',es:'Aduana'},
+        {emoji:'🏕️',word:'CAMPING',es:'Camping'},{emoji:'🚁',word:'HELICOPTER',es:'Helicóptero'},
     ],
 };
 
@@ -2591,9 +2709,13 @@ window.kidsNavTab = function(tab) {
         if (ov) { ov.classList.remove('hidden'); if(typeof iniciarShadowing==='function') iniciarShadowing(); }
     } else if (tab === 'mapa') {
         window.abrirMapa && window.abrirMapa();
-    } else if (tab === 'ahorcado') {
-        window.abrirAhorcado && window.abrirAhorcado();
+    } else if (tab === 'juegos') {
+        document.getElementById('gamepicker-overlay').classList.remove('hidden');
     }
+};
+
+window.cerrarGamePicker = function() {
+    document.getElementById('gamepicker-overlay').classList.add('hidden');
 };
 
 const MAPA_TEMAS = [
@@ -2647,6 +2769,126 @@ window.abrirMapa = function() {
 window.cerrarMapa = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
 };
+
+// ─── ANAGRAMA ─────────────────────────────────────────────────────
+(function() {
+    let agWord = '', agAnswer = [], agTiles = [], agSessionXP = 0, agDone = false;
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function renderTiles() {
+        const el = document.getElementById('ag-tiles');
+        el.innerHTML = '';
+        agTiles.forEach((t, i) => {
+            const btn = document.createElement('button');
+            btn.textContent = t.letter;
+            btn.disabled = t.used || agDone;
+            btn.style.cssText = `width:42px;height:42px;border-radius:12px;font-weight:800;font-size:18px;border:none;cursor:${t.used||agDone?'default':'pointer'};transition:all 0.12s;background:${t.used?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.2)'};color:${t.used?'rgba(255,255,255,0.2)':'#fff'};`;
+            btn.onclick = () => { if (!t.used && !agDone) { t.used = true; agAnswer.push({letter:t.letter,tileIdx:i}); renderAnswer(); renderTiles(); } };
+            el.appendChild(btn);
+        });
+    }
+
+    function renderAnswer() {
+        const el = document.getElementById('ag-answer');
+        el.innerHTML = '';
+        [...agWord].forEach((ch, i) => {
+            const slot = document.createElement('div');
+            const filled = agAnswer[i];
+            slot.style.cssText = `min-width:36px;height:44px;border-bottom:3px solid ${filled?'#4ade80':'rgba(255,255,255,0.4)'};display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:20px;font-weight:800;color:#fff;`;
+            slot.textContent = filled ? filled.letter : '';
+            el.appendChild(slot);
+        });
+    }
+
+    window.agBorrar = function() {
+        if (!agAnswer.length || agDone) return;
+        const last = agAnswer.pop();
+        agTiles[last.tileIdx].used = false;
+        renderAnswer();
+        renderTiles();
+        document.getElementById('ag-feedback').textContent = '';
+    };
+
+    window.agComprobar = function() {
+        if (agAnswer.length < agWord.length) {
+            document.getElementById('ag-feedback').textContent = '🔍 Faltan letras';
+            document.getElementById('ag-feedback').style.color = '#fca5a5';
+            return;
+        }
+        const attempt = agAnswer.map(a => a.letter).join('');
+        const fb = document.getElementById('ag-feedback');
+        if (attempt === agWord) {
+            agDone = true;
+            playFX && playFX('correct');
+            agSessionXP += 60;
+            document.getElementById('ag-xp-display').textContent = '+' + agSessionXP + ' XP';
+            const p = window.familia[window.perfilActualId];
+            if (p) { p.score += 60; guardarEstado(); }
+            lanzarEstrellas && lanzarEstrellas();
+            hablarNativo(agWord.toLowerCase());
+            fb.textContent = '🌟 ¡Perfecto! +60 XP';
+            fb.style.color = '#4ade80';
+            renderTiles();
+            document.getElementById('ag-next-btn').classList.remove('hidden');
+        } else {
+            playFX && playFX('wrong');
+            fb.textContent = '🔍 ¡Intentá de nuevo!';
+            fb.style.color = '#fca5a5';
+            // Shake answer
+            const ansEl = document.getElementById('ag-answer');
+            ansEl.style.transform = 'translateX(-6px)';
+            setTimeout(() => { ansEl.style.transform = 'translateX(6px)'; }, 80);
+            setTimeout(() => { ansEl.style.transform = ''; }, 160);
+        }
+    };
+
+    window.anagramaNuevaPalabra = function() {
+        const allDecks = Object.values(FLIP_DECKS).flat();
+        // Only words 3-10 chars, no spaces (single words work best for anagram)
+        const pool = allDecks.filter(c => {
+            const letters = c.word.replace(/[^A-Z]/g,'');
+            return letters.length >= 3 && letters.length <= 10 && !c.word.includes(' ');
+        });
+        const card = pool[Math.floor(Math.random() * pool.length)];
+        agWord = card.word.toUpperCase().replace(/[^A-Z]/g,'');
+
+        // Shuffle letters, ensure not identical to word
+        let scrambled;
+        let tries = 0;
+        do { scrambled = shuffle([...agWord]); tries++; } while (scrambled.join('') === agWord && tries < 20);
+
+        agTiles = scrambled.map(l => ({ letter: l, used: false }));
+        agAnswer = [];
+        agDone = false;
+
+        document.getElementById('ag-emoji').textContent = card.emoji;
+        document.getElementById('ag-hint').textContent = `En español: "${card.es}"`;
+        document.getElementById('ag-feedback').textContent = '';
+        document.getElementById('ag-next-btn').classList.add('hidden');
+        renderAnswer();
+        renderTiles();
+        hablarNativo(card.word);
+    };
+
+    window.abrirAnagrama = function() {
+        agSessionXP = 0;
+        document.getElementById('ag-xp-display').textContent = '+0 XP';
+        document.getElementById('anagrama-overlay').classList.remove('hidden');
+        anagramaNuevaPalabra();
+    };
+
+    window.cerrarAnagrama = function() {
+        document.getElementById('anagrama-overlay').classList.add('hidden');
+    };
+})();
 
 // ─── AHORCADO ─────────────────────────────────────────────────────
 (function() {
@@ -3473,7 +3715,7 @@ function evaluarRespuestaInfantil(esCorrecto, idTema, btn) {
         hablarNativo(frase[0]);
 
         if (p.misionIndex % 4 === 0) {
-            const bonusGames = [window.mostrarWordMatch, window.mostrarSentenceBuilder, window.abrirAhorcado];
+            const bonusGames = [window.mostrarWordMatch, window.mostrarSentenceBuilder, window.abrirAhorcado, window.abrirAnagrama];
             const juego = bonusGames[Math.floor(Math.random() * bonusGames.length)];
             setTimeout(() => juego(), 2800);
         } else {
