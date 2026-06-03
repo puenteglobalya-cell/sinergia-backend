@@ -981,27 +981,85 @@
     </div>
     <div class="flex-1 overflow-y-auto px-4 pb-8 flex flex-col items-center gap-4 pt-4">
         <p class="text-white/50 text-xs text-center">Elegí un juego para ganar XP</p>
-        <div class="grid grid-cols-2 gap-4 w-full max-w-sm">
-            <button onclick="cerrarGamePicker();window.abrirAhorcado()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
-                <span class="text-5xl">🔤</span>
+        <div class="grid grid-cols-2 gap-3 w-full max-w-sm">
+            <button onclick="cerrarGamePicker();window.abrirAhorcado()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
+                <span class="text-4xl">🔤</span>
                 <span class="text-white font-extrabold text-sm">Ahorcado</span>
                 <span class="text-white/50 text-xs text-center">Adiviná letras</span>
             </button>
-            <button onclick="cerrarGamePicker();window.abrirAnagrama()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#134e4a,#065f46)">
-                <span class="text-5xl">🔀</span>
+            <button onclick="cerrarGamePicker();window.abrirAnagrama()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#134e4a,#065f46)">
+                <span class="text-4xl">🔀</span>
                 <span class="text-white font-extrabold text-sm">Anagrama</span>
                 <span class="text-white/50 text-xs text-center">Ordená las letras</span>
             </button>
-            <button onclick="cerrarGamePicker();window.mostrarWordMatch()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#78350f,#b45309)">
-                <span class="text-5xl">🎯</span>
+            <button onclick="cerrarGamePicker();window.mostrarWordMatch()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#78350f,#b45309)">
+                <span class="text-4xl">🎯</span>
                 <span class="text-white font-extrabold text-sm">Word Match</span>
                 <span class="text-white/50 text-xs text-center">Unir palabras</span>
             </button>
-            <button onclick="cerrarGamePicker();window.mostrarSentenceBuilder()" class="rounded-3xl p-5 flex flex-col items-center gap-3 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#4c1d95,#6d28d9)">
-                <span class="text-5xl">🧩</span>
+            <button onclick="cerrarGamePicker();window.mostrarSentenceBuilder()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#4c1d95,#6d28d9)">
+                <span class="text-4xl">🧩</span>
                 <span class="text-white font-extrabold text-sm">Frases</span>
                 <span class="text-white/50 text-xs text-center">Armá oraciones</span>
             </button>
+            <button onclick="cerrarGamePicker();window.abrirSopaLetras()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#1a1a2e,#0f3460)">
+                <span class="text-4xl">🔍</span>
+                <span class="text-white font-extrabold text-sm">Sopa de Letras</span>
+                <span class="text-white/50 text-xs text-center">Encontrá las palabras</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirCrucigrama()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#3b0764,#6b21a8)">
+                <span class="text-4xl">✏️</span>
+                <span class="text-white font-extrabold text-sm">Crucigrama</span>
+                <span class="text-white/50 text-xs text-center">Completá las palabras</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ SOPA DE LETRAS ═══ -->
+<div id="sopaletras-overlay" class="fixed inset-0 z-[200] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarSopaLetras()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">🔍 Sopa de Letras</h2>
+        <span id="sl-xp" class="text-yellow-300 font-bold text-xs">+0 XP</span>
+    </div>
+    <div class="flex-1 overflow-y-auto px-3 pb-6 flex flex-col items-center gap-3">
+        <p class="text-white/50 text-xs text-center">Arrastrá el dedo para seleccionar palabras →↓</p>
+        <canvas id="sl-canvas" class="rounded-2xl shadow-2xl" style="touch-action:none;max-width:320px;width:100%;"></canvas>
+        <div id="sl-words" class="grid grid-cols-2 gap-2 w-full max-w-xs"></div>
+        <div id="sl-win" class="hidden w-full max-w-xs bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-4 text-center">
+            <p class="text-emerald-300 font-extrabold text-lg">🎉 ¡Encontraste todas!</p>
+            <button onclick="iniciarSopaLetras()" class="mt-3 bg-yellow-400 text-yellow-900 font-extrabold px-6 py-2.5 rounded-xl text-sm active:scale-95">🎲 Nueva sopa</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ CRUCIGRAMA ═══ -->
+<div id="crucigrama-overlay" class="fixed inset-0 z-[200] hidden flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#3b0764 0%,#4c1d95 50%,#2e1065 100%);">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
+        <button onclick="cerrarCrucigrama()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
+        <h2 class="font-extrabold text-white text-base">✏️ Crucigrama</h2>
+        <span id="cw-xp" class="text-yellow-300 font-bold text-xs">+0 XP</span>
+    </div>
+    <div class="flex-1 overflow-y-auto px-3 pb-4 flex flex-col items-center gap-3">
+        <!-- Grid -->
+        <div class="overflow-auto w-full flex justify-center">
+            <table id="cw-table" style="border-collapse:collapse;"></table>
+        </div>
+        <!-- Clues -->
+        <div class="w-full max-w-xs">
+            <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Pistas</p>
+            <div id="cw-clues" class="space-y-1"></div>
+        </div>
+        <p id="cw-feedback" class="font-bold text-sm min-h-[20px] text-center"></p>
+        <!-- Letter keyboard -->
+        <div class="flex flex-wrap justify-center gap-1 max-w-xs w-full">
+            <div class="flex flex-wrap justify-center gap-1 w-full" id="cw-keys"></div>
+            <div class="flex gap-2 w-full justify-center mt-1">
+                <button onclick="cwDelete()" class="bg-white/20 text-white font-bold px-4 py-2 rounded-xl text-sm active:scale-95">⌫</button>
+                <button onclick="cwComprobar()" class="bg-emerald-400 text-emerald-900 font-extrabold px-5 py-2 rounded-xl text-sm active:scale-95">✓ Comprobar</button>
+                <button onclick="iniciarCrucigrama()" class="bg-yellow-400/20 text-yellow-300 font-bold px-4 py-2 rounded-xl text-sm active:scale-95">🎲</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1381,6 +1439,8 @@ document.addEventListener('keydown', function(e) {
         ['ahorcado-overlay',    () => window.cerrarAhorcado && window.cerrarAhorcado()],
         ['anagrama-overlay',    () => window.cerrarAnagrama && window.cerrarAnagrama()],
         ['gamepicker-overlay',  () => window.cerrarGamePicker && window.cerrarGamePicker()],
+        ['sopaletras-overlay',  () => window.cerrarSopaLetras && window.cerrarSopaLetras()],
+        ['crucigrama-overlay',  () => window.cerrarCrucigrama && window.cerrarCrucigrama()],
         ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
         ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
         ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
@@ -2769,6 +2829,316 @@ window.abrirMapa = function() {
 window.cerrarMapa = function() {
     document.getElementById('mapa-overlay').classList.add('hidden');
 };
+
+// ─── SOPA DE LETRAS ───────────────────────────────────────────────
+(function(){
+    const SZ=10,CS=32;
+    let grid=[],words=[],found=new Set(),selecting=false;
+    let sr=-1,sc=-1,er=-1,ec=-1,canvas,ctx,slXP=0;
+
+    function pickWords(){
+        const all=Object.values(FLIP_DECKS).flat()
+            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=3&&w.length<=7&&!c.word.includes(' ');});
+        const pool=[...all],picked=[],used=new Set();
+        while(picked.length<6&&pool.length){
+            const i=Math.floor(Math.random()*pool.length);
+            const c=pool.splice(i,1)[0];
+            const w=c.word.replace(/[^A-Z]/g,'');
+            if(!used.has(w)){used.add(w);picked.push({...c,clean:w,found:false,cells:[]});}
+        }
+        return picked;
+    }
+
+    function placeWord(wObj){
+        const w=wObj.clean;
+        for(let t=0;t<300;t++){
+            const horiz=Math.random()<0.5;
+            const r=Math.floor(Math.random()*(horiz?SZ:SZ-w.length));
+            const c=Math.floor(Math.random()*(horiz?SZ-w.length:SZ));
+            const cells=[],ok=w.split('').every((l,i)=>{
+                const rr=r+(horiz?0:i),cc=c+(horiz?i:0);
+                if(!grid[rr]||grid[rr][cc]&&grid[rr][cc]!==l)return false;
+                cells.push([rr,cc]);return true;
+            });
+            if(ok){cells.forEach(([rr,cc],i)=>grid[rr][cc]=w[i]);wObj.cells=cells;return;}
+        }
+    }
+
+    function draw(){
+        if(!ctx)return;
+        ctx.clearRect(0,0,SZ*CS,SZ*CS);
+        // found word backgrounds
+        words.forEach(w=>{
+            if(!w.found)return;
+            ctx.fillStyle='rgba(74,222,128,0.25)';
+            w.cells.forEach(([r,c])=>ctx.fillRect(c*CS,r*CS,CS,CS));
+        });
+        // selection highlight
+        if(selecting){
+            const sc2=getSelCells();
+            ctx.fillStyle='rgba(96,165,250,0.4)';
+            sc2.forEach(([r,c])=>ctx.fillRect(c*CS,r*CS,CS,CS));
+        }
+        // grid lines
+        ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+        for(let i=0;i<=SZ;i++){
+            ctx.beginPath();ctx.moveTo(i*CS,0);ctx.lineTo(i*CS,SZ*CS);ctx.stroke();
+            ctx.beginPath();ctx.moveTo(0,i*CS);ctx.lineTo(SZ*CS,i*CS);ctx.stroke();
+        }
+        // letters
+        ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+        for(let r=0;r<SZ;r++)for(let c=0;c<SZ;c++){
+            const isFound=words.some(w=>w.found&&w.cells.some(([wr,wc])=>wr===r&&wc===c));
+            ctx.fillStyle=isFound?'#4ade80':'rgba(226,232,240,0.9)';
+            ctx.fillText(grid[r][c],c*CS+CS/2,r*CS+CS/2);
+        }
+    }
+
+    function getSelCells(){
+        if(sr<0||er<0)return[];
+        const cells=[];
+        if(sr===er){const[c1,c2]=[Math.min(sc,ec),Math.max(sc,ec)];for(let c=c1;c<=c2;c++)cells.push([sr,c]);}
+        else if(sc===ec){const[r1,r2]=[Math.min(sr,er),Math.max(sr,er)];for(let r=r1;r<=r2;r++)cells.push([r,sc]);}
+        return cells;
+    }
+
+    function cellFrom(e){
+        const rect=canvas.getBoundingClientRect();
+        const scX=canvas.width/rect.width,scY=canvas.height/rect.height;
+        const src=e.touches?e.touches[0]:e;
+        const x=(src.clientX-rect.left)*scX,y=(src.clientY-rect.top)*scY;
+        return[Math.min(SZ-1,Math.max(0,Math.floor(y/CS))),Math.min(SZ-1,Math.max(0,Math.floor(x/CS)))];
+    }
+
+    function checkSel(){
+        const cells=getSelCells();if(cells.length<2)return;
+        const attempt=cells.map(([r,c])=>grid[r][c]).join('');
+        const rev=[...attempt].reverse().join('');
+        words.forEach(w=>{
+            if(w.found)return;
+            if(attempt===w.clean||rev===w.clean){
+                w.found=true;found.add(w.clean);
+                slXP+=30;document.getElementById('sl-xp').textContent='+'+slXP+' XP';
+                const p=window.familia[window.perfilActualId];
+                if(p){p.score+=30;guardarEstado();}
+                playFX&&playFX('correct');renderWordList();
+                if(found.size===words.length){
+                    slXP+=50;document.getElementById('sl-xp').textContent='+'+slXP+' XP';
+                    if(p){p.score+=50;guardarEstado();}
+                    lanzarEstrellas&&lanzarEstrellas();
+                    setTimeout(()=>document.getElementById('sl-win').classList.remove('hidden'),600);
+                }
+            }
+        });
+        draw();
+    }
+
+    function renderWordList(){
+        const el=document.getElementById('sl-words');if(!el)return;
+        el.innerHTML='';
+        words.forEach(w=>{
+            const d=document.createElement('div');
+            d.style.cssText=`display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:${w.found?'#4ade80':'#e2e8f0'};${w.found?'text-decoration:line-through;opacity:0.55':''}`;
+            d.innerHTML=`<span>${w.emoji}</span><span>${w.es}</span>${w.found?'<span style="margin-left:auto;color:#4ade80">✓</span>':''}`;
+            el.appendChild(d);
+        });
+    }
+
+    window.iniciarSopaLetras=function(){
+        canvas=document.getElementById('sl-canvas');if(!canvas)return;
+        ctx=canvas.getContext('2d');
+        canvas.width=SZ*CS;canvas.height=SZ*CS;
+        canvas.style.width='100%';canvas.style.height='auto';
+        slXP=0;found=new Set();sr=sc=er=ec=-1;selecting=false;
+        document.getElementById('sl-xp').textContent='+0 XP';
+        document.getElementById('sl-win').classList.add('hidden');
+        grid=Array.from({length:SZ},()=>Array(SZ).fill(''));
+        words=pickWords();
+        words.forEach(w=>placeWord(w));
+        for(let r=0;r<SZ;r++)for(let c=0;c<SZ;c++)if(!grid[r][c])grid[r][c]=String.fromCharCode(65+Math.floor(Math.random()*26));
+        renderWordList();draw();
+        // events (re-add each init to avoid stacking)
+        canvas.onpointerdown=e=>{const[r,c]=cellFrom(e);sr=r;sc=c;er=r;ec=c;selecting=true;draw();};
+        canvas.onpointermove=e=>{if(!selecting)return;const[r,c]=cellFrom(e);if(r===sr||c===sc){er=r;ec=c;draw();}};
+        canvas.onpointerup=()=>{if(!selecting)return;selecting=false;checkSel();sr=sc=er=ec=-1;draw();};
+    };
+
+    window.abrirSopaLetras=function(){document.getElementById('sopaletras-overlay').classList.remove('hidden');iniciarSopaLetras();};
+    window.cerrarSopaLetras=function(){document.getElementById('sopaletras-overlay').classList.add('hidden');};
+})();
+
+// ─── CRUCIGRAMA ────────────────────────────────────────────────────
+(function(){
+    let cwWords=[],cwInput={},cwActive=null,cwCursor=0,cwXP=0;
+
+    function layout(wordList){
+        const placed=[];
+        const grid={};
+        const sorted=[...wordList].sort((a,b)=>b.word.length-a.word.length);
+        // Place first word horizontally at row 0, col 0
+        const w0=sorted[0];
+        const c0=w0.word.split('').map((l,i)=>[0,i]);
+        c0.forEach(([r,c],i)=>grid[`${r},${c}`]=w0.word[i]);
+        placed.push({...w0,r:0,c:0,dir:'H',cells:c0,num:1});
+        let num=2;
+        for(let wi=1;wi<sorted.length;wi++){
+            const wObj=sorted[wi];const word=wObj.word;
+            const wantDir=placed.length%2===0?'H':'V';
+            let done=false;
+            for(const ex of placed){
+                if(done)break;
+                const newDir=ex.dir==='H'?'V':'H';
+                if(newDir!==wantDir&&placed.length>1)continue;
+                for(let ni=0;ni<word.length&&!done;ni++){
+                    for(let ei=0;ei<ex.word.length&&!done;ei++){
+                        if(word[ni]!==ex.word[ei])continue;
+                        const[er2,ec2]=ex.cells[ei];
+                        const[nsr,nsc]=newDir==='V'?[er2-ni,ec2]:[er2,ec2-ni];
+                        const ncells=[];let ok=true;
+                        for(let i=0;i<word.length;i++){
+                            const r=newDir==='V'?nsr+i:nsr,c=newDir==='H'?nsc+i:nsc;
+                            const k=`${r},${c}`,ex2=grid[k];
+                            if(ex2&&ex2!==word[i]){ok=false;break;}
+                            ncells.push([r,c]);
+                        }
+                        if(ok){ncells.forEach(([r,c],i)=>grid[`${r},${c}`]=word[i]);
+                            placed.push({...wObj,r:nsr,c:nsc,dir:newDir,cells:ncells,num:num++});done=true;}
+                    }
+                }
+            }
+        }
+        // Normalize to 0-based
+        let minR=Infinity,minC=Infinity;
+        placed.forEach(w=>w.cells.forEach(([r,c])=>{minR=Math.min(minR,r);minC=Math.min(minC,c);}));
+        placed.forEach(w=>{w.r-=minR;w.c-=minC;w.cells=w.cells.map(([r,c])=>[r-minR,c-minC]);});
+        return placed;
+    }
+
+    function renderGrid(){
+        let maxR=0,maxC=0;
+        cwWords.forEach(w=>w.cells.forEach(([r,c])=>{maxR=Math.max(maxR,r);maxC=Math.max(maxC,c);}));
+        const valid=new Map();
+        cwWords.forEach(w=>w.cells.forEach(([r,c],i)=>valid.set(`${r},${c}`,w.word[i])));
+        const nums=new Map();
+        cwWords.forEach(w=>nums.set(`${w.r},${w.c}`,w.num));
+
+        const tbl=document.getElementById('cw-table');tbl.innerHTML='';
+        tbl.style.cssText='border-collapse:collapse;';
+        for(let r=0;r<=maxR;r++){
+            const tr=document.createElement('tr');
+            for(let c=0;c<=maxC;c++){
+                const td=document.createElement('td');
+                const k=`${r},${c}`;
+                if(valid.has(k)){
+                    td.style.cssText='width:30px;height:30px;min-width:30px;border:1.5px solid #7c3aed;background:#fff;position:relative;cursor:pointer;vertical-align:middle;';
+                    td.dataset.r=r;td.dataset.c=c;
+                    if(nums.has(k)){const sp=document.createElement('span');sp.style.cssText='position:absolute;top:1px;left:2px;font-size:7px;font-weight:800;color:#7c3aed;line-height:1;';sp.textContent=nums.get(k);td.appendChild(sp);}
+                    const ltr=document.createElement('div');
+                    ltr.id=`cw-${r}-${c}`;
+                    ltr.style.cssText='text-align:center;font-weight:800;font-size:15px;color:#1e293b;line-height:30px;';
+                    ltr.textContent=cwInput[k]||'';
+                    td.appendChild(ltr);
+                    td.onclick=()=>cwActivate(r,c);
+                } else {
+                    td.style.cssText='width:30px;height:30px;min-width:30px;background:#1e1b4b;';
+                }
+                tr.appendChild(td);
+            }
+            tbl.appendChild(tr);
+        }
+
+        // Clues
+        const cluesEl=document.getElementById('cw-clues');cluesEl.innerHTML='';
+        cwWords.forEach(w=>{
+            const d=document.createElement('div');
+            d.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:#e2e8f0;padding:2px 0;';
+            d.innerHTML=`<span style="font-weight:800;color:#c4b5fd;min-width:22px">${w.num}${w.dir==='H'?'→':'↓'}</span><span>${w.emoji}</span><span>${w.es}</span>`;
+            cluesEl.appendChild(d);
+        });
+
+        // Keyboard
+        const keysEl=document.getElementById('cw-keys');keysEl.innerHTML='';
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{
+            const b=document.createElement('button');
+            b.textContent=l;b.onclick=()=>cwType(l);
+            b.style.cssText='width:30px;height:30px;border-radius:8px;font-weight:800;font-size:12px;border:none;cursor:pointer;background:rgba(255,255,255,0.15);color:#fff;margin:1px;';
+            keysEl.appendChild(b);
+        });
+    }
+
+    function cwActivate(r,c){
+        cwActive=cwWords.find(w=>w.cells.some(([wr,wc])=>wr===r&&wc===c))||null;
+        if(!cwActive)return;
+        cwCursor=cwActive.cells.findIndex(([wr,wc])=>wr===r&&wc===c);
+        // Highlight
+        document.querySelectorAll('#cw-table td[data-r]').forEach(td=>{
+            const inW=cwActive&&cwActive.cells.some(([wr,wc])=>wr==td.dataset.r&&wc==td.dataset.c);
+            const isCur=td.dataset.r==r&&td.dataset.c==c;
+            td.style.background=isCur?'#a78bfa':inW?'#ede9fe':'#fff';
+        });
+    }
+
+    window.cwType=function(l){
+        if(!cwActive)return;
+        if(cwCursor>=cwActive.cells.length)return;
+        const[r,c]=cwActive.cells[cwCursor];
+        cwInput[`${r},${c}`]=l;
+        const el=document.getElementById(`cw-${r}-${c}`);
+        if(el){el.textContent=l;el.style.color='#1e293b';}
+        cwCursor=Math.min(cwCursor+1,cwActive.cells.length-1);
+        const[nr,nc]=cwActive.cells[cwCursor];cwActivate(nr,nc);cwCursor=cwWords.find(w=>w===cwActive)?cwActive.cells.findIndex(([wr,wc])=>wr===nr&&wc===nc):cwCursor;
+    };
+
+    window.cwDelete=function(){
+        if(!cwActive)return;
+        cwCursor=Math.max(0,cwCursor-1);
+        const[r,c]=cwActive.cells[cwCursor];
+        cwInput[`${r},${c}`]='';
+        const el=document.getElementById(`cw-${r}-${c}`);if(el)el.textContent='';
+        cwActivate(r,c);
+    };
+
+    window.cwComprobar=function(){
+        let all=true;
+        cwWords.forEach(w=>{
+            w.cells.forEach(([r,c],i)=>{
+                const el=document.getElementById(`cw-${r}-${c}`);if(!el)return;
+                const ok=(cwInput[`${r},${c}`]||'')===w.word[i];
+                el.style.color=ok?'#16a34a':'#dc2626';
+                if(!ok)all=false;
+            });
+        });
+        const fb=document.getElementById('cw-feedback');
+        if(all){
+            fb.textContent='🎉 ¡Perfecto! +100 XP';fb.style.color='#4ade80';
+            cwXP+=100;document.getElementById('cw-xp').textContent='+'+cwXP+' XP';
+            const p=window.familia[window.perfilActualId];
+            if(p){p.score+=100;guardarEstado();}
+            lanzarEstrellas&&lanzarEstrellas();
+        } else {
+            fb.textContent='🔍 Hay errores en rojo. ¡Seguí!';fb.style.color='#fca5a5';
+        }
+    };
+
+    window.iniciarCrucigrama=function(){
+        cwInput={};cwActive=null;cwCursor=0;cwXP=0;
+        document.getElementById('cw-xp').textContent='+0 XP';
+        document.getElementById('cw-feedback').textContent='';
+        const all=Object.values(FLIP_DECKS).flat()
+            .filter(c=>{const w=c.word.replace(/[^A-Z]/g,'');return w.length>=4&&w.length<=8&&!c.word.includes(' ');});
+        const pool=[...all],picked=[],used=new Set();
+        while(picked.length<6&&pool.length){
+            const i=Math.floor(Math.random()*pool.length);
+            const c=pool.splice(i,1)[0];const w=c.word.replace(/[^A-Z]/g,'');
+            if(!used.has(w)){used.add(w);picked.push({...c,word:w});}
+        }
+        cwWords=layout(picked);
+        renderGrid();
+    };
+
+    window.abrirCrucigrama=function(){document.getElementById('crucigrama-overlay').classList.remove('hidden');iniciarCrucigrama();};
+    window.cerrarCrucigrama=function(){document.getElementById('crucigrama-overlay').classList.add('hidden');};
+})();
 
 // ─── ANAGRAMA ─────────────────────────────────────────────────────
 (function() {
