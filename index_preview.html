@@ -458,7 +458,10 @@
     </div>
     <div id="shadow-result-area" class="px-4 py-6 bg-slate-800 border-t border-slate-700 hidden">
         <div class="text-center space-y-3 max-w-xs mx-auto">
-            <div class="text-6xl" id="shadow-trophy">🏆</div>
+            <div class="text-2xl" id="shadow-trophy">🏆</div>
+            <div class="flex justify-center">
+                <canvas id="shadow-score-ring" width="100" height="100"></canvas>
+            </div>
             <p class="text-white font-extrabold text-2xl" id="shadow-final-score"></p>
             <p class="text-slate-400 text-sm leading-relaxed" id="shadow-final-msg"></p>
             <button onclick="cerrarShadowing()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold px-8 py-4 rounded-2xl text-base transition-all active:scale-95">¡Listo! ✓</button>
@@ -2269,6 +2272,14 @@ Object.values(window.familia).forEach(p => {
     if (p.racha === undefined) p.racha = 0;
     if (p.scoreSemanal === undefined) p.scoreSemanal = 0;
     if (p.misionIndex === undefined) p.misionIndex = 0;
+    // New fields for SRS, radar, streak, weekly report, placement
+    if (!p.srsData) p.srsData = {};
+    if (!p.shadowingScores) p.shadowingScores = [];
+    if (p.storiesRead === undefined) p.storiesRead = 0;
+    if (p.chatSessions === undefined) p.chatSessions = 0;
+    if (!p.ultimaActividad) p.ultimaActividad = '';
+    if (p.weeklyReportSeen === undefined) p.weeklyReportSeen = 0;
+    if (p.placementDone === undefined) p.placementDone = false;
 });
 
 window.perfilActualId   = 'perfil1'; // default, overridden by profile select
@@ -4943,17 +4954,46 @@ async function evaluarLineaShadowing(said) {
             scoreEl.className = `text-xs font-bold ${color}`;
             scoreEl.innerText = `${data.score >= 80 ? '✅' : data.score >= 50 ? '⚠️' : '🔄'} ${data.score}/100 — ${data.feedback}`;
             scoreEl.classList.remove('hidden');
+            // Word-level diff chips
+            const saidWords = said.toLowerCase().split(/\s+/);
+            const expWords = expected.toLowerCase().split(/\s+/);
+            const chipsDiv = document.createElement('div');
+            chipsDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;';
+            expWords.forEach(w => {
+                const span = document.createElement('span');
+                span.textContent = w;
+                const matched = saidWords.includes(w);
+                span.style.cssText = `font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:6px;background:${matched?'#065f46':'#7f1d1d'};color:${matched?'#a7f3d0':'#fca5a5'};`;
+                chipsDiv.appendChild(span);
+            });
+            scoreEl.appendChild(chipsDiv);
         }
         // Read the correct line aloud so the user hears how it should sound
         setTimeout(() => hablarNativo(expected, 0.82), 300);
 
-        document.getElementById('shadow-mic-area').classList.add('hidden');
         const btn = document.getElementById('shadow-mic-btn');
         btn.innerHTML = '🎙️ Speak';
         btn.disabled = false;
 
-        shadowState.currentLine++;
-        setTimeout(() => playNextShadowLine(), 2400);
+        if (data.score < 80) {
+            // Show retry/continue buttons
+            const micArea = document.getElementById('shadow-mic-area');
+            micArea.classList.remove('hidden');
+            document.getElementById('shadow-mic-status').innerText = '';
+            const existingRetry = document.getElementById('shadow-retry-btns');
+            if (existingRetry) existingRetry.remove();
+            const retryDiv = document.createElement('div');
+            retryDiv.id = 'shadow-retry-btns';
+            retryDiv.style.cssText = 'display:flex;gap:10px;justify-content:center;margin-top:8px;';
+            retryDiv.innerHTML = `
+                <button onclick="shadowRetry()" style="background:#7c3aed;color:#fff;font-weight:700;padding:10px 20px;border-radius:14px;font-size:13px;border:none;cursor:pointer;">🔄 Repetir</button>
+                <button onclick="shadowContinue()" style="background:#059669;color:#fff;font-weight:700;padding:10px 20px;border-radius:14px;font-size:13px;border:none;cursor:pointer;">➡️ Continuar</button>`;
+            micArea.appendChild(retryDiv);
+        } else {
+            document.getElementById('shadow-mic-area').classList.add('hidden');
+            shadowState.currentLine++;
+            setTimeout(() => playNextShadowLine(), 2400);
+        }
     } catch(e) {
         document.getElementById('shadow-mic-status').innerText = 'Error — try again';
         const btn = document.getElementById('shadow-mic-btn');
@@ -4962,6 +5002,27 @@ async function evaluarLineaShadowing(said) {
         shadowState.listening = false;
     }
 }
+
+window.shadowRetry = function() {
+    const rb = document.getElementById('shadow-retry-btns');
+    if (rb) rb.remove();
+    // Re-speak the line and show mic
+    const i = shadowState.currentLine;
+    hablarNativo(shadowState.lines[i].text, 0.82);
+    document.getElementById('shadow-mic-status').innerText = 'Listen and repeat…';
+    shadowState.listening = false;
+    const btn = document.getElementById('shadow-mic-btn');
+    btn.innerHTML = '🎙️ Hablar';
+    btn.disabled = false;
+};
+
+window.shadowContinue = function() {
+    const rb = document.getElementById('shadow-retry-btns');
+    if (rb) rb.remove();
+    document.getElementById('shadow-mic-area').classList.add('hidden');
+    shadowState.currentLine++;
+    playNextShadowLine();
+};
 
 function mostrarResultadoShadowing() {
     document.getElementById('shadow-mic-area').classList.add('hidden');
