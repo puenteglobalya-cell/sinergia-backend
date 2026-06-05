@@ -1064,12 +1064,15 @@
         <span id="sl-xp" class="text-yellow-300 font-bold text-xs">+0 XP</span>
     </div>
     <div class="flex-1 overflow-y-auto px-3 pb-6 flex flex-col items-center gap-3">
-        <p class="text-white/50 text-xs text-center">Arrastrá el dedo para seleccionar palabras →↓</p>
+        <p class="text-white/50 text-xs text-center">Drag to select words →↓ &nbsp;|&nbsp; <span class="opacity-70">Deslizá para seleccionar</span></p>
         <canvas id="sl-canvas" class="rounded-2xl shadow-2xl" style="touch-action:none;max-width:320px;width:100%;"></canvas>
         <div id="sl-words" class="grid grid-cols-2 gap-2 w-full max-w-xs"></div>
         <div id="sl-win" class="hidden w-full max-w-xs bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-4 text-center">
             <p class="text-emerald-300 font-extrabold text-lg">🎉 ¡Encontraste todas!</p>
-            <button onclick="iniciarSopaLetras()" class="mt-3 bg-yellow-400 text-yellow-900 font-extrabold px-6 py-2.5 rounded-xl text-sm active:scale-95">🎲 Nueva sopa</button>
+            <div class="flex gap-2 justify-center mt-3">
+                <button onclick="iniciarSopaLetras()" class="bg-yellow-400 text-yellow-900 font-extrabold px-5 py-2.5 rounded-xl text-sm active:scale-95">🎲 Nueva</button>
+                <button onclick="compartirResultado('sopa')" class="bg-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95">📤 Compartir</button>
+            </div>
         </div>
     </div>
 </div>
@@ -2293,6 +2296,18 @@ function guardarEscenariosCustom(arr) { lsSet('sinergia_escenarios_custom', JSON
 
 function guardarEstado() { lsSet('sinergia_familia', JSON.stringify(window.familia)); }
 
+window.compartirResultado = async function(juego) {
+    const p = window.familia[window.perfilActualId];
+    const nombre = p ? p.nombre : 'Sinergia';
+    const textos = { sopa:'🔍 Sopa de Letras', crucigrama:'✏️ Crucigrama', anagrama:'🔀 Anagrama', ahorcado:'🔤 Ahorcado' };
+    const txt = `${textos[juego]||'🎮 Juego'} completado por ${nombre}!\n🌟 Score: ${p?p.score:0} XP\n📱 Sinergia Familiar Language Hub`;
+    if (navigator.share) {
+        try { await navigator.share({ title:'Sinergia — Logro', text:txt }); } catch(e){}
+    } else {
+        try { await navigator.clipboard.writeText(txt); alert('¡Copiado al portapapeles! 📋'); } catch(e){}
+    }
+};
+
 // ── Liga Semanal ──────────────────────────────────────────────────────────────
 function getWeekNumber() {
     const d = new Date();
@@ -3050,7 +3065,7 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
         words.forEach(w=>{
             const d=document.createElement('div');
             d.style.cssText=`display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:${w.found?'#4ade80':'#e2e8f0'};${w.found?'text-decoration:line-through;opacity:0.55':''}`;
-            d.innerHTML=`<span>${w.emoji}</span><span>${w.es}</span>${w.found?'<span style="margin-left:auto;color:#4ade80">✓</span>':''}`;
+            d.innerHTML=`<span>${w.emoji}</span><span style="letter-spacing:0.05em">${w.clean}</span><span style="font-size:10px;opacity:0.55;font-weight:500"> ${w.es}</span>${w.found?'<span style="margin-left:auto;color:#4ade80">✓</span>':''}`;
             el.appendChild(d);
         });
     }
@@ -3163,7 +3178,7 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
         cwWords.forEach(w=>{
             const d=document.createElement('div');
             d.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:#e2e8f0;padding:2px 0;';
-            d.innerHTML=`<span style="font-weight:800;color:#c4b5fd;min-width:22px">${w.num}${w.dir==='H'?'→':'↓'}</span><span>${w.emoji}</span><span>${w.es}</span>`;
+            d.innerHTML=`<span style="font-weight:800;color:#c4b5fd;min-width:22px">${w.num}${w.dir==='H'?'→':'↓'}</span><span>${w.emoji}</span><span style="opacity:0.6">${w.es}</span><span style="margin-left:auto;font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:0.05em">${'_'.repeat(w.word.length)}</span>`;
             cluesEl.appendChild(d);
         });
 
@@ -3221,7 +3236,8 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
         });
         const fb=document.getElementById('cw-feedback');
         if(all){
-            fb.textContent='🎉 ¡Perfecto! +100 XP';fb.style.color='#4ade80';
+            fb.innerHTML='🎉 ¡Perfecto! +100 XP &nbsp;<button onclick="compartirResultado(\'crucigrama\')" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:700">📤 Compartir</button>';
+            fb.style.color='#4ade80';
             cwXP+=100;document.getElementById('cw-xp').textContent='+'+cwXP+' XP';
             const p=window.familia[window.perfilActualId];
             if(p){p.score+=100;guardarEstado();}
