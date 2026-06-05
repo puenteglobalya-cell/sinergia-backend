@@ -58,15 +58,25 @@ self.addEventListener('message', e => {
     const delay = next - now;
 
     setTimeout(function fireReminder() {
-      const body = _reminderMensajes[_reminderIdx % _reminderMensajes.length];
+      // Motivational messages with vocabulary words (#13)
+      const vocabWords = ['magnificent', 'perseverance', 'eloquent', 'ambitious', 'fluent', 'diligent', 'articulate'];
+      const motivMessages = [
+        `Sinergia is waiting for you! Today's word: "${vocabWords[Math.floor(Math.random()*vocabWords.length)]}" — keep growing! 📚`,
+        `Your English journey continues on Sinergia. Practice makes perfect! 🌟`,
+        `Did you know? Just 15 minutes of English practice a day can transform your fluency! Open Sinergia now. 🚀`,
+        `Sinergia challenge: Use the word "${vocabWords[Math.floor(Math.random()*vocabWords.length)]}" in a sentence today! 💬`,
+      ];
+      const userMsg = _reminderMensajes[_reminderIdx % _reminderMensajes.length];
+      const motivMsg = motivMessages[Math.floor(Math.random()*motivMessages.length)];
+      const body = userMsg + ' — ' + motivMsg;
       _reminderIdx++;
-      self.registration.showNotification('¡Hora de practicar inglés! 🌍', {
+      self.registration.showNotification('Sinergia — English Practice 🇬🇧', {
         body,
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         tag: 'daily-reminder',
         renotify: true,
-        actions: [{ action: 'open', title: '¡Vamos!' }]
+        actions: [{ action: 'open', title: 'Open Sinergia!' }]
       });
       // Re-schedule for next day
       setTimeout(fireReminder, 24 * 60 * 60 * 1000);

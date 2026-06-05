@@ -84,6 +84,10 @@
         .scrollbar-none { scrollbar-width: none; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
 
+        /* Immersion mode */
+        body[data-immersion="true"] .es-only { display:none !important; }
+        body[data-immersion="true"] .en-alt:before { content: attr(data-en); display:block; }
+
         /* Design system: Mesh background — 4-corner radial gradient */
         .mesh-bg {
             background-color: #faf8ff;
@@ -445,7 +449,7 @@
     </div>
     <div id="shadow-lines" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
     <div id="shadow-mic-area" class="px-4 py-5 bg-slate-800 border-t border-slate-700 hidden">
-        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3">Tu turno — repetí la frase</p>
+        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3 es-only">Tu turno — repetí la frase</p>
         <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-4 text-white font-semibold text-base text-center mb-4 cursor-pointer active:bg-slate-600 transition-colors" onclick="shadowListenExpected()" title="Tap to hear it">
         </div>
         <div class="flex justify-center gap-3">
@@ -575,12 +579,13 @@
                         <span id="fc-back-emoji" style="font-size:clamp(2rem,8vw,3rem);line-height:1;">🐶</span>
                         <span id="fc-word" style="font-size:clamp(1.5rem,7vw,2rem);font-weight:900;color:#064e3b;letter-spacing:2px;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif;">DOG</span>
                         <span id="fc-translation" style="font-size:0.9rem;color:#065f46;font-weight:600;">Perro</span>
+                        <p id="fc-example" style="font-size:0.7rem;color:#065f46;font-weight:500;text-align:center;padding:0 8px;max-width:180px;line-height:1.3;min-height:2em;"></p>
                     </div>
                 </div>
             </div>
 
             <!-- Tap hint -->
-            <p id="fc-hint" class="text-slate-500 text-sm font-semibold text-center">👆 Tocá para escuchar</p>
+            <p id="fc-hint" class="text-slate-500 text-sm font-semibold text-center es-only">👆 Tocá para escuchar</p>
 
             <!-- Nav buttons -->
             <div class="flex gap-3 w-full pb-5">
@@ -719,6 +724,17 @@
         </div>
     </nav>
 
+    <!-- Module progress pill (shown when module is active) -->
+    <div id="module-progress-pill" style="display:none;" class="max-w-2xl mx-auto w-full mb-2">
+        <div class="glass-card rounded-2xl px-4 py-2 flex items-center gap-3 shadow-sm bg-violet-50 border border-violet-200">
+            <span class="text-sm">📚</span>
+            <span class="text-xs font-extrabold text-violet-700" id="module-step-label">Paso 1/4</span>
+            <div class="flex-1 h-2 bg-violet-100 rounded-full overflow-hidden">
+                <div id="module-step-fill" class="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500" style="width:25%"></div>
+            </div>
+            <button onclick="cancelarModulo()" class="text-violet-400 hover:text-violet-600 text-xs font-bold">✕</button>
+        </div>
+    </div>
     <!-- Progress bar: always visible -->
     <div id="progress-bar-wrapper" class="max-w-2xl mx-auto w-full mb-3">
         <div class="glass-card rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-sm">
@@ -1011,6 +1027,11 @@
                 <span class="text-white font-extrabold text-sm">Word Match — Nivel avanzado</span>
                 <span class="text-white/50 text-xs text-center">Unir expresiones con sus significados</span>
             </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.iniciarRepaso()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl col-span-2" style="background:linear-gradient(135deg,#7f1d1d,#991b1b)">
+                <span class="text-4xl">📋</span>
+                <span class="text-white font-extrabold text-sm">Repasar palabras difíciles</span>
+                <span class="text-white/50 text-xs text-center">Spaced Repetition · SRS</span>
+            </button>
         </div>
     </div>
 </div>
@@ -1054,6 +1075,16 @@
                 <span class="text-4xl">✏️</span>
                 <span class="text-white font-extrabold text-sm">Crucigrama</span>
                 <span class="text-white/50 text-xs text-center">Completá las palabras</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.iniciarModulo(window._temaActual||'animals')" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#312e81,#4f46e5)">
+                <span class="text-4xl">📚</span>
+                <span class="text-white font-extrabold text-sm">Módulo</span>
+                <span class="text-white/50 text-xs text-center">Flujo completo</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.iniciarRepaso()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#7f1d1d,#991b1b)">
+                <span class="text-4xl">📋</span>
+                <span class="text-white font-extrabold text-sm">Repasar</span>
+                <span class="text-white/50 text-xs text-center">Palabras difíciles</span>
             </button>
         </div>
     </div>
@@ -1269,7 +1300,7 @@
                     </div>
                 </div>
                 <!-- Stat chips -->
-                <div class="flex gap-3 flex-shrink-0">
+                <div class="flex gap-3 flex-shrink-0 flex-wrap justify-end">
                     <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-100 rounded-2xl px-4 py-3 text-center podium-shadow">
                         <p class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Daily Streak</p>
                         <p class="text-lg font-extrabold text-orange-600 leading-none mt-1">🔥 <span id="adulto-streak-display">0</span></p>
@@ -1278,6 +1309,7 @@
                         <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Total XP</p>
                         <p class="text-lg font-extrabold text-blue-600 leading-none mt-1" id="adulto-xp-display">0</p>
                     </div>
+                    <button id="immersion-toggle" onclick="toggleImmersionMode()" title="English-only mode" class="bg-slate-100 border border-slate-200 rounded-2xl px-3 py-3 text-center podium-shadow font-extrabold text-xs active:scale-95 transition-all">🇬🇧 EN</button>
                 </div>
             </div>
         </div>
@@ -1341,6 +1373,13 @@
                         💡 Idioms
                     </button>
                 </div>
+                <!-- Immersive scenario buttons -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2" id="immersive-scenarios">
+                    <button onclick="iniciarEscenarioInmersivo('hotel')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-xs px-3 py-2.5 rounded-2xl transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">🏨 Hotel Check-in</button>
+                    <button onclick="iniciarEscenarioInmersivo('jobinterview')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold text-xs px-3 py-2.5 rounded-2xl transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">💼 Job Interview</button>
+                    <button onclick="iniciarEscenarioInmersivo('doctor')" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs px-3 py-2.5 rounded-2xl transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">🏥 Doctor Visit</button>
+                    <button onclick="iniciarEscenarioInmersivo('phonecall')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs px-3 py-2.5 rounded-2xl transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm">☎️ Phone Call</button>
+                </div>
                 <!-- Secondary actions -->
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="abrirJuegosAdulto()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 active:scale-95 shadow-sm">
@@ -1382,7 +1421,7 @@
             <div class="p-5 space-y-4 bg-white/60 min-h-[160px]">
                 <div class="flex items-end gap-3">
                     <div class="relative flex-shrink-0">
-                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">AI</div>
+                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[8px] font-bold shadow-sm leading-none text-center">Alex</div>
                         <!-- Wave bars — visible while AI is speaking -->
                         <div id="ai-wave-indicator" class="hidden absolute -bottom-1 -right-1 flex items-end gap-px bg-white rounded-full px-1 py-0.5 shadow-sm" style="gap:2px;">
                             <span class="wave-bar" style="height:6px;"></span>
@@ -1403,9 +1442,10 @@
                 </div>
                 <div id="ai-evaluation-wrapper" class="hidden">
                     <div class="flex items-end gap-3">
-                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">AI</div>
+                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0 shadow-sm leading-none text-center">Alex</div>
                         <div class="flex-1 min-w-0">
                             <div id="ai-evaluation" onclick="if(window._lastAIReply)hablarNativo(window._lastAIReply)" style="cursor:pointer" title="Tap to hear" class="bg-white border border-blue-100 text-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 text-sm shadow-sm leading-relaxed space-y-2"></div>
+                            <div id="grammar-note" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:8px 12px;font-size:0.75rem;color:#92400e;margin-top:6px;"></div>
                         </div>
                     </div>
                     <!-- Suggestion chips (shown when xp < 50) -->
@@ -1437,6 +1477,45 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- ═══ WEEKLY REPORT OVERLAY ═══ -->
+<div id="weekly-report-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(15,23,42,0.9);display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81,#4338ca);border-radius:24px;padding:32px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+        <div style="font-size:3rem;margin-bottom:8px;">📊</div>
+        <h2 style="color:#fff;font-size:1.3rem;font-weight:900;margin-bottom:4px;">Weekly Report</h2>
+        <p style="color:#a5b4fc;font-size:0.8rem;margin-bottom:20px;" id="wr-subtitle">This week's progress</p>
+        <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div><p style="color:#c7d2fe;font-size:0.65rem;font-weight:700;text-transform:uppercase;">XP Ganado</p><p id="wr-xp" style="color:#fff;font-size:1.4rem;font-weight:900;">0</p></div>
+            <div><p style="color:#c7d2fe;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Sesiones</p><p id="wr-sessions" style="color:#fff;font-size:1.4rem;font-weight:900;">0</p></div>
+            <div><p style="color:#c7d2fe;font-size:0.65rem;font-weight:700;text-transform:uppercase;">Racha</p><p id="wr-streak" style="color:#fbbf24;font-size:1.4rem;font-weight:900;">🔥0</p></div>
+        </div>
+        <button onclick="cerrarWeeklyReport()" style="width:100%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:800;padding:14px;border-radius:16px;border:none;font-size:1rem;cursor:pointer;active:transform:scale(0.95);">¡A practicar! 🚀</button>
+    </div>
+</div>
+
+<!-- ═══ PLACEMENT TEST OVERLAY ═══ -->
+<div id="placement-overlay" style="display:none;position:fixed;inset:0;z-index:600;overflow-y:auto;" class="flex flex-col">
+    <div style="background:linear-gradient(160deg,#0f172a,#1e1b4b,#312e81);min-height:100%;padding:24px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="max-width:400px;width:100%;">
+            <div style="text-align:center;margin-bottom:24px;">
+                <div style="font-size:3rem;">🎯</div>
+                <h2 style="color:#fff;font-size:1.5rem;font-weight:900;margin-top:8px;">Placement Test</h2>
+                <p style="color:#a5b4fc;font-size:0.85rem;margin-top:4px;">Let's find your English level!</p>
+            </div>
+            <!-- Progress bar -->
+            <div style="background:rgba(255,255,255,0.15);border-radius:999px;height:8px;margin-bottom:20px;">
+                <div id="pt-progress-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:8px;border-radius:999px;transition:width 0.5s;width:10%"></div>
+            </div>
+            <p id="pt-counter" style="color:#a5b4fc;font-size:0.75rem;font-weight:700;text-align:center;margin-bottom:12px;">Question 1 of 10</p>
+            <!-- Question card -->
+            <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:24px;margin-bottom:16px;">
+                <p id="pt-question" style="color:#fff;font-size:1rem;font-weight:700;text-align:center;line-height:1.5;"></p>
+            </div>
+            <!-- Answer buttons -->
+            <div id="pt-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+        </div>
+    </div>
 </div>
 
 <!-- ═══ LOGIC ═══ -->
@@ -1692,6 +1771,8 @@ window.cerrarFlipCards = function() {
     window.speechSynthesis.cancel();
 };
 
+window.fcExampleCache = window.fcExampleCache || {};
+
 function fcRender() {
     const card = fcState.deck[fcState.idx];
     document.getElementById('fc-emoji').textContent       = card.emoji;
@@ -1701,6 +1782,8 @@ function fcRender() {
     document.getElementById('fc-progress').textContent    = `Carta ${fcState.idx + 1} de ${fcState.deck.length}`;
     document.getElementById('fc-card-inner').style.transform = 'rotateY(0deg)';
     document.getElementById('fc-hint').textContent = '👆 Tocá para escuchar';
+    const exEl = document.getElementById('fc-example');
+    if (exEl) exEl.textContent = '';
     fcState.flipped = false;
 }
 
@@ -1710,6 +1793,25 @@ window.flipCard = function() {
     if (!fcState.flipped) {
         hablarNativo(card.word, 0.9);
         document.getElementById('fc-hint').textContent = '👆 Tocá para ver la palabra';
+        // Show example phrase (#11)
+        const exEl = document.getElementById('fc-example');
+        if (exEl) {
+            if (window.fcExampleCache[card.word]) {
+                exEl.textContent = window.fcExampleCache[card.word];
+            } else {
+                exEl.textContent = '…';
+                geminiSafeFetch({ action:'example_phrase', word: card.word, es: card.es })
+                    .then(d => {
+                        const phrase = d.example || d.phrase || `I see a ${card.word.toLowerCase()}.`;
+                        window.fcExampleCache[card.word] = phrase;
+                        if (exEl) exEl.textContent = phrase;
+                    })
+                    .catch(() => {
+                        window.fcExampleCache[card.word] = `I see a ${card.word.toLowerCase()}.`;
+                        if (exEl) exEl.textContent = window.fcExampleCache[card.word];
+                    });
+            }
+        }
     } else {
         inner.style.transform = inner.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
         if (inner.style.transform === 'rotateY(180deg)') {
@@ -2622,7 +2724,30 @@ function actualizarNivelAdulto(p) {
     const pronPctEl = document.getElementById('adulto-pron-pct');
     if (pronPctEl) { pronPctEl.textContent = pronPct+'%'; document.getElementById('adulto-pron-bar').style.width = pronPct+'%'; }
     const vocabEl = document.getElementById('adulto-vocab-count');
-    if (vocabEl) { const gKey = 'sinergia_glos_'+p.id; const glos = JSON.parse(localStorage.getItem(gKey)||'[]'); vocabEl.textContent = (glos.length || Math.round((p.score||0)/8)); }
+    let glosLen = 0;
+    if (vocabEl) { const gKey = 'sinergia_glos_'+p.id; const glos = JSON.parse(localStorage.getItem(gKey)||'[]'); glosLen = glos.length; vocabEl.textContent = (glosLen || Math.round((p.score||0)/8)); }
+    // Radar chart with real data (#7)
+    const radarFill = document.getElementById('radar-fill');
+    if (radarFill) {
+        const R = 45;
+        const shadowAvg = (p.shadowingScores && p.shadowingScores.length)
+            ? p.shadowingScores.reduce((a,b)=>a+b,0)/p.shadowingScores.length : 0;
+        const speakingR  = Math.round(shadowAvg / 100 * R);
+        const vocabR     = Math.round(Math.min(1, (glosLen || Math.round((p.score||0)/8)) / 50) * R);
+        const grammarR   = Math.round(Math.min(1, (p.score||0) / 1000) * R);
+        const listeningR = Math.round(Math.min(1, (p.storiesRead||0) / 10) * R);
+        const readingR   = Math.round(Math.min(1, (p.score||0) / 800) * R);
+        const writingR   = Math.round(Math.min(1, (p.chatSessions||0) / 20) * R);
+        // Hexagon vertices (6 axes at 60° intervals, starting at top)
+        const angles = [-90,-30,30,90,150,210];
+        const radii  = [speakingR, vocabR, grammarR, listeningR, readingR, writingR];
+        const pts = angles.map((a,i) => {
+            const r = Math.max(4, radii[i]);
+            const rad = a * Math.PI / 180;
+            return `${Math.round(r * Math.cos(rad))},${Math.round(r * Math.sin(rad))}`;
+        }).join(' ');
+        radarFill.setAttribute('points', pts);
+    }
 }
 
 function actualizarBadgesTemas(p) {
@@ -2671,6 +2796,20 @@ window.cambiarPerfil = function(id) {
     window.perfilActualId = id;
     const p = window.familia[id];
     p.scoreInicioSesion = p.score;
+    // Streak tracking (#9)
+    const today = new Date().toISOString().slice(0,10);
+    const last  = p.ultimaActividad || '';
+    if (last === '') {
+        p.racha = 1;
+    } else if (last === today) {
+        // same day, no change
+    } else {
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+        if (last === yesterday) { p.racha = (p.racha || 0) + 1; }
+        else { p.racha = 1; }
+    }
+    p.ultimaActividad = today;
+    guardarEstado();
     document.getElementById('vista-infantil').classList.add('hidden');
     document.getElementById('vista-adultos').classList.add('hidden');
 
@@ -2694,6 +2833,11 @@ window.cambiarPerfil = function(id) {
         document.getElementById('zona-conversacion-adulto').classList.add('hidden');
         actualizarNivelAdulto(p);
         window.cargarEscenarioFijoAdulto('airport');
+        // Check placement test (#15) and weekly report (#8)
+        setTimeout(() => {
+            checkPlacementTest && checkPlacementTest(p);
+            window.checkWeeklyReport && window.checkWeeklyReport(p);
+        }, 500);
     }
 
     document.querySelectorAll('.profile-btn').forEach(btn => {
@@ -3354,6 +3498,7 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
             playFX && playFX('wrong');
             fb.textContent = '🔍 ¡Intentá de nuevo!';
             fb.style.color = '#fca5a5';
+            window.srsMarkFailed && window.srsMarkFailed(agWord);
             // Shake answer
             const ansEl = document.getElementById('ag-answer');
             ansEl.style.transform = 'translateX(-6px)';
@@ -3370,7 +3515,14 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
             const letters = c.word.replace(/[^A-Z]/g,'');
             return letters.length >= 3 && letters.length <= maxLen && !c.word.includes(' ');
         });
-        const card = pool[Math.floor(Math.random() * pool.length)];
+        let card;
+        // SRS: 30% of the time pick a due word
+        const dueWordsAg = window.srsGetDue ? window.srsGetDue() : [];
+        if (dueWordsAg.length && Math.random() < 0.3) {
+            const dueCard = pool.find(c => dueWordsAg.includes(c.word) || dueWordsAg.includes(c.word.toUpperCase()));
+            if (dueCard) card = dueCard;
+        }
+        if (!card) card = pool[Math.floor(Math.random() * pool.length)];
         agWord = card.word.toUpperCase().replace(/[^A-Z]/g,'');
 
         // Shuffle letters, ensure not identical to word
@@ -3509,6 +3661,7 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
                 hablarNativo(word.toLowerCase());
                 showFeedback('💀 Era: ' + word, '#fee2e2', '#991b1b');
                 document.getElementById('ah-next-btn').classList.remove('hidden');
+                window.srsMarkFailed && window.srsMarkFailed(word);
             }
         }
     }
@@ -3524,7 +3677,14 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
     window.ahorcadoNuevaPalabra = function() {
         const srcDecks = window._adultMode ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
         const pool = srcDecks.filter(c => c.word.replace(/[^A-Z]/g,'').length >= 3);
-        const card = pool[Math.floor(Math.random() * pool.length)];
+        let card;
+        // SRS: 30% of the time pick a due word
+        const dueWords = window.srsGetDue ? window.srsGetDue() : [];
+        if (dueWords.length && Math.random() < 0.3) {
+            const dueCard = pool.find(c => dueWords.includes(c.word) || dueWords.includes(c.word.toUpperCase()));
+            if (dueCard) card = dueCard;
+        }
+        if (!card) card = pool[Math.floor(Math.random() * pool.length)];
         word = card.word.replace(/[^A-Z]/g, ''); // letters only (handles multi-word → show full)
         // For multi-word cards, keep spaces visible
         const raw = card.word.toUpperCase().replace(/[^A-Z ]/g, '').trim();
@@ -5034,13 +5194,36 @@ function mostrarResultadoShadowing() {
     document.getElementById('shadow-trophy').innerText = trophy;
     document.getElementById('shadow-final-score').innerText = `Score: ${avg}/100`;
     document.getElementById('shadow-final-msg').innerText = msg;
+    // Score ring (#2)
+    const canvas = document.getElementById('shadow-score-ring');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,100,100);
+        // Background ring
+        ctx.beginPath(); ctx.arc(50,50,38,0,Math.PI*2);
+        ctx.strokeStyle='#334155'; ctx.lineWidth=10; ctx.stroke();
+        // Score arc
+        const color = avg>=80?'#10b981':avg>=50?'#f59e0b':'#ef4444';
+        ctx.beginPath();
+        ctx.arc(50,50,38,-Math.PI/2,-Math.PI/2+(Math.PI*2*(avg/100)));
+        ctx.strokeStyle=color; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+        // Center text
+        ctx.fillStyle='#fff'; ctx.font='bold 22px Plus Jakarta Sans,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(avg, 50, 50);
+    }
     document.getElementById('shadow-result-area').classList.remove('hidden');
 
     const p = window.familia[window.perfilActualId];
+    if (!p.shadowingScores) p.shadowingScores = [];
+    p.shadowingScores.push(avg);
+    if (p.shadowingScores.length > 20) p.shadowingScores = p.shadowingScores.slice(-20);
     p.score += Math.round(avg / 2); p.scoreSemanal = (p.scoreSemanal||0) + Math.round(avg / 2);
     guardarEstado();
     actualizarLeaderboardUI();
     hablarNativo(avg >= 80 ? 'Excellent! Perfect shadowing!' : 'Good job! Keep practicing!');
+    // Advance module if active (#10)
+    if (window._moduleStep !== undefined) avanzarModulo();
 }
 
 window.cerrarShadowing = function() {
@@ -5095,6 +5278,8 @@ window.cargarNuevoStory = function() {
 };
 async function _cargarNuevoStory() {
     const p = window.familia[window.perfilActualId];
+    p.storiesRead = (p.storiesRead || 0) + 1;
+    guardarEstado();
     showEl('storyteller-loading');
     storytellerStop();
     try {
@@ -5543,6 +5728,248 @@ function removeTraducciones() {
 }
 </script>
 
+<!-- ═══ NEW FEATURES JS ═══ -->
+<script type="text/javascript">
+
+// ── #14 SRS ──────────────────────────────────────────────────────────────────
+window.srsMarkFailed = function(word) {
+    const p = window.familia[window.perfilActualId];
+    if (!p) return;
+    if (!p.srsData) p.srsData = {};
+    const entry = p.srsData[word] || { failures:0, nextReview:0 };
+    entry.failures = (entry.failures || 0) + 1;
+    const days = Math.min(7, entry.failures);
+    entry.nextReview = Date.now() + days * 24 * 3600 * 1000;
+    p.srsData[word] = entry;
+    guardarEstado();
+};
+
+window.srsGetDue = function() {
+    const p = window.familia[window.perfilActualId];
+    if (!p || !p.srsData) return [];
+    const now = Date.now();
+    return Object.entries(p.srsData)
+        .filter(([,v]) => v.nextReview <= now)
+        .map(([w]) => w)
+        .slice(0, 3);
+};
+
+window.iniciarRepaso = function() {
+    const due = window.srsGetDue();
+    if (!due.length) {
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);background:#065f46;color:#fff;font-weight:700;padding:12px 20px;border-radius:16px;z-index:9999;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
+        msg.textContent = '✅ ¡No tenés palabras para repasar ahora!';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 2500);
+        return;
+    }
+    // Build a mini flip-deck from due words
+    const allDecks = Object.values(FLIP_DECKS).flat().concat(Object.values(ADULT_DECKS||{}).flat());
+    const cards = due.map(w => allDecks.find(c => c.word === w || c.word === w.toUpperCase()) || {emoji:'📋',word:w,es:'?'});
+    window.fcState = { deck: cards, idx:0, flipped:false };
+    document.getElementById('flipcards-overlay').classList.remove('hidden');
+    fcRender();
+    setTimeout(() => hablarNativo(cards[0].word, 0.75), 400);
+};
+
+// ── #4 Immersive Scenarios ─────────────────────────────────────────────────
+const IMMERSIVE_SCENE_DATA = {
+    hotel:       { titulo:'Hotel Check-in',   opening:'Good evening! Welcome to our hotel. Do you have a reservation with us today?',          systemInfo:'You are Alex, a friendly British English tutor. Hotel reception desk scenario. Guest is checking in.' },
+    jobinterview:{ titulo:'Job Interview',     opening:'Please have a seat. Thank you for coming in today. Could you start by telling me a little about yourself?', systemInfo:'You are Alex, a friendly British English tutor. Professional job interview. Practice formal English.' },
+    doctor:      { titulo:'Doctor Visit',      opening:'Good morning! I am Dr. Smith. What seems to be the problem today? How long have you been feeling this way?', systemInfo:'You are Alex, a friendly British English tutor. Doctor consultation scenario. Medical English vocabulary.' },
+    phonecall:   { titulo:'Phone Call',        opening:'Hello! Thank you for calling. How can I assist you today?',                              systemInfo:'You are Alex, a friendly British English tutor. English phone call scenario. Practice telephone English.' },
+};
+window.iniciarEscenarioInmersivo = function(tipo) {
+    const scene = IMMERSIVE_SCENE_DATA[tipo];
+    if (!scene) return;
+    const p = window.familia[window.perfilActualId];
+    document.getElementById('zona-conversacion-adulto').classList.remove('hidden');
+    limpiarHistorialChat && limpiarHistorialChat();
+    window.escenarioAdultoActivo = { titulo: scene.titulo, prompt: scene.opening, systemInfo: scene.systemInfo, initialPrompt: scene.opening };
+    window._lastAIReply = scene.opening;
+    document.getElementById('escenario-titulo').innerText = scene.titulo;
+    renderWordClickablePrompt(scene.opening, '', 'chat-prompt');
+    document.getElementById('user-transcript-wrapper').classList.add('hidden');
+    document.getElementById('ai-evaluation-wrapper').classList.add('hidden');
+    document.getElementById('suggestion-chips').classList.add('hidden');
+    hablarNativo(scene.opening);
+    document.getElementById('zona-conversacion-adulto').scrollIntoView({ behavior:'smooth' });
+};
+
+// ── #5 Alex personality already injected via systemInfo in dispatchGeminiVoz ──
+
+// ── #8 Weekly Report ─────────────────────────────────────────────────────────
+window.checkWeeklyReport = function(p) {
+    if (!p || p.tipo !== 'adulto') return;
+    if (!p.scoreSemanal || p.scoreSemanal <= 0) return;
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon
+    const daysSinceSeen = p.weeklyReportSeen
+        ? Math.floor((Date.now() - p.weeklyReportSeen) / 86400000)
+        : 999;
+    if (dayOfWeek !== 1 && daysSinceSeen < 7) return;
+    p.weeklyReportSeen = Date.now();
+    guardarEstado();
+    document.getElementById('wr-xp').textContent = p.scoreSemanal || 0;
+    document.getElementById('wr-sessions').textContent = p.chatSessions || 0;
+    document.getElementById('wr-streak').textContent = '🔥' + (p.racha || 0);
+    document.getElementById('wr-subtitle').textContent = `${p.nombre.split(' ')[0]}'s weekly progress`;
+    const el = document.getElementById('weekly-report-overlay');
+    el.style.display = 'flex';
+};
+window.cerrarWeeklyReport = function() {
+    document.getElementById('weekly-report-overlay').style.display = 'none';
+};
+
+// ── #10 Module flow ───────────────────────────────────────────────────────────
+window._moduleStep = undefined;
+window._moduleTema = null;
+const MODULE_STEPS = ['tarjetas','mision','shadowing','juegos'];
+window.iniciarModulo = function(tema) {
+    window._moduleStep = 0;
+    window._moduleTema = tema || 'animals';
+    actualizarModulePill();
+    ejecutarStepModulo();
+};
+window.avanzarModulo = function() {
+    if (window._moduleStep === undefined) return;
+    window._moduleStep++;
+    if (window._moduleStep >= MODULE_STEPS.length) {
+        window._moduleStep = undefined;
+        document.getElementById('module-progress-pill').style.display = 'none';
+        const msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:800;padding:14px 24px;border-radius:18px;z-index:9999;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.4);text-align:center;';
+        msg.textContent = '🏆 ¡Módulo completado! +200 XP';
+        document.body.appendChild(msg);
+        const p = window.familia[window.perfilActualId];
+        if (p) { p.score += 200; p.scoreSemanal = (p.scoreSemanal||0)+200; guardarEstado(); }
+        setTimeout(() => msg.remove(), 3000);
+        return;
+    }
+    actualizarModulePill();
+    ejecutarStepModulo();
+};
+window.cancelarModulo = function() {
+    window._moduleStep = undefined;
+    document.getElementById('module-progress-pill').style.display = 'none';
+};
+function actualizarModulePill() {
+    const step = window._moduleStep;
+    const pill = document.getElementById('module-progress-pill');
+    if (!pill) return;
+    pill.style.display = '';
+    document.getElementById('module-step-label').textContent = `Paso ${step+1}/${MODULE_STEPS.length}`;
+    document.getElementById('module-step-fill').style.width = ((step+1)/MODULE_STEPS.length*100)+'%';
+}
+function ejecutarStepModulo() {
+    const step = MODULE_STEPS[window._moduleStep];
+    const tema = window._moduleTema;
+    if (step === 'tarjetas') {
+        const temaToFlipDeck = { greetings:'Greetings',numbers:'Numbers',colors:'Colors',travel:'Travel',animals:'Animals',food:'Food',clothes:'Clothes',weather:'Weather',family:'Family',feelings:'Feelings',koala:'Koala',sea:'Sea' };
+        mostrarFlipCards(temaToFlipDeck[tema] || 'Animals');
+    } else if (step === 'mision') {
+        irAMisionDirecta(tema);
+    } else if (step === 'shadowing') {
+        iniciarShadowing && iniciarShadowing();
+    } else if (step === 'juegos') {
+        document.getElementById('gamepicker-overlay').classList.remove('hidden');
+    }
+}
+
+// ── #12 Immersion mode ────────────────────────────────────────────────────────
+window.toggleImmersionMode = function() {
+    const on = document.body.dataset.immersion !== 'true';
+    document.body.dataset.immersion = on ? 'true' : 'false';
+    localStorage.setItem('sinergia_immersion', on ? '1' : '0');
+    const btn = document.getElementById('immersion-toggle');
+    if (btn) {
+        btn.textContent = on ? '🇬🇧 ON' : '🇬🇧 EN';
+        btn.style.background = on ? '#fef3c7' : '';
+        btn.style.color = on ? '#92400e' : '';
+        btn.style.borderColor = on ? '#fde68a' : '';
+    }
+};
+// Load saved preference
+(function() {
+    const saved = localStorage.getItem('sinergia_immersion');
+    if (saved === '1') {
+        document.body.dataset.immersion = 'true';
+        setTimeout(() => {
+            const btn = document.getElementById('immersion-toggle');
+            if (btn) { btn.textContent = '🇬🇧 ON'; btn.style.background = '#fef3c7'; btn.style.color = '#92400e'; btn.style.borderColor = '#fde68a'; }
+        }, 100);
+    }
+})();
+
+// ── #15 Placement Test ────────────────────────────────────────────────────────
+const PT_QUESTIONS = [
+    { q:'What is this? 🐕', opts:['A dog','A cat','A bird','A fish'], correct:0 },
+    { q:'What colour is the sky? ☁️', opts:['Red','Blue','Green','Yellow'], correct:1 },
+    { q:'How many fingers? ✋', opts:['Three','Four','Five','Six'], correct:2 },
+    { q:'Complete: "She ___ a teacher."', opts:['are','is','am','be'], correct:1 },
+    { q:'Complete: "They ___ to school every day."', opts:['goes','go','going','gone'], correct:1 },
+    { q:'Complete: "I have ___ eating lunch."', opts:['finished','finish','finishing','finishes'], correct:0 },
+    { q:'What does "give up" mean?', opts:['Start something','Surrender/quit','Continue','Improve'], correct:1 },
+    { q:'"Look after" means…', opts:['Look behind','Take care of','Look for','Search'], correct:1 },
+    { q:'Which sentence is correct?', opts:['I went to store yesterday.','I go to the store yesterday.','I went to the store yesterday.','I goes to the store yesterday.'], correct:2 },
+    { q:'Which is the passive voice?', opts:['She wrote the report.','The report was written by her.','She is writing the report.','She had wrote the report.'], correct:1 },
+];
+window._ptScore = 0;
+window._ptCurrent = 0;
+window.iniciarPlacementTest = function() {
+    window._ptScore = 0;
+    window._ptCurrent = 0;
+    document.getElementById('placement-overlay').style.display = '';
+    window.renderPlacementQuestion();
+};
+window.renderPlacementQuestion = function() {
+    const i = window._ptCurrent;
+    const q = PT_QUESTIONS[i];
+    document.getElementById('pt-counter').textContent = `Question ${i+1} of ${PT_QUESTIONS.length}`;
+    document.getElementById('pt-progress-bar').style.width = ((i+1)/PT_QUESTIONS.length*100)+'%';
+    document.getElementById('pt-question').textContent = q.q;
+    const container = document.getElementById('pt-answers');
+    container.innerHTML = '';
+    q.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.cssText = 'background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:700;padding:12px;border-radius:14px;font-size:0.82rem;cursor:pointer;text-align:left;transition:all 0.15s;';
+        btn.onclick = () => window.responderPlacement(idx);
+        container.appendChild(btn);
+    });
+};
+window.responderPlacement = function(answerIdx) {
+    const q = PT_QUESTIONS[window._ptCurrent];
+    if (answerIdx === q.correct) window._ptScore++;
+    window._ptCurrent++;
+    if (window._ptCurrent >= PT_QUESTIONS.length) {
+        window.terminarPlacementTest();
+    } else {
+        window.renderPlacementQuestion();
+    }
+};
+window.terminarPlacementTest = function() {
+    const s = window._ptScore;
+    const nivel = s <= 3 ? 'Starter' : s <= 5 ? 'Elementary' : s <= 7 ? 'Pre-Intermediate' : s <= 9 ? 'Intermediate' : 'Upper-Intermediate';
+    const p = window.familia[window.perfilActualId];
+    if (p) { p.nivel = nivel; p.placementDone = true; guardarEstado(); }
+    document.getElementById('placement-overlay').style.display = 'none';
+    const msg = document.createElement('div');
+    msg.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1e1b4b,#4f46e5);color:#fff;font-weight:800;padding:16px 24px;border-radius:18px;z-index:9999;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;max-width:280px;';
+    msg.innerHTML = `🎯 Tu nivel: <b>${nivel}</b><br><span style="font-weight:400;font-size:12px;">${s}/10 respuestas correctas</span>`;
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 4000);
+    if (p) actualizarNivelAdulto(p);
+};
+function checkPlacementTest(p) {
+    if (p && p.score === 0 && !p.placementDone && p.tipo === 'adulto') {
+        setTimeout(() => window.iniciarPlacementTest(), 800);
+    }
+}
+
+</script>
+
 <!-- ═══ VERCEL CONNECTION ═══ -->
 <script type="text/javascript">
 // Fetch with 10s AbortController timeout
@@ -5614,7 +6041,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         const data = await geminiSafeFetch({
             action:'evaluate_voice', textInput: textoVozReal,
             level: p.nivel, currentPrompt: window.escenarioAdultoActivo.prompt,
-            systemInfo: window.escenarioAdultoActivo.systemInfo
+            systemInfo: 'You are Alex, a friendly British English tutor. ' + (window.escenarioAdultoActivo.systemInfo || '')
         });
         if (data.error) throw new Error(data.error);
         if (queryId !== window._currentQueryId) return; // stale response, discard
@@ -5622,6 +6049,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
         // Update XP, streak, interaction counter
         p.score += data.xp; p.scoreSemanal = (p.scoreSemanal||0) + data.xp;
         p.interaccionesEscena = (p.interaccionesEscena || 0) + 1;
+        p.chatSessions = (p.chatSessions || 0) + 1;
         registrarXpRachaFamiliar(p.id, data.xp);
         if (data.xp >= 50) {
             p.racha = (p.racha || 0) + 1;
@@ -5649,6 +6077,22 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
                 </div>
                 <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP${p.racha >= 2 ? ` · 🔥 ${p.racha} streak!` : ''}</p>
             </div>`;
+
+        // Grammar note (#6)
+        const grammarNoteEl = document.getElementById('grammar-note');
+        if (grammarNoteEl) {
+            const corrText = data.correction || '';
+            const grammarMatch = corrText.match(/Grammar tip[:：]\s*(.+)/i);
+            if (grammarMatch) {
+                grammarNoteEl.textContent = '📝 ' + grammarMatch[1];
+                grammarNoteEl.style.display = '';
+            } else if (corrText && corrText.length > 5 && corrText !== 'Great job!') {
+                grammarNoteEl.textContent = '📝 ' + corrText;
+                grammarNoteEl.style.display = '';
+            } else {
+                grammarNoteEl.style.display = 'none';
+            }
+        }
 
         // Suggestions when xp is low
         const chips = document.getElementById('suggestion-chips');
