@@ -3584,7 +3584,7 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
         cwWords.forEach(w=>{
             const d=document.createElement('div');
             d.style.cssText='display:flex;align-items:center;gap:6px;font-size:12px;color:#e2e8f0;padding:2px 0;';
-            d.innerHTML=`<span style="font-weight:800;color:#c4b5fd;min-width:22px">${w.num}${w.dir==='H'?'→':'↓'}</span><span>${w.emoji}</span><span style="opacity:0.6">${w.es}</span><span style="margin-left:auto;font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:0.05em">${'_'.repeat(w.word.length)}</span>`;
+            d.innerHTML=`<span style="font-weight:800;color:#c4b5fd;min-width:22px">${w.num}${w.dir==='H'?'→':'↓'}</span><span>${w.emoji}</span><span style="font-weight:700;color:#fff">${w.word}</span><span style="opacity:0.55;margin-left:4px">${w.es}</span><span style="margin-left:auto;font-size:10px;color:#a78bfa;font-weight:600;letter-spacing:0.05em">${'_'.repeat(w.word.length)}</span>`;
             cluesEl.appendChild(d);
         });
 
@@ -6007,17 +6007,20 @@ window.srsGetDue = function() {
 
 window.iniciarRepaso = function() {
     const due = window.srsGetDue();
-    if (!due.length) {
-        const msg = document.createElement('div');
-        msg.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);background:#065f46;color:#fff;font-weight:700;padding:12px 20px;border-radius:16px;z-index:9999;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
-        msg.textContent = '✅ ¡No tenés palabras para repasar ahora!';
-        document.body.appendChild(msg);
-        setTimeout(() => msg.remove(), 2500);
-        return;
-    }
-    // Build a mini flip-deck from due words
     const allDecks = Object.values(FLIP_DECKS).flat().concat(Object.values(ADULT_DECKS||{}).flat());
-    const cards = due.map(w => allDecks.find(c => c.word === w || c.word === w.toUpperCase()) || {emoji:'📋',word:w,es:'?'});
+    let cards = due.map(w => allDecks.find(c => c.word === w || c.word === w.toUpperCase()) || {emoji:'📋',word:w,es:'?'}).filter(c => c.word);
+    if (!cards.length) {
+        // No SRS words yet — show a random selection of 6 words to practice
+        const p = window.familia[window.perfilActualId];
+        const isAdult = p && p.tipo === 'adulto';
+        const pool = isAdult ? Object.values(ADULT_DECKS||{}).flat() : Object.values(FLIP_DECKS).flat();
+        cards = [...pool].sort(()=>Math.random()-0.5).slice(0, 6);
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:#fff;font-weight:700;padding:10px 18px;border-radius:14px;z-index:9999;font-size:12px;text-align:center;max-width:260px;';
+        toast.textContent = '📚 Repaso aleatorio — jugá más para acumular palabras difíciles';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
     window.fcState = { deck: cards, idx:0, flipped:false };
     document.getElementById('flipcards-overlay').classList.remove('hidden');
     fcRender();
@@ -6655,21 +6658,46 @@ window.tabooSubmit = async function(transcript) {
     document.getElementById('taboo-mic-area').style.display = 'none';
     document.getElementById('taboo-result').style.display = 'block';
     document.getElementById('taboo-result-text').textContent = '⏳ Thinking…';
+    // Local check: does the description contain the target word or its translation?
+    const target = (_tabooState.word?.word || '').toLowerCase();
+    const esHint = (_tabooState.word?.es || '').toLowerCase();
+    const localCorrect = lower.includes(target) || lower.includes(esHint) ||
+        target.split('').filter(c=>c!=' ').every(c => lower.includes(c)); // loose: all letters mentioned
+    // Also check if description is meaningful (at least 3 words)
+    const wordCount = transcript.trim().split(/\s+/).length;
+    if (wordCount < 2) {
+        document.getElementById('taboo-result').style.display = 'none';
+        document.getElementById('taboo-mic-area').style.display = 'block';
+        document.getElementById('taboo-transcript-display').textContent = '⚠️ Describí con más palabras…';
+        _tabooTabStop(); window.tabooStart(); return;
+    }
     try {
         const data = await geminiSafeFetch({ action:'taboo_guess', description: transcript, targetWord: _tabooState.word?.word });
-        const correct = data.correct || (data.reply && data.reply.toLowerCase().includes(_tabooState.word?.word?.toLowerCase()));
+        const correct = data.correct === true || localCorrect ||
+            (data.reply && data.reply.toLowerCase().includes(target));
         if (correct) {
             _tabooState.score += 50;
             document.getElementById('taboo-score-badge').textContent = _tabooState.score + ' pts';
             const p = window.familia[window.perfilActualId];
             if (p) { p.score += 50; guardarEstado(); }
             lanzarEstrellas && lanzarEstrellas();
-            document.getElementById('taboo-result-text').textContent = '🎉 ¡Correcto! +50 XP';
+            hablarNativo && hablarNativo('Correct! ' + (_tabooState.word?.word||''), 0.9);
+            document.getElementById('taboo-result-text').textContent = '🎉 ¡Correcto! The word was: ' + (_tabooState.word?.word||'') + ' — +50 XP';
         } else {
-            document.getElementById('taboo-result-text').textContent = '❌ The word was: ' + (_tabooState.word?.word || '') + '\nAI guessed: ' + (data.guess || data.reply || '?');
+            document.getElementById('taboo-result-text').textContent = '❌ The word was: ' + (_tabooState.word?.word || '');
         }
     } catch(e) {
-        document.getElementById('taboo-result-text').textContent = '📡 Sin conexión. The word was: ' + (_tabooState.word?.word || '');
+        // Offline fallback: use local check
+        if (localCorrect) {
+            _tabooState.score += 50;
+            document.getElementById('taboo-score-badge').textContent = _tabooState.score + ' pts';
+            const p = window.familia[window.perfilActualId];
+            if (p) { p.score += 50; guardarEstado(); }
+            lanzarEstrellas && lanzarEstrellas();
+            document.getElementById('taboo-result-text').textContent = '🎉 ¡Bien! The word was: ' + (_tabooState.word?.word||'') + ' — +50 XP';
+        } else {
+            document.getElementById('taboo-result-text').textContent = '📡 Sin conexión. The word was: ' + (_tabooState.word?.word || '');
+        }
     }
 };
 
@@ -6764,8 +6792,13 @@ window.cerrarMemory = function() {
 window.iniciarMemory = function() {
     const tema = window._temaActual || 'Animals';
     const deckKey = Object.keys(FLIP_DECKS).find(k => k.toLowerCase() === (tema||'').toLowerCase()) || 'Animals';
-    const pool = FLIP_DECKS[deckKey] || FLIP_DECKS['Animals'];
-    const picked = pool.sort(()=>Math.random()-0.5).slice(0,8);
+    const base = FLIP_DECKS[deckKey] || FLIP_DECKS['Animals'];
+    // Never mutate original array — spread first, then shuffle
+    const pool = [...base].sort(()=>Math.random()-0.5);
+    // If deck has fewer than 8 cards, pad from Animals
+    const extra = [...FLIP_DECKS['Animals']].sort(()=>Math.random()-0.5);
+    while (pool.length < 8) pool.push(extra[pool.length % extra.length]);
+    const picked = pool.slice(0, 8);
     const pairs = [...picked, ...picked].sort(()=>Math.random()-0.5);
     _memState = { cards: pairs, flipped: [], matched: 0, locked: false };
     document.getElementById('memory-score-badge').textContent = '0/8';
