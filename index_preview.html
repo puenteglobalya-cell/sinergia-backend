@@ -407,7 +407,7 @@
     </div>
     <!-- Word of the Day card (A) -->
     <div id="wod-card" class="mt-5 w-full max-w-xs sm:max-w-sm rounded-3xl p-5 text-center space-y-2 slide-up-4" style="background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.08));border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(12px);">
-        <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest">✨ Palabra del Día</p>
+        <p id="word-of-day-label" class="text-white/60 text-[10px] font-bold uppercase tracking-widest">✨ Palabra del Día</p>
         <div id="wod-emoji" class="text-5xl leading-none">🐶</div>
         <p id="wod-word" class="text-white font-extrabold text-2xl tracking-wider"></p>
         <p id="wod-es" class="text-indigo-200 font-semibold text-sm"></p>
@@ -419,7 +419,7 @@
 <div id="nivel-up-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] hidden">
     <div class="bg-white rounded-3xl p-8 text-center space-y-4 shadow-2xl wm-pop max-w-xs mx-4" style="box-shadow:0 24px 64px rgba(0,88,190,0.18),0 2px 8px rgba(0,0,0,0.08);">
         <div class="text-6xl" id="nivel-up-icon">🚀</div>
-        <h2 class="text-2xl font-extrabold text-slate-800">¡Subiste de nivel!</h2>
+        <h2 id="nivel-up-title" class="text-2xl font-extrabold text-slate-800">¡Subiste de nivel!</h2>
         <p id="nivel-up-msg" class="text-slate-500 text-sm leading-relaxed"></p>
         <button onclick="document.getElementById('nivel-up-overlay').classList.add('hidden')" class="text-white font-bold px-8 py-3 rounded-2xl w-full active:scale-95 transition-all neo-btn" style="background:linear-gradient(135deg,#0058be,#4f46e5);">¡Genial! 🎉</button>
     </div>
@@ -432,16 +432,16 @@
         <h2 class="text-xl font-extrabold text-slate-800" id="mood-titulo">¿Cómo estás hoy?</h2>
         <div class="grid grid-cols-2 gap-3">
             <button onclick="window.seleccionarMood('tired')" class="flex flex-col items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl p-4 active:scale-95 transition-all">
-                <span class="text-4xl">😴</span><span class="font-bold text-slate-700 text-sm">Cansado</span>
+                <span class="text-4xl">😴</span><span id="mood-tired" class="font-bold text-slate-700 text-sm">😴 Cansado/a</span>
             </button>
             <button onclick="window.seleccionarMood('good')" class="flex flex-col items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl p-4 active:scale-95 transition-all">
-                <span class="text-4xl">😊</span><span class="font-bold text-emerald-700 text-sm">Bien</span>
+                <span class="text-4xl">😊</span><span id="mood-good" class="font-bold text-emerald-700 text-sm">😊 Bien</span>
             </button>
             <button onclick="window.seleccionarMood('energetic')" class="flex flex-col items-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl p-4 active:scale-95 transition-all">
-                <span class="text-4xl">🚀</span><span class="font-bold text-blue-700 text-sm">Energético</span>
+                <span class="text-4xl">🚀</span><span id="mood-energetic" class="font-bold text-blue-700 text-sm">🚀 Energético/a</span>
             </button>
             <button onclick="window.seleccionarMood('stressed')" class="flex flex-col items-center gap-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-2xl p-4 active:scale-95 transition-all">
-                <span class="text-4xl">😤</span><span class="font-bold text-rose-700 text-sm">Estresado</span>
+                <span class="text-4xl">😤</span><span id="mood-stressed" class="font-bold text-rose-700 text-sm">😤 Estresado/a</span>
             </button>
         </div>
         <p id="mood-ease-msg" class="text-blue-500 font-semibold text-sm" style="display:none;">Take it easy today 💙</p>
@@ -451,14 +451,14 @@
 <!-- ═══ DIARIO OVERLAY (D) ═══ -->
 <div id="diario-overlay" class="fixed inset-0 z-[300] flex flex-col" style="background:rgba(15,23,42,0.98);display:none;">
     <div class="flex items-center justify-between px-4 py-4 border-b border-slate-700 flex-shrink-0">
-        <h2 class="text-white font-extrabold text-lg">📝 My English Diary</h2>
+        <h2 id="diario-title" class="text-white font-extrabold text-lg">📝 My English Diary</h2>
         <button onclick="window.cerrarDiario()" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-800 transition-colors">✕</button>
     </div>
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         <div class="space-y-2">
             <textarea id="diario-input" rows="4" placeholder="Write 2-3 sentences about your day in English…"
                 class="w-full bg-slate-800 border border-slate-600 text-white rounded-2xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500"></textarea>
-            <button onclick="window.enviarEntradaDiario()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all">✓ Submit</button>
+            <button id="diario-send-btn" onclick="window.enviarEntradaDiario()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 rounded-2xl text-sm active:scale-95 transition-all">✓ Submit</button>
         </div>
         <div id="diario-feedback" class="hidden bg-slate-800 border border-slate-600 rounded-2xl p-4 text-slate-200 text-sm leading-relaxed"></div>
         <div id="diario-past-entries" class="space-y-3"></div>
@@ -469,7 +469,7 @@
 <div id="taboo-overlay" class="fixed inset-0 z-[200] flex flex-col" style="background:linear-gradient(160deg,#0f172a 0%,#1e293b 60%,#0c1a2e 100%);display:none;">
     <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
         <button onclick="window.cerrarTaboo()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
-        <h2 class="font-extrabold text-white text-base">🚫 Taboo</h2>
+        <h2 id="taboo-title" class="font-extrabold text-white text-base">🚫 Taboo</h2>
         <span id="taboo-score-badge" class="text-yellow-300 font-bold text-xs">0 pts</span>
     </div>
     <div class="flex-1 flex flex-col items-center justify-center px-4 gap-5">
@@ -541,7 +541,7 @@
 <div id="memory-overlay" class="fixed inset-0 z-[200] flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#0f172a 0%,#1e293b 60%,#0c1a2e 100%);display:none;">
     <div class="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
         <button onclick="window.cerrarMemory()" class="text-white/50 hover:text-white font-bold text-sm active:scale-95">✕ Cerrar</button>
-        <h2 class="font-extrabold text-white text-base">🃏 Memory Match</h2>
+        <h2 id="memory-title" class="font-extrabold text-white text-base">🃏 Memory Match</h2>
         <span id="memory-score-badge" class="text-yellow-300 font-bold text-xs">0/8</span>
     </div>
     <div id="memory-grid" class="flex-1 grid grid-cols-4 gap-2 px-3 pb-4 content-center max-w-sm mx-auto w-full"></div>
@@ -552,12 +552,12 @@
     <div class="text-center space-y-5 p-8">
         <div id="levelup-emoji" class="text-7xl levelup-bounce">🌟</div>
         <div class="levelup-anim space-y-2">
-            <p class="text-white/70 font-bold text-sm uppercase tracking-widest">¡Subiste de nivel!</p>
+            <p id="levelup-msg" class="text-white/70 font-bold text-sm uppercase tracking-widest">¡Subiste de nivel!</p>
             <p id="levelup-old" class="text-slate-400 text-xl font-bold line-through"></p>
             <p class="text-yellow-400 text-4xl">✨</p>
             <p id="levelup-new" class="text-white font-extrabold text-3xl bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent"></p>
         </div>
-        <p class="text-slate-400 text-xs mt-4">Tap to continue</p>
+        <p id="levelup-tap" class="text-slate-400 text-xs mt-4">Tap to continue</p>
     </div>
 </div>
 
@@ -736,7 +736,7 @@
         <!-- Header -->
         <div class="px-5 pt-5 pb-3 flex justify-between items-center">
             <div>
-                <p class="text-xs font-extrabold text-violet-500 uppercase tracking-widest">🃏 Tarjetas Mágicas</p>
+                <p id="fc-deck-label" class="text-xs font-extrabold text-violet-500 uppercase tracking-widest">🃏 Tarjetas Mágicas</p>
                 <p id="fc-progress" class="text-slate-400 text-xs mt-0.5">Carta 1 de 6</p>
             </div>
             <button onclick="cerrarFlipCards()" class="text-slate-400 w-10 h-10 flex items-center justify-center rounded-xl text-2xl hover:bg-slate-100 transition-colors active:scale-95">✕</button>
@@ -876,6 +876,7 @@
                     </div>
                 </div>
                 <div class="flex gap-3 items-center flex-shrink-0">
+                    <button onclick="window.langCycle()" id="global-lang-btn" style="font-size:1.1rem;background:none;border:none;cursor:pointer;padding:2px;" title="Cambiar idioma">🌐</button>
                     <div class="bg-orange-50 border border-orange-100 rounded-2xl px-3 py-2 text-center podium-shadow">
                         <p class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Streak</p>
                         <p class="text-base font-extrabold text-orange-600 leading-none mt-0.5">🔥<span id="racha-nena">0</span></p>
@@ -1329,7 +1330,7 @@
         <canvas id="sl-canvas" class="rounded-2xl shadow-2xl" style="touch-action:none;max-width:320px;width:100%;"></canvas>
         <div id="sl-words" class="grid grid-cols-2 gap-2 w-full max-w-xs"></div>
         <div id="sl-win" class="hidden w-full max-w-xs bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-4 text-center">
-            <p class="text-emerald-300 font-extrabold text-lg">🎉 ¡Encontraste todas!</p>
+            <p id="sl-win-msg" class="text-emerald-300 font-extrabold text-lg">🎉 ¡Encontraste todas!</p>
             <div class="flex gap-2 justify-center mt-3">
                 <button onclick="iniciarSopaLetras()" class="bg-yellow-400 text-yellow-900 font-extrabold px-5 py-2.5 rounded-xl text-sm active:scale-95">🎲 Nueva</button>
                 <button onclick="compartirResultado('sopa')" class="bg-white/20 text-white font-bold px-5 py-2.5 rounded-xl text-sm active:scale-95">📤 Compartir</button>
@@ -1352,7 +1353,7 @@
         </div>
         <!-- Clues -->
         <div class="w-full max-w-xs">
-            <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Pistas</p>
+            <p id="cw-clues-label" class="text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Pistas</p>
             <div id="cw-clues" class="space-y-1"></div>
         </div>
         <p id="cw-feedback" class="font-bold text-sm min-h-[20px] text-center"></p>
@@ -1423,7 +1424,7 @@
 
         <!-- Wrong letters -->
         <div class="text-center">
-            <p class="text-white/40 text-xs mb-1">Letras incorrectas:</p>
+            <p id="ah-wrong-label" class="text-white/40 text-xs mb-1">Letras incorrectas:</p>
             <p id="ah-wrong-letters" class="text-red-400 font-bold text-sm tracking-widest min-h-[20px]"></p>
         </div>
 
@@ -1553,7 +1554,7 @@
         <!-- Leaderboard row -->
         <div class="glass-card rounded-2xl p-4 shadow-md">
             <div class="flex items-center justify-between mb-3">
-                <p class="font-extrabold text-slate-700 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
+                <p id="adult-leaderboard-label" class="font-extrabold text-slate-700 uppercase tracking-widest text-xs">🏆 Family Leaderboard</p>
                 <div id="racha-familiar-badge" class="hidden flex items-center gap-1"></div>
             </div>
             <ol id="leaderboard-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm"></ol>
@@ -1562,7 +1563,7 @@
         <!-- Reto Familiar Semanal (B) -->
         <div id="reto-familiar-card" class="glass-card rounded-2xl p-4 shadow-md" style="display:none;">
             <div class="flex items-center justify-between mb-3">
-                <p class="font-extrabold text-slate-700 uppercase tracking-widest text-xs">🎯 Reto Semanal</p>
+                <p id="reto-label" class="font-extrabold text-slate-700 uppercase tracking-widest text-xs">🎯 Reto Semanal</p>
                 <span id="reto-tema-badge" class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
             </div>
             <div id="reto-profiles" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3"></div>
@@ -1758,8 +1759,8 @@
         <div style="max-width:400px;width:100%;">
             <div style="text-align:center;margin-bottom:24px;">
                 <div style="font-size:3rem;">🎯</div>
-                <h2 style="color:#fff;font-size:1.5rem;font-weight:900;margin-top:8px;">Placement Test</h2>
-                <p style="color:#a5b4fc;font-size:0.85rem;margin-top:4px;">Let's find your English level!</p>
+                <h2 id="pt-title" style="color:#fff;font-size:1.5rem;font-weight:900;margin-top:8px;">Placement Test</h2>
+                <p id="pt-subtitle" style="color:#a5b4fc;font-size:0.85rem;margin-top:4px;">Let's find your English level!</p>
             </div>
             <!-- Progress bar -->
             <div style="background:rgba(255,255,255,0.15);border-radius:999px;height:8px;margin-bottom:20px;">
@@ -1775,7 +1776,7 @@
         </div>
         <!-- Skip button -->
         <div style="text-align:center;margin-top:16px;">
-            <button onclick="window.saltarPlacementTest()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#a5b4fc;font-size:0.75rem;font-weight:600;padding:8px 20px;border-radius:999px;cursor:pointer;">✕ Saltar test — elegir nivel después</button>
+            <button id="pt-skip-btn" onclick="window.saltarPlacementTest()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#a5b4fc;font-size:0.75rem;font-weight:600;padding:8px 20px;border-radius:999px;cursor:pointer;">✕ Saltar test — elegir nivel después</button>
         </div>
     </div>
 </div>
@@ -1789,108 +1790,186 @@ window.UI_LANG = 'es';
 const UI_STRINGS = {
   es: {
     appTitle: 'Sinergia Familiar',
+    appSubtitle: 'Family English Hub',
     chooseProfile: '¿Quién sos?',
     welcome: '¡Hola',
-    adventures: 'Aventuras',
-    cards: 'Tarjetas',
+    adventures: 'Aventuras', cards: 'Tarjetas', map: 'Mapa', games: 'Juegos',
     shadowing: 'Shadowing',
-    map: 'Mapa',
-    games: 'Juegos',
-    close: 'Cerrar',
-    listen: 'Escuchar',
-    speak: 'Hablar',
-    check: 'Comprobar',
-    next: 'Siguiente',
-    prev: 'Anterior',
-    newWord: 'Nueva palabra',
-    correct: '¡Correcto!',
-    wrong: 'Incorrecto',
-    wordOfDay: 'Palabra del Día',
-    dailyPhrase: 'Frase del Día',
-    yourTurn: 'Tu turno — repetí la frase',
-    dragToSelect: 'Arrastrá para seleccionar →↓',
-    tapToHear: 'Tocá para escuchar',
-    listenAndType: 'Escuchá y escribí lo que oís:',
-    listenAgain: '🔊 Escuchar de nuevo',
-    skipTest: '✕ Saltar test — elegir nivel después',
-    weeklyChallenge: 'Reto Semanal',
+    close: 'Cerrar', listen: 'Escuchar', speak: 'Hablar', next: 'Siguiente',
+    prev: 'Anterior', check: 'Comprobar', newWord: 'Nueva palabra',
+    newGame: 'Nueva sopa', share: '📤 Compartir', skip: 'Saltar',
+    playAgain: 'Jugar de nuevo', start: 'Comenzar', save: 'Guardar',
+    delete: 'Eliminar', submit: 'Enviar', retry: '🔄 Repetir', continue: '➡️ Continuar',
+    wordMatch: 'Emparejá palabras', sentenceBuilder: 'Frases', hangman: 'Ahorcado',
+    anagram: 'Anagrama', wordSearch: 'Sopa de Letras', crossword: 'Crucigrama',
+    memory: 'Memory', taboo: 'Taboo', dictation: 'Dictado', review: 'Repasar',
+    module: 'Módulo',
+    dragToSelect: 'Arrastrá para seleccionar →↓', foundAll: '🎉 ¡Encontraste todas!',
+    clues: 'Pistas', checkCrossword: '✓ Comprobar', crosswordPerfect: '🎉 ¡Perfecto!',
+    crosswordErrors: '🔍 Hay errores en rojo. ¡Seguí!',
+    wrongLetters: 'Letras incorrectas:', newWordBtn: '🎲 Nueva palabra',
+    orderLetters: 'Ordená las letras para formar la palabra en inglés',
+    erase: '⌫ Borrar',
+    yourTurn: 'Tu turno — repetí la frase', shadowResult: 'Resultado Shadowing',
+    magicCards: '🃏 Tarjetas Mágicas', tapToHear: 'Tocá para escuchar',
+    tapToSee: '👆 Tocá para ver la palabra', cardOf: 'Carta',
+    allDone: '🏆 ¡Todas las cartas completadas!', knew: '✓ La supe', didntKnow: '✗ No la supe',
+    listenAndType: 'Escuchá y escribí lo que oís:', listenAgain: '🔊 Escuchar de nuevo',
+    typeHere: 'Escribí lo que escuchaste…', dictadoComplete: '🎉 ¡Dictado completo!',
+    almost: '🟡 ¡Casi! Era:', wrong: '❌ Era:',
+    memoryMatch: '🃏 Memory', newMemory: '🎲 Nuevo juego',
+    describeIt: '🎙️ ¡Describílo!', listening: '🔴 Escuchando…', nextWord: '▶ Siguiente',
+    forbiddenUsed: '🚫 ¡Dijiste una palabra prohibida!', timesUp: '⏰ ¡Se acabó el tiempo!',
+    myDiary: '📝 Mi Diario', diaryPlaceholder: 'Escribí 2-3 oraciones sobre tu día en inglés…',
+    sendEntry: '✓ Enviar', analyzing: '⏳ Analizando…',
+    moodQuestion: '¿Cómo estás hoy?', tired: '😴 Cansado/a', good: '😊 Bien',
+    energetic: '🚀 Energético/a', stressed: '😤 Estresado/a',
+    placementTitle: 'Test de Nivel', findLevel: '¡Encontremos tu nivel de inglés!',
+    questionOf: 'Pregunta', of: 'de', skipTest: '✕ Saltar test — elegir nivel después',
+    yourLevel: '🎯 Tu nivel:',
+    wordOfDay: '✨ Palabra del Día', dailyPhrase: '💬 Frase del Día',
+    weeklyChallenge: '🎯 Reto Semanal', collectiveProgress: 'Progreso colectivo',
+    randomScene: '🎲 Escena Random', chooseScene: 'Elegí un escenario o dejá que la IA te sorprenda',
+    stories: 'Sesiones', glossary: '⭐ Glosario', sessions: '📅 Sesiones',
+    createScene: '✍️ Crear escenario propio', saveScene: '+ Guardar',
+    leaderboard: '🏆 Leaderboard Familiar',
+    pronunciation: '🎙 Pronunciación', vocabulary: '📚 Vocabulario', skills: '🎯 Habilidades',
+    dailyStreak: 'Daily Streak', totalXP: 'Total XP',
+    levelUp: '¡Subiste de nivel!', tapToContinue: 'Tocá para continuar',
+    weeklyReport: '📊 Resumen Semanal', thisWeekXP: 'XP esta semana',
+    sessionsCount: 'sesiones', keepItUp: '¡Seguí así!',
+    hotelCheckin: 'Hotel Check-in', jobInterview: 'Entrevista de Trabajo',
+    doctorVisit: 'Visita al Doctor', phoneCall: 'Llamada Telefónica',
+    step: 'Paso',
+    reviewTitle: '📋 Repaso', randomReview: '📚 Repaso aleatorio',
+    perfect: '¡Perfecto!', excellent: '¡Excelente!', correct: '¡Correcto!',
+    tryAgain: '¡Intentá de nuevo!', wellDone: '¡Muy bien!',
+    treasureMap: '🗺️ Mapa del Tesoro',
+    mission: 'Misión', yourAnswer: 'Tu respuesta…',
+    streak: 'días seguidos', level: 'Nivel', score: 'Puntaje', family: 'Familia',
     diary: 'Mi Diario',
-    diaryPlaceholder: 'Escribí 2-3 oraciones sobre tu día en inglés…',
-    moodQuestion: '¿Cómo estás hoy?',
-    streak: 'días seguidos',
-    level: 'Nivel',
-    score: 'Puntaje',
-    family: 'Familia',
   },
   it: {
     appTitle: 'Sinergia Familiare',
+    appSubtitle: 'Family English Hub',
     chooseProfile: 'Chi sei?',
     welcome: 'Ciao',
-    adventures: 'Avventure',
-    cards: 'Carte',
+    adventures: 'Avventure', cards: 'Carte', map: 'Mappa', games: 'Giochi',
     shadowing: 'Shadowing',
-    map: 'Mappa',
-    games: 'Giochi',
-    close: 'Chiudi',
-    listen: 'Ascolta',
-    speak: 'Parla',
-    check: 'Controlla',
-    next: 'Avanti',
-    prev: 'Indietro',
-    newWord: 'Nuova parola',
-    correct: 'Corretto!',
-    wrong: 'Sbagliato',
-    wordOfDay: 'Parola del Giorno',
-    dailyPhrase: 'Frase del Giorno',
-    yourTurn: 'Il tuo turno — ripeti la frase',
-    dragToSelect: 'Trascina per selezionare →↓',
-    tapToHear: 'Tocca per ascoltare',
-    listenAndType: 'Ascolta e scrivi quello che senti:',
-    listenAgain: '🔊 Ascolta ancora',
-    skipTest: '✕ Salta il test — scegli il livello dopo',
-    weeklyChallenge: 'Sfida Settimanale',
+    close: 'Chiudi', listen: 'Ascolta', speak: 'Parla', next: 'Avanti',
+    prev: 'Indietro', check: 'Controlla', newWord: 'Nuova parola',
+    newGame: 'Nuova ricerca', share: '📤 Condividi', skip: 'Salta',
+    playAgain: 'Gioca ancora', start: 'Inizia', save: 'Salva',
+    delete: 'Elimina', submit: 'Invia', retry: '🔄 Riprova', continue: '➡️ Continua',
+    wordMatch: 'Abbina le parole', sentenceBuilder: 'Frasi', hangman: 'Impiccato',
+    anagram: 'Anagramma', wordSearch: 'Cerca Parole', crossword: 'Cruciverba',
+    memory: 'Memory', taboo: 'Tabù', dictation: 'Dettato', review: 'Ripasso',
+    module: 'Modulo',
+    dragToSelect: 'Trascina per selezionare →↓', foundAll: '🎉 Hai trovato tutte!',
+    clues: 'Indizi', checkCrossword: '✓ Controlla', crosswordPerfect: '🎉 Perfetto!',
+    crosswordErrors: '🔍 Ci sono errori in rosso. Continua!',
+    wrongLetters: 'Lettere sbagliate:', newWordBtn: '🎲 Nuova parola',
+    orderLetters: 'Metti in ordine le lettere per formare la parola in inglese',
+    erase: '⌫ Cancella',
+    yourTurn: 'Il tuo turno — ripeti la frase', shadowResult: 'Risultato Shadowing',
+    magicCards: '🃏 Carte Magiche', tapToHear: 'Tocca per ascoltare',
+    tapToSee: '👆 Tocca per vedere la parola', cardOf: 'Carta',
+    allDone: '🏆 Tutte le carte completate!', knew: '✓ La sapevo', didntKnow: '✗ Non la sapevo',
+    listenAndType: 'Ascolta e scrivi quello che senti:', listenAgain: '🔊 Ascolta ancora',
+    typeHere: 'Scrivi quello che hai sentito…', dictadoComplete: '🎉 Dettato completato!',
+    almost: '🟡 Quasi! Era:', wrong: '❌ Era:',
+    memoryMatch: '🃏 Memory', newMemory: '🎲 Nuovo gioco',
+    describeIt: '🎙️ Descrivila!', listening: '🔴 Ascolto…', nextWord: '▶ Prossima',
+    forbiddenUsed: '🚫 Hai usato una parola proibita!', timesUp: '⏰ Tempo scaduto!',
+    myDiary: '📝 Il Mio Diario', diaryPlaceholder: 'Scrivi 2-3 frasi sulla tua giornata in inglese…',
+    sendEntry: '✓ Invia', analyzing: '⏳ Analisi in corso…',
+    moodQuestion: 'Come stai oggi?', tired: '😴 Stanco/a', good: '😊 Bene',
+    energetic: '🚀 Energico/a', stressed: '😤 Stressato/a',
+    placementTitle: 'Test di Livello', findLevel: 'Troviamo il tuo livello di inglese!',
+    questionOf: 'Domanda', of: 'di', skipTest: '✕ Salta il test — scegli il livello dopo',
+    yourLevel: '🎯 Il tuo livello:',
+    wordOfDay: '✨ Parola del Giorno', dailyPhrase: '💬 Frase del Giorno',
+    weeklyChallenge: '🎯 Sfida Settimanale', collectiveProgress: 'Progresso collettivo',
+    randomScene: '🎲 Scena Casuale', chooseScene: 'Scegli uno scenario o lascia che l\'AI ti sorprenda',
+    stories: 'Sessioni', glossary: '⭐ Glossario', sessions: '📅 Sessioni',
+    createScene: '✍️ Crea scenario personalizzato', saveScene: '+ Salva',
+    leaderboard: '🏆 Classifica Familiare',
+    pronunciation: '🎙 Pronuncia', vocabulary: '📚 Vocabolario', skills: '🎯 Abilità',
+    dailyStreak: 'Striscia Giornaliera', totalXP: 'XP Totale',
+    levelUp: 'Hai cambiato livello!', tapToContinue: 'Tocca per continuare',
+    weeklyReport: '📊 Riepilogo Settimanale', thisWeekXP: 'XP questa settimana',
+    sessionsCount: 'sessioni', keepItUp: 'Continua così!',
+    hotelCheckin: 'Check-in Hotel', jobInterview: 'Colloquio di Lavoro',
+    doctorVisit: 'Visita Medica', phoneCall: 'Telefonata',
+    step: 'Passo',
+    reviewTitle: '📋 Ripasso', randomReview: '📚 Ripasso casuale',
+    perfect: 'Perfetto!', excellent: 'Eccellente!', correct: 'Corretto!',
+    tryAgain: 'Riprova!', wellDone: 'Ottimo lavoro!',
+    treasureMap: '🗺️ Mappa del Tesoro',
+    mission: 'Missione', yourAnswer: 'La tua risposta…',
+    streak: 'giorni consecutivi', level: 'Livello', score: 'Punteggio', family: 'Famiglia',
     diary: 'Il Mio Diario',
-    diaryPlaceholder: 'Scrivi 2-3 frasi sulla tua giornata in inglese…',
-    moodQuestion: 'Come stai oggi?',
-    streak: 'giorni consecutivi',
-    level: 'Livello',
-    score: 'Punteggio',
-    family: 'Famiglia',
   },
   pt: {
     appTitle: 'Sinergia Familiar',
+    appSubtitle: 'Family English Hub',
     chooseProfile: 'Quem é você?',
     welcome: 'Olá',
-    adventures: 'Aventuras',
-    cards: 'Cartões',
+    adventures: 'Aventuras', cards: 'Cartões', map: 'Mapa', games: 'Jogos',
     shadowing: 'Shadowing',
-    map: 'Mapa',
-    games: 'Jogos',
-    close: 'Fechar',
-    listen: 'Ouvir',
-    speak: 'Falar',
-    check: 'Verificar',
-    next: 'Próximo',
-    prev: 'Anterior',
-    newWord: 'Nova palavra',
-    correct: 'Correto!',
-    wrong: 'Errado',
-    wordOfDay: 'Palavra do Dia',
-    dailyPhrase: 'Frase do Dia',
-    yourTurn: 'Sua vez — repita a frase',
-    dragToSelect: 'Arraste para selecionar →↓',
-    tapToHear: 'Toque para ouvir',
-    listenAndType: 'Ouça e escreva o que você ouve:',
-    listenAgain: '🔊 Ouvir novamente',
-    skipTest: '✕ Pular teste — escolher nível depois',
-    weeklyChallenge: 'Desafio Semanal',
+    close: 'Fechar', listen: 'Ouvir', speak: 'Falar', next: 'Próximo',
+    prev: 'Anterior', check: 'Verificar', newWord: 'Nova palavra',
+    newGame: 'Nova sopa', share: '📤 Compartilhar', skip: 'Pular',
+    playAgain: 'Jogar de novo', start: 'Começar', save: 'Salvar',
+    delete: 'Excluir', submit: 'Enviar', retry: '🔄 Repetir', continue: '➡️ Continuar',
+    wordMatch: 'Combine as palavras', sentenceBuilder: 'Frases', hangman: 'Forca',
+    anagram: 'Anagrama', wordSearch: 'Caça-palavras', crossword: 'Palavras-cruzadas',
+    memory: 'Memória', taboo: 'Tabu', dictation: 'Ditado', review: 'Revisar',
+    module: 'Módulo',
+    dragToSelect: 'Arraste para selecionar →↓', foundAll: '🎉 Você encontrou todas!',
+    clues: 'Dicas', checkCrossword: '✓ Verificar', crosswordPerfect: '🎉 Perfeito!',
+    crosswordErrors: '🔍 Há erros em vermelho. Continue!',
+    wrongLetters: 'Letras erradas:', newWordBtn: '🎲 Nova palavra',
+    orderLetters: 'Coloque as letras em ordem para formar a palavra em inglês',
+    erase: '⌫ Apagar',
+    yourTurn: 'Sua vez — repita a frase', shadowResult: 'Resultado Shadowing',
+    magicCards: '🃏 Cartões Mágicos', tapToHear: 'Toque para ouvir',
+    tapToSee: '👆 Toque para ver a palavra', cardOf: 'Cartão',
+    allDone: '🏆 Todos os cartões completos!', knew: '✓ Eu sabia', didntKnow: '✗ Não sabia',
+    listenAndType: 'Ouça e escreva o que você ouve:', listenAgain: '🔊 Ouvir novamente',
+    typeHere: 'Escreva o que você ouviu…', dictadoComplete: '🎉 Ditado completo!',
+    almost: '🟡 Quase! Era:', wrong: '❌ Era:',
+    memoryMatch: '🃏 Memória', newMemory: '🎲 Novo jogo',
+    describeIt: '🎙️ Descreva!', listening: '🔴 Ouvindo…', nextWord: '▶ Próxima',
+    forbiddenUsed: '🚫 Você usou uma palavra proibida!', timesUp: '⏰ Tempo esgotado!',
+    myDiary: '📝 Meu Diário', diaryPlaceholder: 'Escreva 2-3 frases sobre seu dia em inglês…',
+    sendEntry: '✓ Enviar', analyzing: '⏳ Analisando…',
+    moodQuestion: 'Como você está hoje?', tired: '😴 Cansado/a', good: '😊 Bem',
+    energetic: '🚀 Energético/a', stressed: '😤 Estressado/a',
+    placementTitle: 'Teste de Nível', findLevel: 'Vamos encontrar seu nível de inglês!',
+    questionOf: 'Pergunta', of: 'de', skipTest: '✕ Pular teste — escolher nível depois',
+    yourLevel: '🎯 Seu nível:',
+    wordOfDay: '✨ Palavra do Dia', dailyPhrase: '💬 Frase do Dia',
+    weeklyChallenge: '🎯 Desafio Semanal', collectiveProgress: 'Progresso coletivo',
+    randomScene: '🎲 Cena Aleatória', chooseScene: 'Escolha um cenário ou deixe a IA te surpreender',
+    stories: 'Sessões', glossary: '⭐ Glossário', sessions: '📅 Sessões',
+    createScene: '✍️ Criar cenário personalizado', saveScene: '+ Salvar',
+    leaderboard: '🏆 Placar Familiar',
+    pronunciation: '🎙 Pronúncia', vocabulary: '📚 Vocabulário', skills: '🎯 Habilidades',
+    dailyStreak: 'Sequência Diária', totalXP: 'XP Total',
+    levelUp: 'Você subiu de nível!', tapToContinue: 'Toque para continuar',
+    weeklyReport: '📊 Resumo Semanal', thisWeekXP: 'XP esta semana',
+    sessionsCount: 'sessões', keepItUp: 'Continue assim!',
+    hotelCheckin: 'Check-in Hotel', jobInterview: 'Entrevista de Emprego',
+    doctorVisit: 'Consulta Médica', phoneCall: 'Ligação Telefônica',
+    step: 'Passo',
+    reviewTitle: '📋 Revisão', randomReview: '📚 Revisão aleatória',
+    perfect: 'Perfeito!', excellent: 'Excelente!', correct: 'Correto!',
+    tryAgain: 'Tente de novo!', wellDone: 'Muito bem!',
+    treasureMap: '🗺️ Mapa do Tesouro',
+    mission: 'Missão', yourAnswer: 'Sua resposta…',
+    streak: 'dias seguidos', level: 'Nível', score: 'Pontuação', family: 'Família',
     diary: 'Meu Diário',
-    diaryPlaceholder: 'Escreva 2-3 frases sobre seu dia em inglês…',
-    moodQuestion: 'Como você está hoje?',
-    streak: 'dias seguidos',
-    level: 'Nível',
-    score: 'Pontuação',
-    family: 'Família',
   }
 };
 
@@ -1907,28 +1986,88 @@ window.setUILang = function(lang) {
 };
 
 function applyUILang() {
+    // All [data-i18n] elements
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         const val = t(key);
-        if (el.tagName === 'INPUT') el.placeholder = val;
+        if (!val) return;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
         else el.textContent = val;
     });
-    const mappings = {
-        'quien-label':          'chooseProfile',
-        'word-of-day-label':    'wordOfDay',
-        'shadow-your-turn':     'yourTurn',
-        'sl-instruction':       'dragToSelect',
-        'fc-hint-default':      'tapToHear',
-        'dictado-listen-label': 'listenAndType',
-        'dictado-listen-btn':   'listenAgain',
-        'mood-question-label':  'moodQuestion',
+    // Big ID → key mapping
+    const map = {
+        'quien-label':           'chooseProfile',
+        'word-of-day-label':     'wordOfDay',
+        'shadow-your-turn':      'yourTurn',
+        'sl-instruction':        'dragToSelect',
+        'sl-win-msg':            'foundAll',
+        'fc-hint':               'tapToHear',
+        'fc-deck-label':         'magicCards',
+        'cw-clues-label':        'clues',
+        'memory-title':          'memoryMatch',
+        'dictado-listen-label':  'listenAndType',
+        'dictado-listen-btn':    'listenAgain',
+        'dictado-complete-msg':  'dictadoComplete',
+        'mood-question-label':   'moodQuestion',
+        'mood-titulo':           'moodQuestion',
+        'mood-tired':            'tired',
+        'mood-good':             'good',
+        'mood-energetic':        'energetic',
+        'mood-stressed':         'stressed',
+        'pt-title':              'placementTitle',
+        'pt-subtitle':           'findLevel',
+        'pt-skip-btn':           'skipTest',
+        'reto-label':            'weeklyChallenge',
+        'adult-leaderboard-label': 'leaderboard',
+        'taboo-title':           'taboo',
+        'diario-title':          'myDiary',
+        'diario-send-btn':       'sendEntry',
+        'nivel-up-title':        'levelUp',
+        'levelup-msg':           'levelUp',
+        'levelup-tap':           'tapToContinue',
+        'mapa-title':            'treasureMap',
+        'ah-wrong-label':        'wrongLetters',
     };
-    Object.entries(mappings).forEach(([id, key]) => {
+    Object.entries(map).forEach(([id, key]) => {
         const el = document.getElementById(id);
-        if (el) el.textContent = t(key);
+        if (el) {
+            const val = t(key);
+            if (val) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+                else el.textContent = val;
+            }
+        }
     });
-    document.title = t('appTitle');
+    // Nav tab labels
+    const navMap = {
+        'knav-aventuras': 'adventures',
+        'knav-tarjetas':  'cards',
+        'knav-mapa':      'map',
+        'knav-juegos':    'games',
+        'knav-shadowing': 'shadowing',
+    };
+    Object.entries(navMap).forEach(([id, key]) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            const span = btn.querySelector('span.text-base');
+            const emoji = span ? span.textContent : '';
+            btn.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = t(key); });
+        }
+    });
+    // Dictado input placeholder
+    const dictIn = document.getElementById('dictado-input');
+    if (dictIn) dictIn.placeholder = t('typeHere');
+    // Diary input placeholder
+    const diarioIn = document.getElementById('diario-input');
+    if (diarioIn) diarioIn.placeholder = t('diaryPlaceholder');
+    document.title = t('appTitle') || 'Sinergia Familiar';
 }
+
+window.langCycle = function() {
+    const langs = ['es','it','pt'];
+    const i = (langs.indexOf(window.UI_LANG) + 1) % 3;
+    window.setUILang(langs[i]);
+};
 
 // ── Safe localStorage wrapper ──────────────────────────────────────────────
 function lsSet(key, value) {
@@ -2188,9 +2327,9 @@ function fcRender() {
     document.getElementById('fc-back-emoji').textContent  = card.emoji;
     document.getElementById('fc-word').textContent        = card.word;
     document.getElementById('fc-translation').textContent = card.es;
-    document.getElementById('fc-progress').textContent    = `Carta ${fcState.idx + 1} de ${fcState.deck.length}`;
+    document.getElementById('fc-progress').textContent    = `${t('cardOf')} ${fcState.idx + 1} ${t('of')} ${fcState.deck.length}`;
     document.getElementById('fc-card-inner').style.transform = 'rotateY(0deg)';
-    document.getElementById('fc-hint').textContent = '👆 Tocá para escuchar';
+    document.getElementById('fc-hint').textContent = t('tapToHear');
     const exEl = document.getElementById('fc-example');
     if (exEl) exEl.textContent = '';
     fcState.flipped = false;
@@ -2201,7 +2340,7 @@ window.flipCard = function() {
     const card  = fcState.deck[fcState.idx];
     if (!fcState.flipped) {
         hablarNativo(card.word, 0.9);
-        document.getElementById('fc-hint').textContent = '👆 Tocá para ver la palabra';
+        document.getElementById('fc-hint').textContent = t('tapToSee');
         // Show example phrase (#11)
         const exEl = document.getElementById('fc-example');
         if (exEl) {
@@ -2224,10 +2363,10 @@ window.flipCard = function() {
     } else {
         inner.style.transform = inner.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
         if (inner.style.transform === 'rotateY(180deg)') {
-            document.getElementById('fc-hint').textContent = '✅ ¡' + card.word + '! Siguiente ▶';
+            document.getElementById('fc-hint').textContent = '✅ ' + card.word + '! ' + t('next') + ' ▶';
             hablarNativo(card.word, 0.9);
         } else {
-            document.getElementById('fc-hint').textContent = '👆 Tocá para ver la palabra';
+            document.getElementById('fc-hint').textContent = t('tapToSee');
         }
     }
     fcState.flipped = true;
@@ -2240,7 +2379,7 @@ window.fcNext = function() {
         setTimeout(() => hablarNativo(fcState.deck[fcState.idx].word, 0.75), 350);
     } else {
         hablarNativo('Amazing! You know all the words!', 0.85);
-        document.getElementById('fc-hint').textContent = '🏆 ¡Todas las cartas completadas!';
+        document.getElementById('fc-hint').textContent = t('allDone');
     }
 };
 
@@ -3802,14 +3941,14 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
         });
         const fb=document.getElementById('cw-feedback');
         if(all){
-            fb.innerHTML='🎉 ¡Perfecto! +100 XP &nbsp;<button onclick="compartirResultado(\'crucigrama\')" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:700">📤 Compartir</button>';
+            fb.innerHTML=t('crosswordPerfect')+' +100 XP &nbsp;<button onclick="compartirResultado(\'crucigrama\')" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:3px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:700">'+t('share')+'</button>';
             fb.style.color='#4ade80';
             cwXP+=100;document.getElementById('cw-xp').textContent='+'+cwXP+' XP';
             const p=window.familia[window.perfilActualId];
             if(p){p.score+=100;guardarEstado();}
             lanzarEstrellas&&lanzarEstrellas();
         } else {
-            fb.textContent='🔍 Hay errores en rojo. ¡Seguí!';fb.style.color='#fca5a5';
+            fb.textContent=t('crosswordErrors');fb.style.color='#fca5a5';
         }
     };
 
@@ -5601,7 +5740,7 @@ function mostrarResultadoShadowing() {
         ? Math.round(shadowState.scores.reduce((a,b) => a+b, 0) / shadowState.scores.length)
         : 0;
     const trophy = avg >= 80 ? '🏆' : avg >= 50 ? '🥈' : '💪';
-    const msg    = avg >= 80 ? '¡Excelente pronunciación!' : avg >= 50 ? '¡Muy bien! Seguí practicando.' : '¡Buen intento! La práctica hace al maestro.';
+    const msg    = avg >= 80 ? t('excellent') : avg >= 50 ? t('wellDone') : t('tryAgain');
     document.getElementById('shadow-trophy').innerText = trophy;
     document.getElementById('shadow-final-score').innerText = `Score: ${avg}/100`;
     document.getElementById('shadow-final-msg').innerText = msg;
@@ -6764,12 +6903,12 @@ function _tabooTabStop() {
     if (_tabooState.recog) { try { _tabooState.recog.stop(); } catch(e){} _tabooState.recog = null; }
     _tabooState.isListening = false;
     const btn = document.getElementById('taboo-mic-btn');
-    if (btn) btn.textContent = '🎙️ Describe it!';
+    if (btn) btn.textContent = t('describeIt');
 }
 function tabooTimeUp() {
     document.getElementById('taboo-mic-area').style.display = 'none';
     document.getElementById('taboo-result').style.display = 'block';
-    document.getElementById('taboo-result-text').textContent = '⏰ Time\'s up! The word was: ' + (_tabooState.word?.word || '');
+    document.getElementById('taboo-result-text').textContent = t('timesUp') + ' The word was: ' + (_tabooState.word?.word || '');
 }
 function tabooBuzz() {
     try {
@@ -6794,7 +6933,7 @@ window.tabooToggleMic = function() {
     recog.interimResults = false;
     _tabooState.recog = recog;
     _tabooState.isListening = true;
-    document.getElementById('taboo-mic-btn').textContent = '🔴 Listening…';
+    document.getElementById('taboo-mic-btn').textContent = t('listening');
     recog.onresult = e => {
         const transcript = Array.from(e.results).map(r=>r[0].transcript).join(' ');
         document.getElementById('taboo-transcript-display').textContent = transcript;
@@ -6802,7 +6941,7 @@ window.tabooToggleMic = function() {
     };
     recog.onerror = recog.onend = () => {
         _tabooState.isListening = false;
-        document.getElementById('taboo-mic-btn').textContent = '🎙️ Describe it!';
+        document.getElementById('taboo-mic-btn').textContent = t('describeIt');
     };
     recog.start();
 };
@@ -6811,7 +6950,7 @@ window.tabooSubmit = async function(transcript) {
     const usedForbidden = _tabooState.forbidden.filter(w => lower.includes(w));
     if (usedForbidden.length > 0) {
         tabooBuzz();
-        document.getElementById('taboo-transcript-display').textContent = '🚫 ¡Dijiste una palabra prohibida!';
+        document.getElementById('taboo-transcript-display').textContent = t('forbiddenUsed');
         return;
     }
     _tabooTabStop();
@@ -6899,7 +7038,7 @@ window.dictadoComprobar = function() {
     const fb = document.getElementById('dictado-feedback');
     let xp = 0;
     if (input === target) {
-        fb.textContent = '✅ ¡Perfecto! +30 XP';
+        fb.textContent = '✅ ' + t('perfect') + ' +30 XP';
         fb.style.color = '#10b981';
         _dictadoState.correct++;
         xp = 30;
@@ -6908,11 +7047,11 @@ window.dictadoComprobar = function() {
         // Levenshtein distance check
         const dist = levenshtein(input, target);
         if (dist <= 2) {
-            fb.textContent = '🟡 Casi! Era: ' + card.word;
+            fb.textContent = t('almost') + ' ' + card.word;
             fb.style.color = '#f59e0b';
             xp = 10;
         } else {
-            fb.textContent = '❌ Era: ' + card.word;
+            fb.textContent = t('wrong') + ' ' + card.word;
             fb.style.color = '#ef4444';
         }
     }
@@ -7313,6 +7452,7 @@ const _origFcRender = window.fcRender || (()=>{});
 // Auto-init WoD on page load if profile select is visible
 document.addEventListener('DOMContentLoaded', () => {
     inicializarPalabraDelDia();
+    applyUILang();
 });
 
 // Load saved UI language
