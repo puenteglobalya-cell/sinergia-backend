@@ -3451,7 +3451,9 @@ window.abrirCrucigramaAdulto = function() { window._adultMode=true; window.abrir
                 slXP+=30;document.getElementById('sl-xp').textContent='+'+slXP+' XP';
                 const p=window.familia[window.perfilActualId];
                 if(p){p.score+=30;guardarEstado();}
-                playFX&&playFX('correct');renderWordList();
+                playFX&&playFX('correct');
+                hablarNativo&&hablarNativo(w.clean, 0.85);
+                renderWordList();
                 if(found.size===words.length){
                     slXP+=50;document.getElementById('sl-xp').textContent='+'+slXP+' XP';
                     if(p){p.score+=50;guardarEstado();}
