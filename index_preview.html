@@ -389,13 +389,18 @@
 
 <!-- ═══ PROFILE SELECT SCREEN ═══ -->
 <div id="profile-select-overlay" class="fixed inset-0 z-[400] flex flex-col items-center justify-center p-6"
-     style="background: linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);">
+     style="background: linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);position:relative;">
+    <div id="lang-switcher" style="position:absolute;top:16px;right:16px;display:flex;gap:6px;z-index:10;">
+      <button onclick="setUILang('es')" id="lang-es" style="font-size:1.4rem;background:none;border:2px solid transparent;border-radius:8px;padding:2px 4px;cursor:pointer;opacity:1;">🇦🇷</button>
+      <button onclick="setUILang('it')" id="lang-it" style="font-size:1.4rem;background:none;border:2px solid transparent;border-radius:8px;padding:2px 4px;cursor:pointer;opacity:0.45;">🇮🇹</button>
+      <button onclick="setUILang('pt')" id="lang-pt" style="font-size:1.4rem;background:none;border:2px solid transparent;border-radius:8px;padding:2px 4px;cursor:pointer;opacity:0.45;">🇧🇷</button>
+    </div>
     <div class="text-center mb-8 slide-up-1">
         <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-2 mb-4">
             <div class="h-7 w-7 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl rotate-3 flex items-center justify-center text-white text-xs font-extrabold shadow-sm">S</div>
             <span class="font-extrabold text-white text-sm tracking-tight">Sinergia Familiar</span>
         </div>
-        <h1 class="text-3xl font-extrabold text-white leading-tight">¿Quién va a jugar<br><span class="text-yellow-300">hoy?</span> 👋</h1>
+        <h1 id="quien-label" class="text-3xl font-extrabold text-white leading-tight">¿Quién va a jugar<br><span class="text-yellow-300">hoy?</span> 👋</h1>
         <p class="text-indigo-200 text-sm mt-2">Elegí tu perfil para continuar</p>
     </div>
     <div id="profile-select-grid" class="grid grid-cols-2 gap-4 w-full max-w-xs sm:max-w-sm">
@@ -506,8 +511,16 @@
     <div class="flex-1 flex flex-col items-center justify-center px-4 gap-5 max-w-sm mx-auto w-full">
         <div id="dictado-game-area" class="w-full space-y-5">
             <div class="bg-white/10 rounded-3xl p-6 text-center space-y-4">
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Listen and type what you hear:</p>
-                <button onclick="window.dictadoRepetir()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2 mx-auto">🔊 Listen Again</button>
+                <p id="dictado-listen-label" class="text-slate-400 text-xs font-bold uppercase tracking-widest">Listen and type what you hear:</p>
+                <button id="dictado-listen-btn" onclick="window.dictadoRepetir()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-2xl text-sm active:scale-95 transition-all flex items-center gap-2 mx-auto">🔊 Listen Again</button>
+                <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:-8px;">
+                  <span style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;">🐢</span>
+                  <input type="range" id="dictado-speed" min="0.4" max="1.2" step="0.1" value="0.65"
+                    style="width:120px;accent-color:#6366f1;cursor:pointer;"
+                    oninput="window._dictadoSpeed=parseFloat(this.value);document.getElementById('dictado-speed-label').textContent=parseFloat(this.value).toFixed(1)+'x'">
+                  <span style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;">🐇</span>
+                  <span id="dictado-speed-label" style="color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;min-width:28px;">0.65x</span>
+                </div>
             </div>
             <input id="dictado-input" type="text" placeholder="Type what you heard…"
                 class="w-full bg-white/15 border border-white/20 text-white rounded-2xl px-5 py-4 text-lg text-center font-bold focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-white/40"
@@ -619,7 +632,7 @@
     </div>
     <div id="shadow-lines" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
     <div id="shadow-mic-area" class="px-4 py-5 bg-slate-800 border-t border-slate-700 hidden">
-        <p class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3 es-only">Tu turno — repetí la frase</p>
+        <p id="shadow-your-turn" class="text-slate-300 text-xs font-bold uppercase tracking-widest text-center mb-3 es-only">Tu turno — repetí la frase</p>
         <div id="shadow-expected" class="bg-slate-700 rounded-2xl px-4 py-4 text-white font-semibold text-base text-center mb-4 cursor-pointer active:bg-slate-600 transition-colors" onclick="shadowListenExpected()" title="Tap to hear it">
         </div>
         <div class="flex justify-center gap-3">
@@ -1312,7 +1325,7 @@
         <span id="sl-xp" class="text-yellow-300 font-bold text-xs">+0 XP</span>
     </div>
     <div class="flex-1 overflow-y-auto px-3 pb-6 flex flex-col items-center gap-3">
-        <p class="text-white/50 text-xs text-center">Drag to select words →↓ &nbsp;|&nbsp; <span class="opacity-70">Deslizá para seleccionar</span></p>
+        <p id="sl-instruction" class="text-white/50 text-xs text-center">Drag to select words →↓ &nbsp;|&nbsp; <span class="opacity-70">Deslizá para seleccionar</span></p>
         <canvas id="sl-canvas" class="rounded-2xl shadow-2xl" style="touch-action:none;max-width:320px;width:100%;"></canvas>
         <div id="sl-words" class="grid grid-cols-2 gap-2 w-full max-w-xs"></div>
         <div id="sl-win" class="hidden w-full max-w-xs bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-4 text-center">
@@ -1769,6 +1782,153 @@
 
 <!-- ═══ LOGIC ═══ -->
 <script type="text/javascript">
+
+// ── UI Language System ─────────────────────────────────────────────────────
+window.UI_LANG = 'es';
+
+const UI_STRINGS = {
+  es: {
+    appTitle: 'Sinergia Familiar',
+    chooseProfile: '¿Quién sos?',
+    welcome: '¡Hola',
+    adventures: 'Aventuras',
+    cards: 'Tarjetas',
+    shadowing: 'Shadowing',
+    map: 'Mapa',
+    games: 'Juegos',
+    close: 'Cerrar',
+    listen: 'Escuchar',
+    speak: 'Hablar',
+    check: 'Comprobar',
+    next: 'Siguiente',
+    prev: 'Anterior',
+    newWord: 'Nueva palabra',
+    correct: '¡Correcto!',
+    wrong: 'Incorrecto',
+    wordOfDay: 'Palabra del Día',
+    dailyPhrase: 'Frase del Día',
+    yourTurn: 'Tu turno — repetí la frase',
+    dragToSelect: 'Arrastrá para seleccionar →↓',
+    tapToHear: 'Tocá para escuchar',
+    listenAndType: 'Escuchá y escribí lo que oís:',
+    listenAgain: '🔊 Escuchar de nuevo',
+    skipTest: '✕ Saltar test — elegir nivel después',
+    weeklyChallenge: 'Reto Semanal',
+    diary: 'Mi Diario',
+    diaryPlaceholder: 'Escribí 2-3 oraciones sobre tu día en inglés…',
+    moodQuestion: '¿Cómo estás hoy?',
+    streak: 'días seguidos',
+    level: 'Nivel',
+    score: 'Puntaje',
+    family: 'Familia',
+  },
+  it: {
+    appTitle: 'Sinergia Familiare',
+    chooseProfile: 'Chi sei?',
+    welcome: 'Ciao',
+    adventures: 'Avventure',
+    cards: 'Carte',
+    shadowing: 'Shadowing',
+    map: 'Mappa',
+    games: 'Giochi',
+    close: 'Chiudi',
+    listen: 'Ascolta',
+    speak: 'Parla',
+    check: 'Controlla',
+    next: 'Avanti',
+    prev: 'Indietro',
+    newWord: 'Nuova parola',
+    correct: 'Corretto!',
+    wrong: 'Sbagliato',
+    wordOfDay: 'Parola del Giorno',
+    dailyPhrase: 'Frase del Giorno',
+    yourTurn: 'Il tuo turno — ripeti la frase',
+    dragToSelect: 'Trascina per selezionare →↓',
+    tapToHear: 'Tocca per ascoltare',
+    listenAndType: 'Ascolta e scrivi quello che senti:',
+    listenAgain: '🔊 Ascolta ancora',
+    skipTest: '✕ Salta il test — scegli il livello dopo',
+    weeklyChallenge: 'Sfida Settimanale',
+    diary: 'Il Mio Diario',
+    diaryPlaceholder: 'Scrivi 2-3 frasi sulla tua giornata in inglese…',
+    moodQuestion: 'Come stai oggi?',
+    streak: 'giorni consecutivi',
+    level: 'Livello',
+    score: 'Punteggio',
+    family: 'Famiglia',
+  },
+  pt: {
+    appTitle: 'Sinergia Familiar',
+    chooseProfile: 'Quem é você?',
+    welcome: 'Olá',
+    adventures: 'Aventuras',
+    cards: 'Cartões',
+    shadowing: 'Shadowing',
+    map: 'Mapa',
+    games: 'Jogos',
+    close: 'Fechar',
+    listen: 'Ouvir',
+    speak: 'Falar',
+    check: 'Verificar',
+    next: 'Próximo',
+    prev: 'Anterior',
+    newWord: 'Nova palavra',
+    correct: 'Correto!',
+    wrong: 'Errado',
+    wordOfDay: 'Palavra do Dia',
+    dailyPhrase: 'Frase do Dia',
+    yourTurn: 'Sua vez — repita a frase',
+    dragToSelect: 'Arraste para selecionar →↓',
+    tapToHear: 'Toque para ouvir',
+    listenAndType: 'Ouça e escreva o que você ouve:',
+    listenAgain: '🔊 Ouvir novamente',
+    skipTest: '✕ Pular teste — escolher nível depois',
+    weeklyChallenge: 'Desafio Semanal',
+    diary: 'Meu Diário',
+    diaryPlaceholder: 'Escreva 2-3 frases sobre seu dia em inglês…',
+    moodQuestion: 'Como você está hoje?',
+    streak: 'dias seguidos',
+    level: 'Nível',
+    score: 'Pontuação',
+    family: 'Família',
+  }
+};
+
+function t(key) { return (UI_STRINGS[window.UI_LANG] || UI_STRINGS.es)[key] || UI_STRINGS.es[key] || key; }
+
+window.setUILang = function(lang) {
+    window.UI_LANG = lang;
+    try { localStorage.setItem('sinergia_lang', lang); } catch(e) {}
+    ['es','it','pt'].forEach(l => {
+        const btn = document.getElementById('lang-' + l);
+        if (btn) btn.style.opacity = l === lang ? '1' : '0.4';
+    });
+    applyUILang();
+};
+
+function applyUILang() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        const val = t(key);
+        if (el.tagName === 'INPUT') el.placeholder = val;
+        else el.textContent = val;
+    });
+    const mappings = {
+        'quien-label':          'chooseProfile',
+        'word-of-day-label':    'wordOfDay',
+        'shadow-your-turn':     'yourTurn',
+        'sl-instruction':       'dragToSelect',
+        'fc-hint-default':      'tapToHear',
+        'dictado-listen-label': 'listenAndType',
+        'dictado-listen-btn':   'listenAgain',
+        'mood-question-label':  'moodQuestion',
+    };
+    Object.entries(mappings).forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(key);
+    });
+    document.title = t('appTitle');
+}
 
 // ── Safe localStorage wrapper ──────────────────────────────────────────────
 function lsSet(key, value) {
@@ -6703,6 +6863,7 @@ window.tabooSubmit = async function(transcript) {
 
 // ── F. Dictado ────────────────────────────────────────────────
 let _dictadoState = { words: [], idx: 0, correct: 0, total: 10 };
+window._dictadoSpeed = 0.65;
 
 window.abrirDictado = function() {
     const p = window.familia[window.perfilActualId];
@@ -6725,11 +6886,11 @@ function dictadoRender() {
     document.getElementById('dictado-input').value = '';
     document.getElementById('dictado-feedback').textContent = '';
     document.getElementById('dictado-feedback').style.color = '';
-    setTimeout(() => hablarNativo(card.word, 0.8), 300);
+    setTimeout(() => hablarNativo(card.word, window._dictadoSpeed || 0.65), 300);
 }
 window.dictadoRepetir = function() {
     const card = _dictadoState.words[_dictadoState.idx];
-    hablarNativo(card.word, 0.7);
+    hablarNativo(card.word, window._dictadoSpeed || 0.65);
 };
 window.dictadoComprobar = function() {
     const card = _dictadoState.words[_dictadoState.idx];
@@ -7153,6 +7314,12 @@ const _origFcRender = window.fcRender || (()=>{});
 document.addEventListener('DOMContentLoaded', () => {
     inicializarPalabraDelDia();
 });
+
+// Load saved UI language
+(function(){
+    const saved = localStorage.getItem('sinergia_lang');
+    if (saved && ['es','it','pt'].includes(saved)) { window.UI_LANG = saved; window.setUILang(saved); }
+})();
 
 </script>
 </body>
