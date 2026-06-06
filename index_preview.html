@@ -7104,18 +7104,19 @@ window.renderProfileSelectScreen = function() {
 };
 
 // Patch cambiarPerfil to show Mood + Banner + Reto + Dynamic BG
-const _origCambiarPerfil = window.cambiarPerfil;
-window.cambiarPerfil = function(id) {
-    _origCambiarPerfil && _origCambiarPerfil(id);
-    setTimeout(() => {
-        mostrarFraseBanner(id);
-        window.actualizarRetoFamiliar && window.actualizarRetoFamiliar();
-        window.mostrarMoodCheck && window.mostrarMoodCheck();
-        if (window.familia[id]?.tipo === 'infantil') {
-            window.actualizarFondoDinamico(window._temaActual || 'greetings');
-        }
-    }, 200);
-};
+window.cambiarPerfil = (function(_prev) {
+    return function(id) {
+        _prev && _prev(id);
+        setTimeout(() => {
+            mostrarFraseBanner(id);
+            window.actualizarRetoFamiliar && window.actualizarRetoFamiliar();
+            window.mostrarMoodCheck && window.mostrarMoodCheck();
+            if (window.familia[id]?.tipo === 'infantil') {
+                window.actualizarFondoDinamico(window._temaActual || 'greetings');
+            }
+        }, 200);
+    };
+})(window.cambiarPerfil);
 
 // Patch seleccionarTematica to update dynamic background
 const _origSeleccionarTema = window.seleccionarTematica;
