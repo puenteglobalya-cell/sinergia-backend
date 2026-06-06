@@ -1760,6 +1760,10 @@
             <!-- Answer buttons -->
             <div id="pt-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
         </div>
+        <!-- Skip button -->
+        <div style="text-align:center;margin-top:16px;">
+            <button onclick="window.saltarPlacementTest()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#a5b4fc;font-size:0.75rem;font-weight:600;padding:8px 20px;border-radius:999px;cursor:pointer;">✕ Saltar test — elegir nivel después</button>
+        </div>
     </div>
 </div>
 
@@ -6207,9 +6211,15 @@ window.terminarPlacementTest = function() {
     setTimeout(() => msg.remove(), 4000);
     if (p) actualizarNivelAdulto(p);
 };
+window.saltarPlacementTest = function() {
+    const p = window.familia[window.perfilActualId];
+    if (p) { p.placementDone = true; guardarEstado(); }
+    document.getElementById('placement-overlay').style.display = 'none';
+};
 function checkPlacementTest(p) {
-    if (p && p.score === 0 && !p.placementDone && p.tipo === 'adulto') {
-        setTimeout(() => window.iniciarPlacementTest(), 800);
+    // Only show once, only for adults, only if they've never done it AND have no XP yet
+    if (p && !p.placementDone && p.tipo === 'adulto' && (p.score || 0) < 10) {
+        setTimeout(() => window.iniciarPlacementTest(), 1000);
     }
 }
 
