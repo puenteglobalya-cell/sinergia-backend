@@ -11,6 +11,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sinergia">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -83,6 +85,11 @@
         }
         .scrollbar-none { scrollbar-width: none; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
+        /* Better touch targets for mobile */
+        button { min-height: 44px; }
+        input, select, textarea { font-size: 16px !important; }
+        html { scroll-behavior: smooth; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
 
         /* Immersion mode */
         body[data-immersion="true"] .es-only { display:none !important; }
@@ -1106,6 +1113,10 @@
                             <button onclick="mostrarFlipCards('Sea')"       class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🐙</button>
                             <button onclick="mostrarFlipCards('Greetings')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">👋</button>
                             <button onclick="mostrarFlipCards('Numbers')"   class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🔢</button>
+                            <button onclick="mostrarFlipCards('Sports')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">⚽</button>
+                            <button onclick="mostrarFlipCards('Home')"      class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🏠</button>
+                            <button onclick="mostrarFlipCards('School')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">📚</button>
+                            <button onclick="mostrarFlipCards('Body')"      class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">💪</button>
                             <button onclick="mostrarFlipCards('Colors')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🎨</button>
                             <button onclick="mostrarFlipCards('Travel')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">✈️</button>
                         </div>
@@ -1245,6 +1256,16 @@
                 <span class="text-white font-extrabold text-sm">Repasar palabras difíciles</span>
                 <span class="text-white/50 text-xs text-center">Spaced Repetition · SRS</span>
             </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirVelocidad()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#1a1a2e,#e94560)">
+                <span class="text-4xl">⚡</span>
+                <span class="text-white font-extrabold text-sm">Velocidad</span>
+                <span class="text-white/50 text-xs text-center">Speed Round</span>
+            </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirFrase()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#064e3b,#065f46)">
+                <span class="text-4xl">📝</span>
+                <span class="text-white font-extrabold text-sm">Frase</span>
+                <span class="text-white/50 text-xs text-center">Fill the Gap</span>
+            </button>
         </div>
     </div>
 </div>
@@ -1313,6 +1334,21 @@
                 <span class="text-4xl">🃏</span>
                 <span class="text-white font-extrabold text-sm">Memory</span>
                 <span class="text-white/50 text-xs text-center">Encontrá los pares</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirVelocidad()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#1a1a2e,#e94560)">
+                <span class="text-4xl">⚡</span>
+                <span class="text-white font-extrabold text-sm">Velocidad</span>
+                <span class="text-white/50 text-xs text-center">Speed Round</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirEscuchar()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#0c4a6e,#0369a1)">
+                <span class="text-4xl">👂</span>
+                <span class="text-white font-extrabold text-sm">Escuchar</span>
+                <span class="text-white/50 text-xs text-center">Listen & Choose</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirFrase()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#064e3b,#065f46)">
+                <span class="text-4xl">📝</span>
+                <span class="text-white font-extrabold text-sm">Frase</span>
+                <span class="text-white/50 text-xs text-center">Fill the Gap</span>
             </button>
         </div>
     </div>
@@ -2298,7 +2334,75 @@ const FLIP_DECKS = {
         {emoji:'🗓️',word:'BOOKING',es:'Reserva'},{emoji:'🛃',word:'CUSTOMS',es:'Aduana'},
         {emoji:'🏕️',word:'CAMPING',es:'Camping'},{emoji:'🚁',word:'HELICOPTER',es:'Helicóptero'},
     ],
+    Sports: [
+        {emoji:'⚽',word:'FOOTBALL',es:'Fútbol'},{emoji:'🏀',word:'BASKETBALL',es:'Básquet'},
+        {emoji:'🎾',word:'TENNIS',es:'Tenis'},{emoji:'🏊',word:'SWIMMING',es:'Natación'},
+        {emoji:'🚴',word:'CYCLING',es:'Ciclismo'},{emoji:'🏃',word:'RUNNING',es:'Correr'},
+        {emoji:'🥊',word:'BOXING',es:'Boxeo'},{emoji:'⛷️',word:'SKIING',es:'Esquí'},
+        {emoji:'🏋️',word:'WEIGHTLIFTING',es:'Pesas'},{emoji:'🤸',word:'GYMNASTICS',es:'Gimnasia'},
+        {emoji:'🏐',word:'VOLLEYBALL',es:'Vóleibol'},{emoji:'🎿',word:'SNOWBOARD',es:'Snowboard'},
+        {emoji:'🥋',word:'KARATE',es:'Karate'},{emoji:'🎣',word:'FISHING',es:'Pesca'},
+        {emoji:'🏇',word:'HORSE RIDING',es:'Equitación'},{emoji:'🤾',word:'HANDBALL',es:'Handball'},
+        {emoji:'🏄',word:'SURFING',es:'Surf'},{emoji:'🧘',word:'YOGA',es:'Yoga'},
+    ],
+    Home: [
+        {emoji:'🛋️',word:'SOFA',es:'Sofá'},{emoji:'🛏️',word:'BED',es:'Cama'},
+        {emoji:'🚿',word:'SHOWER',es:'Ducha'},{emoji:'🪴',word:'PLANT',es:'Planta'},
+        {emoji:'🖥️',word:'COMPUTER',es:'Computadora'},{emoji:'📺',word:'TV',es:'Televisión'},
+        {emoji:'🍳',word:'KITCHEN',es:'Cocina'},{emoji:'🚪',word:'DOOR',es:'Puerta'},
+        {emoji:'🪟',word:'WINDOW',es:'Ventana'},{emoji:'💡',word:'LAMP',es:'Lámpara'},
+        {emoji:'🪣',word:'BUCKET',es:'Balde'},{emoji:'🧹',word:'BROOM',es:'Escoba'},
+        {emoji:'🛁',word:'BATHTUB',es:'Bañera'},{emoji:'🪞',word:'MIRROR',es:'Espejo'},
+        {emoji:'📚',word:'BOOKSHELF',es:'Estantería'},{emoji:'🧸',word:'TOY',es:'Juguete'},
+        {emoji:'🪑',word:'CHAIR',es:'Silla'},{emoji:'🗑️',word:'RUBBISH BIN',es:'Tacho de basura'},
+    ],
+    School: [
+        {emoji:'📝',word:'PENCIL',es:'Lápiz'},{emoji:'📚',word:'BOOK',es:'Libro'},
+        {emoji:'🎒',word:'BAG',es:'Mochila'},{emoji:'📏',word:'RULER',es:'Regla'},
+        {emoji:'✂️',word:'SCISSORS',es:'Tijeras'},{emoji:'🖊️',word:'PEN',es:'Birome'},
+        {emoji:'📐',word:'SET SQUARE',es:'Escuadra'},{emoji:'🗒️',word:'NOTEBOOK',es:'Cuaderno'},
+        {emoji:'🖍️',word:'CRAYON',es:'Crayón'},{emoji:'🖱️',word:'MOUSE',es:'Mouse'},
+        {emoji:'⌨️',word:'KEYBOARD',es:'Teclado'},{emoji:'🗺️',word:'GLOBE',es:'Globo terráqueo'},
+        {emoji:'🔬',word:'MICROSCOPE',es:'Microscopio'},{emoji:'🧮',word:'CALCULATOR',es:'Calculadora'},
+        {emoji:'🎨',word:'PAINTBRUSH',es:'Pincel'},{emoji:'📌',word:'PIN',es:'Chinche'},
+        {emoji:'📎',word:'PAPERCLIP',es:'Clip'},{emoji:'🗓️',word:'CALENDAR',es:'Calendario'},
+    ],
+    Body: [
+        {emoji:'👀',word:'EYES',es:'Ojos'},{emoji:'👂',word:'EARS',es:'Orejas'},
+        {emoji:'👃',word:'NOSE',es:'Nariz'},{emoji:'👄',word:'MOUTH',es:'Boca'},
+        {emoji:'🦷',word:'TEETH',es:'Dientes'},{emoji:'✋',word:'HAND',es:'Mano'},
+        {emoji:'🦶',word:'FOOT',es:'Pie'},{emoji:'💪',word:'ARM',es:'Brazo'},
+        {emoji:'🦵',word:'LEG',es:'Pierna'},{emoji:'🫀',word:'HEART',es:'Corazón'},
+        {emoji:'🧠',word:'BRAIN',es:'Cerebro'},{emoji:'🦴',word:'BONE',es:'Hueso'},
+        {emoji:'👆',word:'FINGER',es:'Dedo'},{emoji:'🫁',word:'LUNGS',es:'Pulmones'},
+        {emoji:'🦱',word:'HAIR',es:'Cabello'},{emoji:'🫦',word:'LIPS',es:'Labios'},
+        {emoji:'🤲',word:'PALMS',es:'Palmas'},{emoji:'🫸',word:'SHOULDER',es:'Hombro'},
+    ],
 };
+
+const SENTENCE_GAPS = [
+    {sentence:'The ___ is sleeping in the sun.', answer:'CAT', options:['CAT','BOOK','RAIN','SHOE'], level:'Starter'},
+    {sentence:'I drink ___ every morning.', answer:'MILK', options:['MILK','SHOE','TABLE','CLOUD'], level:'Starter'},
+    {sentence:'She has a big red ___.', answer:'BAG', options:['BAG','SWIM','COLD','JUMP'], level:'Starter'},
+    {sentence:'The ___ is very fast.', answer:'HORSE', options:['HORSE','LAMP','DOOR','BREAD'], level:'Starter'},
+    {sentence:'He likes to eat ___.', answer:'PIZZA', options:['PIZZA','SLEEP','BLUE','DOOR'], level:'Elementary'},
+    {sentence:'My ___ is very kind.', answer:'TEACHER', options:['TEACHER','CLOUD','WINDOW','FISH'], level:'Elementary'},
+    {sentence:'We go to school by ___.', answer:'BUS', options:['BUS','SUN','BOOK','PEN'], level:'Elementary'},
+    {sentence:'The ___ shines at night.', answer:'MOON', options:['MOON','TABLE','SHOE','HAPPY'], level:'Elementary'},
+    {sentence:'I brush my ___ twice a day.', answer:'TEETH', options:['TEETH','DOOR','CLOUD','RAIN'], level:'Elementary'},
+    {sentence:'She is wearing a beautiful ___.', answer:'DRESS', options:['DRESS','SLEEP','JUMP','COLD'], level:'Elementary'},
+    {sentence:'He has been working here ___ five years.', answer:'FOR', options:['FOR','SINCE','AT','BY'], level:'Pre-Intermediate'},
+    {sentence:'I ___ finished my homework.', answer:'HAVE', options:['HAVE','HAS','HAD','AM'], level:'Pre-Intermediate'},
+    {sentence:'She ___ to the gym every day.', answer:'GOES', options:['GOES','GO','GONE','GOING'], level:'Pre-Intermediate'},
+    {sentence:'If it rains, we ___ stay home.', answer:'WILL', options:['WILL','WOULD','SHALL','MIGHT'], level:'Pre-Intermediate'},
+    {sentence:'They are ___ interested in art.', answer:'VERY', options:['VERY','MUCH','TOO','WELL'], level:'Pre-Intermediate'},
+    {sentence:'By the time I arrived, she ___ already left.', answer:'HAD', options:['HAD','HAS','HAVE','WAS'], level:'Intermediate'},
+    {sentence:'I wish I ___ speak Spanish fluently.', answer:'COULD', options:['COULD','CAN','WILL','SHOULD'], level:'Intermediate'},
+    {sentence:'The report ___ submitted by tomorrow.', answer:'MUST BE', options:['MUST BE','MUST','SHOULD','HAS'], level:'Intermediate'},
+    {sentence:'Not only did she win, ___ she broke the record.', answer:'BUT', options:['BUT','AND','SO','HOWEVER'], level:'Intermediate'},
+    {sentence:'Had I known earlier, I ___ a different choice.', answer:'WOULD HAVE MADE', options:['WOULD HAVE MADE','WILL MAKE','WOULD MAKE','HAD MADE'], level:'Upper-Intermediate'},
+    {sentence:'The project is well underway, ___ a few setbacks.', answer:'DESPITE', options:['DESPITE','ALTHOUGH','HOWEVER','WHILE'], level:'Upper-Intermediate'},
+];
 
 let fcState = { deck:[], idx:0, flipped:false };
 
@@ -3408,7 +3512,8 @@ window.seleccionarTematica = function(idTema) {
         greetings:'Greetings', numbers:'Numbers', colors:'Colors',
         travel:'Travel', animals:'Animals', food:'Food', clothes:'Clothes',
         weather:'Weather', family:'Family', feelings:'Feelings',
-        koala:'Koala', sea:'Sea'
+        koala:'Koala', sea:'Sea',
+        sports:'Sports', home:'Home', school:'School', body:'Body'
     };
     window._temaActual = idTema;
     window._tarjetasTema = temaToFlipDeck[idTema] || 'Animals';
@@ -3423,7 +3528,8 @@ function mostrarEligePractica(idTema) {
         greetings:'Greetings', numbers:'Numbers', colors:'Colors',
         travel:'Travel', animals:'Animals', food:'Food', clothes:'Clothes',
         weather:'Weather', family:'Family', feelings:'Feelings',
-        koala:'Koala', sea:'Sea'
+        koala:'Koala', sea:'Sea',
+        sports:'Sports', home:'Home', school:'School', body:'Body'
     };
     window._temaActual = idTema;
     window._tarjetasTema = temaToFlipDeck[idTema] || 'Animals';
@@ -3638,6 +3744,42 @@ const ADULT_DECKS = {
         {emoji:'🏆',word:'THE BALL IS IN YOUR COURT',es:'La decisión es tuya'},
         {emoji:'🛌',word:'HIT THE SACK',es:'Irse a dormir'},
         {emoji:'📦',word:'THINKING OUTSIDE THE BOX',es:'Pensar de forma creativa'},
+    ],
+    Technology: [
+        {emoji:'🤖',word:'ARTIFICIAL INTELLIGENCE',es:'Inteligencia artificial'},
+        {emoji:'☁️',word:'CLOUD COMPUTING',es:'Computación en la nube'},
+        {emoji:'🔐',word:'CYBERSECURITY',es:'Ciberseguridad'},
+        {emoji:'📱',word:'SMARTPHONE',es:'Teléfono inteligente'},
+        {emoji:'🌐',word:'BANDWIDTH',es:'Ancho de banda'},
+        {emoji:'💾',word:'DATABASE',es:'Base de datos'},
+        {emoji:'🔄',word:'ALGORITHM',es:'Algoritmo'},
+        {emoji:'🧩',word:'SOFTWARE',es:'Software'},
+        {emoji:'⚙️',word:'HARDWARE',es:'Hardware'},
+        {emoji:'🔗',word:'BLOCKCHAIN',es:'Cadena de bloques'},
+        {emoji:'📊',word:'DATA ANALYTICS',es:'Análisis de datos'},
+        {emoji:'🤝',word:'INTERFACE',es:'Interfaz'},
+        {emoji:'🔍',word:'DEBUGGING',es:'Depuración'},
+        {emoji:'🚀',word:'STARTUP',es:'Empresa emergente'},
+        {emoji:'📡',word:'CONNECTIVITY',es:'Conectividad'},
+        {emoji:'🛡️',word:'ENCRYPTION',es:'Cifrado'},
+    ],
+    SocialLife: [
+        {emoji:'🎭',word:'NETWORKING',es:'Crear contactos'},
+        {emoji:'🥂',word:'CELEBRATE',es:'Celebrar'},
+        {emoji:'🤝',word:'COLLABORATE',es:'Colaborar'},
+        {emoji:'💬',word:'COMMUNICATE',es:'Comunicarse'},
+        {emoji:'🎉',word:'SOCIALISE',es:'Socializar'},
+        {emoji:'🏆',word:'ACHIEVEMENT',es:'Logro'},
+        {emoji:'🌟',word:'INSPIRE',es:'Inspirar'},
+        {emoji:'🎯',word:'GOAL',es:'Meta'},
+        {emoji:'💡',word:'BRAINSTORM',es:'Lluvia de ideas'},
+        {emoji:'🤗',word:'EMPATHY',es:'Empatía'},
+        {emoji:'🌍',word:'DIVERSITY',es:'Diversidad'},
+        {emoji:'📣',word:'PERSUADE',es:'Persuadir'},
+        {emoji:'🔄',word:'ADAPT',es:'Adaptarse'},
+        {emoji:'✨',word:'CONFIDENCE',es:'Confianza'},
+        {emoji:'🎪',word:'CHARISMA',es:'Carisma'},
+        {emoji:'🕊️',word:'COMPROMISE',es:'Llegar a un acuerdo'},
     ],
 };
 
@@ -5516,6 +5658,163 @@ window.solicitarNotificaciones = async function() {
     alert('¡Recordatorio diario activado! Recibirán una notificación a las 18:00 todos los días.');
 };
 
+// ── VELOCIDAD (Speed Round) ────────────────────────────────────────
+let _velState = { timer:null, timeLeft:20, score:0, current:null };
+window.abrirVelocidad = function() {
+    const p = window.familia[window.perfilActualId];
+    const isAdult = p?.tipo==='adulto';
+    const pool = isAdult ? Object.values(ADULT_DECKS).flat() : Object.values(FLIP_DECKS).flat();
+    _velState = { pool, timer:null, timeLeft:20, score:0, total:0, isAdult };
+    document.getElementById('velocidad-overlay').style.display='flex';
+    document.getElementById('vel-result').style.display='none';
+    document.querySelectorAll('#vel-answers,#vel-emoji').forEach(e=>e.style.display='');
+    document.getElementById('vel-score').textContent='0 pts';
+    velNextWord();
+    _velState.timer = setInterval(()=>{
+        _velState.timeLeft -= 0.1;
+        const pct = Math.max(0, _velState.timeLeft/20*100);
+        document.getElementById('vel-timer-bar').style.width = pct+'%';
+        if(_velState.timeLeft<=0){ clearInterval(_velState.timer); velEnd(); }
+    },100);
+};
+window.cerrarVelocidad = function() {
+    if(_velState.timer) clearInterval(_velState.timer);
+    document.getElementById('velocidad-overlay').style.display='none';
+};
+function velNextWord() {
+    const pool = _velState.pool;
+    const card = pool[Math.floor(Math.random()*pool.length)];
+    _velState.current = card;
+    document.getElementById('vel-emoji').textContent = card.emoji;
+    const others = pool.filter(c=>c.word!==card.word).sort(()=>Math.random()-0.5).slice(0,3);
+    const options = [card,...others].sort(()=>Math.random()-0.5);
+    const el = document.getElementById('vel-answers');
+    el.innerHTML='';
+    options.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.textContent=opt.word;
+        btn.style.cssText='background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:#fff;font-weight:800;padding:14px 8px;border-radius:16px;font-size:13px;cursor:pointer;transition:all 0.15s;min-height:44px;';
+        btn.onclick=()=>velAnswer(opt.word===card.word, btn);
+        el.appendChild(btn);
+    });
+    hablarNativo && hablarNativo(card.word, 0.9);
+}
+function velAnswer(correct, btn) {
+    if(!_velState.current) return;
+    _velState.total++;
+    if(correct) {
+        _velState.score+=10;
+        document.getElementById('vel-score').textContent=_velState.score+' pts';
+        btn.style.background='#10b981'; btn.style.borderColor='#10b981';
+        playFX&&playFX('correct');
+        setTimeout(velNextWord,400);
+    } else {
+        btn.style.background='#ef4444'; btn.style.borderColor='#ef4444';
+        setTimeout(velNextWord,500);
+    }
+    _velState.current=null;
+}
+function velEnd() {
+    document.getElementById('vel-answers').style.display='none';
+    document.getElementById('vel-emoji').style.display='none';
+    document.getElementById('vel-result').style.display='block';
+    document.getElementById('vel-final-score').textContent=_velState.score+' pts!';
+    const accuracy = _velState.total>0?Math.round(_velState.score/_velState.total/10*100):0;
+    document.getElementById('vel-final-msg').textContent=`${_velState.total} words · ${accuracy}% accuracy`;
+    const p=window.familia[window.perfilActualId];
+    if(p){p.score+=Math.round(_velState.score/2);guardarEstado();}
+    lanzarEstrellas&&lanzarEstrellas();
+}
+
+// ── ESCUCHAR Y ELEGIR (Listen & Choose) ──────────────────────────
+let _escState = { word:null, pool:[], correct:0, total:0 };
+window.abrirEscuchar = function() {
+    _escState.pool = Object.values(FLIP_DECKS).flat();
+    _escState.correct=0; _escState.total=0;
+    document.getElementById('escuchar-overlay').style.display='flex';
+    escucharNext();
+};
+window.cerrarEscuchar=function(){ document.getElementById('escuchar-overlay').style.display='none'; };
+window.escucharPlay=function(){ if(_escState.word) hablarNativo(_escState.word.word,0.8); };
+function escucharNext() {
+    const pool=_escState.pool;
+    const card=pool[Math.floor(Math.random()*pool.length)];
+    _escState.word=card;
+    document.getElementById('esc-score').textContent=`${_escState.correct}/${_escState.total}`;
+    document.getElementById('esc-feedback').textContent='';
+    const others=pool.filter(c=>c.word!==card.word).sort(()=>Math.random()-0.5).slice(0,3);
+    const opts=[card,...others].sort(()=>Math.random()-0.5);
+    const grid=document.getElementById('esc-grid');
+    grid.innerHTML='';
+    opts.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.style.cssText='font-size:3.5rem;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:20px;padding:16px;cursor:pointer;transition:all 0.2s;aspect-ratio:1;min-height:44px;';
+        btn.textContent=opt.emoji;
+        btn.onclick=()=>{
+            _escState.total++;
+            if(opt.word===card.word){
+                _escState.correct++;
+                btn.style.background='rgba(16,185,129,0.6)';
+                document.getElementById('esc-feedback').textContent='✅ '+card.word+'!';
+                playFX&&playFX('correct');
+                setTimeout(escucharNext,900);
+            } else {
+                btn.style.background='rgba(239,68,68,0.6)';
+                document.getElementById('esc-feedback').textContent='❌ It was: '+card.word;
+                setTimeout(escucharNext,1200);
+            }
+            document.getElementById('esc-score').textContent=`${_escState.correct}/${_escState.total}`;
+        };
+        grid.appendChild(btn);
+    });
+    setTimeout(()=>hablarNativo(card.word,0.85),300);
+}
+
+// ── COMPLETA LA FRASE (Fill in the Blank) ────────────────────────
+let _fraseState = { idx:0, score:0 };
+window.abrirFrase = function() {
+    const p=window.familia[window.perfilActualId];
+    const nivel=p?.nivel||'Starter';
+    const levelMap={'Starter':0,'Elementary':1,'Pre-Intermediate':2,'Intermediate':3,'Upper-Intermediate':4};
+    const myLevel=levelMap[nivel]||0;
+    const pool=SENTENCE_GAPS.filter(s=>levelMap[s.level]<=myLevel+1);
+    _fraseState = { pool:[...pool].sort(()=>Math.random()-0.5), idx:0, score:0 };
+    document.getElementById('frase-overlay').style.display='flex';
+    document.getElementById('frase-score').textContent='0 XP';
+    fraseNext();
+};
+window.cerrarFrase=function(){ document.getElementById('frase-overlay').style.display='none'; };
+function fraseNext() {
+    if(_fraseState.idx>=_fraseState.pool.length){ _fraseState.idx=0; _fraseState.pool.sort(()=>Math.random()-0.5); }
+    const item=_fraseState.pool[_fraseState.idx++];
+    document.getElementById('frase-sentence').textContent=item.sentence;
+    document.getElementById('frase-feedback').textContent='';
+    document.getElementById('frase-next-btn').style.display='none';
+    const el=document.getElementById('frase-answers');
+    el.innerHTML='';
+    item.options.forEach(opt=>{
+        const btn=document.createElement('button');
+        btn.textContent=opt;
+        btn.style.cssText='background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-weight:700;padding:12px 8px;border-radius:14px;font-size:13px;cursor:pointer;min-height:44px;';
+        btn.onclick=()=>{
+            const correct=opt===item.answer;
+            btn.style.background=correct?'rgba(16,185,129,0.6)':'rgba(239,68,68,0.5)';
+            document.getElementById('frase-feedback').textContent=correct?'✅ Correct! +25 XP':'❌ Answer: '+item.answer;
+            if(correct){
+                _fraseState.score+=25;
+                document.getElementById('frase-score').textContent=_fraseState.score+' XP';
+                const p=window.familia[window.perfilActualId];
+                if(p){p.score+=25;guardarEstado();}
+                playFX&&playFX('correct');
+            }
+            document.querySelectorAll('#frase-answers button').forEach(b=>b.disabled=true);
+            document.getElementById('frase-next-btn').style.display='block';
+        };
+        el.appendChild(btn);
+    });
+    hablarNativo&&hablarNativo(item.sentence.replace('___','...'),0.85);
+}
+
 // PWA install prompt
 let _installPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
@@ -6419,7 +6718,7 @@ function ejecutarStepModulo() {
     const step = MODULE_STEPS[window._moduleStep];
     const tema = window._moduleTema;
     if (step === 'tarjetas') {
-        const temaToFlipDeck = { greetings:'Greetings',numbers:'Numbers',colors:'Colors',travel:'Travel',animals:'Animals',food:'Food',clothes:'Clothes',weather:'Weather',family:'Family',feelings:'Feelings',koala:'Koala',sea:'Sea' };
+        const temaToFlipDeck = { greetings:'Greetings',numbers:'Numbers',colors:'Colors',travel:'Travel',animals:'Animals',food:'Food',clothes:'Clothes',weather:'Weather',family:'Family',feelings:'Feelings',koala:'Koala',sea:'Sea',sports:'Sports',home:'Home',school:'School',body:'Body' };
         mostrarFlipCards(temaToFlipDeck[tema] || 'Animals');
     } else if (step === 'mision') {
         irAMisionDirecta(tema);
@@ -7462,5 +7761,77 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 </script>
+
+<!-- ═══ VELOCIDAD OVERLAY ═══ -->
+<div id="velocidad-overlay" class="fixed inset-0 z-[200] flex flex-col" style="background:linear-gradient(160deg,#1a1a2e,#e94560);display:none;">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+        <button onclick="window.cerrarVelocidad()" style="color:rgba(255,255,255,0.5);font-weight:700;font-size:14px;background:none;border:none;cursor:pointer;">✕ Cerrar</button>
+        <h2 style="color:#fff;font-weight:900;font-size:16px;">⚡ Speed Round</h2>
+        <span id="vel-score" style="color:#fbbf24;font-weight:700;font-size:13px;">0 pts</span>
+    </div>
+    <!-- Timer bar -->
+    <div style="height:6px;background:rgba(255,255,255,0.2);margin:0 16px;border-radius:3px;">
+        <div id="vel-timer-bar" style="height:100%;background:#fbbf24;border-radius:3px;width:100%;transition:width 0.1s linear;"></div>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-5">
+        <div id="vel-emoji" style="font-size:5rem;line-height:1;text-align:center;"></div>
+        <div id="vel-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:320px;"></div>
+        <div id="vel-result" style="display:none;text-align:center;padding:24px;">
+            <p style="color:#fbbf24;font-weight:900;font-size:2rem;" id="vel-final-score"></p>
+            <p style="color:#fff;font-size:14px;margin-top:8px;" id="vel-final-msg"></p>
+            <button onclick="window.abrirVelocidad()" style="margin-top:16px;background:#fbbf24;color:#1a1a2e;font-weight:900;padding:14px 32px;border-radius:20px;border:none;cursor:pointer;font-size:14px;">▶ Play Again</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ ESCUCHAR OVERLAY ═══ -->
+<div id="escuchar-overlay" class="fixed inset-0 z-[200] flex flex-col touch-manipulation" style="background:linear-gradient(160deg,#0c4a6e,#0369a1,#0284c7);display:none;">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+        <button onclick="window.cerrarEscuchar()" style="color:rgba(255,255,255,0.5);font-weight:700;font-size:14px;background:none;border:none;cursor:pointer;">✕ Cerrar</button>
+        <h2 style="color:#fff;font-weight:900;font-size:16px;">👂 Listen & Choose</h2>
+        <span id="esc-score" style="color:#fbbf24;font-weight:700;font-size:13px;">0/0</span>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-6">
+        <div style="text-align:center;">
+            <button id="esc-play-btn" onclick="window.escucharPlay()" style="font-size:4rem;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.4);border-radius:50%;width:100px;height:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">🔊</button>
+            <p style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:8px;font-weight:600;">TAP TO HEAR THE WORD</p>
+        </div>
+        <div id="esc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:320px;"></div>
+        <div id="esc-feedback" style="font-weight:900;font-size:18px;text-align:center;min-height:28px;color:#fff;"></div>
+    </div>
+</div>
+
+<!-- ═══ FRASE OVERLAY ═══ -->
+<div id="frase-overlay" class="fixed inset-0 z-[200] flex flex-col" style="background:linear-gradient(160deg,#064e3b,#065f46,#047857);display:none;">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+        <button onclick="window.cerrarFrase()" style="color:rgba(255,255,255,0.5);font-weight:700;font-size:14px;background:none;border:none;cursor:pointer;">✕ Cerrar</button>
+        <h2 style="color:#fff;font-weight:900;font-size:16px;">📝 Fill the Gap</h2>
+        <span id="frase-score" style="color:#fbbf24;font-weight:700;font-size:13px;">0 XP</span>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-5 max-w-sm mx-auto w-full">
+        <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:24px;width:100%;text-align:center;">
+            <p id="frase-sentence" style="color:#fff;font-size:1.1rem;font-weight:700;line-height:1.6;"></p>
+        </div>
+        <div id="frase-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;"></div>
+        <div id="frase-feedback" style="font-weight:900;font-size:16px;text-align:center;min-height:24px;color:#fff;"></div>
+        <button id="frase-next-btn" onclick="fraseNext()" style="display:none;background:#fbbf24;color:#064e3b;font-weight:900;padding:14px 32px;border-radius:20px;border:none;cursor:pointer;font-size:14px;">Next ▶</button>
+    </div>
+</div>
+
+<!-- ═══ INSTALL BANNER ═══ -->
+<div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:linear-gradient(90deg,#1e3a5f,#1e1b4b);padding:12px 16px;border-top:1px solid rgba(255,255,255,0.15);align-items:center;gap:12px;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.5rem;">📱</span>
+        <div>
+            <p style="color:#fff;font-weight:700;font-size:13px;margin:0;">Instalá la app</p>
+            <p style="color:rgba(255,255,255,0.6);font-size:11px;margin:0;">Usala sin internet</p>
+        </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('install-banner').style.display='none';localStorage.setItem('install_dismissed','1')" style="background:rgba(255,255,255,0.1);color:#fff;border:none;padding:8px 12px;border-radius:10px;font-size:12px;cursor:pointer;">Después</button>
+        <button id="install-btn" style="background:#6366f1;color:#fff;font-weight:700;border:none;padding:8px 16px;border-radius:10px;font-size:12px;cursor:pointer;">+ Agregar</button>
+    </div>
+</div>
+
 </body>
 </html>
