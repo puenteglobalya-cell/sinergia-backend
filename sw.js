@@ -1,10 +1,20 @@
 // Sinergia Familiar — Service Worker
-const CACHE = 'sinergia-v1';
-const OFFLINE_ASSETS = ['/'];
+const CACHE = 'sinergia-v4';
+const OFFLINE_ASSETS = [
+  '/',
+  '/index_preview.html',
+  '/manifest.json',
+  // Tailwind CDN
+  'https://cdn.tailwindcss.com',
+  // Google Fonts
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(OFFLINE_ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then(c => Promise.allSettled(OFFLINE_ASSETS.map(url => c.add(url).catch(() => null))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -17,22 +27,32 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Only cache same-origin GET requests (not Gemini API calls)
   if (e.request.method !== 'GET') return;
-  if (e.request.url.includes('generativelanguage.googleapis.com')) return;
-  if (e.request.url.includes('vercel.app/api')) return;
+  // Never intercept AI/API calls — they need live network
+  const url = e.request.url;
+  if (url.includes('generativelanguage.googleapis.com')) return;
+  if (url.includes('vercel.app/api')) return;
 
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (!res || res.status !== 200 || res.type === 'opaque') return res;
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-        return res;
-      }).catch(() => caches.match('/'));
-    })
-  );
+  // Cache-first for same-origin + known CDN assets; network-first for everything else
+  const isCacheable = url.startsWith(self.location.origin)
+    || url.includes('cdn.tailwindcss.com')
+    || url.includes('fonts.googleapis.com')
+    || url.includes('fonts.gstatic.com');
+
+  if (isCacheable) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => caches.match('/index_preview.html'));
+      })
+    );
+  }
 });
 
 // Daily reminder notification
