@@ -882,8 +882,10 @@
                         <p id="nivel-nena-tag" class="text-xs text-slate-400 font-semibold">Level: Starter</p>
                     </div>
                 </div>
-                <div class="flex gap-3 items-center flex-shrink-0">
+                <div class="flex gap-2 items-center flex-shrink-0">
                     <button onclick="window.langCycle()" id="global-lang-btn" style="font-size:1.1rem;background:none;border:none;cursor:pointer;padding:2px;" title="Cambiar idioma">🌐</button>
+                    <button onclick="abrirLogros()" style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:14px;padding:6px 8px;font-size:18px;cursor:pointer;line-height:1;" title="Mis logros">🏆</button>
+                    <button onclick="abrirDashboardPadres()" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:6px 8px;font-size:18px;cursor:pointer;line-height:1;" title="Panel padres">📊</button>
                     <div class="bg-orange-50 border border-orange-100 rounded-2xl px-3 py-2 text-center podium-shadow">
                         <p class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Streak</p>
                         <p class="text-base font-extrabold text-orange-600 leading-none mt-0.5">🔥<span id="racha-nena">0</span></p>
@@ -2816,8 +2818,10 @@ let fcState = { deck:[], idx:0, flipped:false };
 
 window.mostrarFlipCards = function(tema) {
     document.body.classList.add('game-active');
-    const base = FLIP_DECKS[tema] || FLIP_DECKS['Animals'];
-    fcState.deck    = [...base].sort(() => Math.random() - 0.5).slice(0, 6);
+    const base = tema === '_custom' && window._customDeck
+        ? window._customDeck
+        : (FLIP_DECKS[tema] || FLIP_DECKS['Animals']);
+    fcState.deck    = [...base].sort(() => Math.random() - 0.5).slice(0, Math.min(base.length, 6));
     fcState.idx     = 0;
     fcState.flipped = false;
     document.getElementById('flipcards-overlay').classList.remove('hidden');
@@ -6524,16 +6528,245 @@ window.storyNext = function() {
   } else {
     // finished — mark done
     storySaveScene(s.id, s.scenes.length - 1, true);
-    lanzarEstrellas && lanzarEstrellas();
     window.speechSynthesis && window.speechSynthesis.cancel();
     const p = window.familia && window.familia[window.perfilActualId];
-    if (p) { p.xp = (p.xp||0) + 20; guardarEstado && guardarEstado(); }
-    volverListaStories();
+    if (p) { p.xp = (p.xp||0) + 20; p.score = (p.score||0) + 20; guardarEstado && guardarEstado(); }
+    logroCheck && logroCheck(p);
+    abrirStoryQuiz(window._storyIdx);
   }
 };
 
 window.storyPrev = function() {
   if (window._storyScene > 0) { window._storyScene--; renderScene(); }
+};
+
+// ===== LOGROS (ACHIEVEMENTS) =====
+const LOGROS = [
+  { id:'first_story',  icon:'📖', name:'Primera Historia',   desc:'Leíste tu primer cuento' },
+  { id:'five_stories', icon:'📚', name:'Lectora Voraz',      desc:'Terminaste 5 cuentos' },
+  { id:'ten_stories',  icon:'🏆', name:'Gran Lectora',       desc:'Terminaste 10 cuentos' },
+  { id:'all_stories',  icon:'👑', name:'Maestra de Cuentos', desc:'Terminaste todos los cuentos' },
+  { id:'streak3',      icon:'🔥', name:'Racha de 3',         desc:'3 días seguidos practicando' },
+  { id:'streak7',      icon:'⚡', name:'Semana Perfecta',    desc:'7 días seguidos' },
+  { id:'xp100',        icon:'⭐', name:'100 XP',             desc:'Alcanzaste 100 puntos' },
+  { id:'xp500',        icon:'🌟', name:'500 XP',             desc:'Alcanzaste 500 puntos' },
+  { id:'first_mission',icon:'🎯', name:'Primera Misión',     desc:'Completaste tu primera misión del día' },
+  { id:'mission5',     icon:'🏅', name:'Súper Misiones',     desc:'Completaste 5 misiones del día' },
+];
+
+function logroCheck(p) {
+  if (!p) return;
+  if (!p.logros) p.logros = [];
+  const stories = p.storyProgress ? Object.values(p.storyProgress).filter(v=>v.done).length : 0;
+  const racha = p.racha || 0;
+  const xp = p.xp || p.score || 0;
+  const missions = p.misiones ? Object.keys(p.misiones).length : 0;
+  const checks = {
+    first_story:  stories >= 1,
+    five_stories: stories >= 5,
+    ten_stories:  stories >= 10,
+    all_stories:  stories >= 30,
+    streak3:      racha >= 3,
+    streak7:      racha >= 7,
+    xp100:        xp >= 100,
+    xp500:        xp >= 500,
+    first_mission:missions >= 1,
+    mission5:     missions >= 5,
+  };
+  let newOne = null;
+  LOGROS.forEach(l => {
+    if (!p.logros.includes(l.id) && checks[l.id]) {
+      p.logros.push(l.id);
+      if (!newOne) newOne = l;
+    }
+  });
+  if (newOne) { guardarEstado && guardarEstado(); showLogroToast(newOne); }
+}
+
+function showLogroToast(l) {
+  const el = document.getElementById('logro-toast');
+  if (!el) return;
+  el.innerHTML = `<span style="font-size:26px;">${l.icon}</span><div><div style="font-weight:900;font-size:13px;">¡Nuevo logro! ${l.name}</div><div style="font-size:11px;opacity:0.85;">${l.desc}</div></div>`;
+  el.style.display = 'flex';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+window.abrirLogros = function() {
+  const p = window.familia && window.familia[window.perfilActualId];
+  const earned = (p && p.logros) || [];
+  const el = document.getElementById('logros-overlay');
+  if (!el) return;
+  el.style.display = 'flex';
+  document.body.classList.add('game-active');
+  document.getElementById('logros-grid').innerHTML = LOGROS.map(l => {
+    const got = earned.includes(l.id);
+    return `<div style="background:${got?'linear-gradient(135deg,#1e3a5f,#1e40af)':'rgba(255,255,255,0.05)'};border-radius:16px;padding:14px;text-align:center;opacity:${got?1:0.4};">
+      <div style="font-size:30px;">${got?l.icon:'🔒'}</div>
+      <div style="color:#fff;font-weight:700;font-size:11px;margin-top:6px;">${l.name}</div>
+      <div style="color:rgba(255,255,255,0.55);font-size:10px;margin-top:2px;">${l.desc}</div>
+    </div>`;
+  }).join('');
+};
+
+window.cerrarLogros = function() {
+  document.getElementById('logros-overlay').style.display = 'none';
+  document.body.classList.remove('game-active');
+};
+
+// ===== STORY QUIZ =====
+window._quizStory = 0;
+window._quizIdx = 0;
+window._quizScore = 0;
+
+(function addQuizToStories() {
+  const quizzes = [
+    [{ q:"What is the unicorn's name?", opts:['Luna','Lily','Bella'], ans:0 },
+     { q:"What did Lily lose?", opts:['Her cat','Her red balloon','Her book'], ans:1 }],
+    [{ q:"What did Sofia bring to the dragon?", opts:['Flowers','Cookies','A book'], ans:1 },
+     { q:"What was the dragon's name?", opts:['Rex','Pip','Buzz'], ans:1 }],
+    [{ q:"What is the mermaid's name?", opts:['Pearl','Coral','Lily'], ans:0 },
+     { q:"Who moved the flower?", opts:['A fish','A crab','A turtle'], ans:1 }],
+    [{ q:"Where did Bella live?", opts:['In a cave','In a mushroom house','Under a tree'], ans:1 },
+     { q:"Where did Bella fly at the end?", opts:['The pond','The sky','The top of an oak tree'], ans:2 }],
+    [{ q:"What is the cat's name?", opts:['Mia','Iris','Rainbow'], ans:1 },
+     { q:"What happened when Iris was sad?", opts:['She hid','Her colors turned gray','She ran away'], ans:1 }],
+    [{ q:"What was the caterpillar's name?", opts:['Emma','Coco','Lily'], ans:1 },
+     { q:"What color were the butterfly's wings?", opts:['Blue and green','Orange and black','Pink and yellow'], ans:1 }],
+    [{ q:"Why did Bea feel small?", opts:["She was shy","She carried tiny drops","She got lost"], ans:1 },
+     { q:"Who did Bea rescue?", opts:['The queen bee','Baby bee Buzz','A butterfly'], ans:1 }],
+    [{ q:"What did Clara wish for?", opts:['A puppy','A baby sister','A new toy'], ans:1 },
+     { q:"What was the baby's name?", opts:['Clara','Luna','Rose'], ans:2 }],
+    [{ q:"Where was the hidden garden?", opts:['In a forest','Behind a park wall door','Under the sea'], ans:1 },
+     { q:"What did the sign say?", opts:['Keep out!','Whoever cares keeps the magic','Enter if you are brave'], ans:1 }],
+    [{ q:"What did Rex love to do?", opts:['Roar','Swim','Dance'], ans:2 },
+     { q:"What happened when Rex danced in the storm?", opts:['It rained','He got lost','Others laughed'], ans:0 }],
+  ];
+  quizzes.forEach((q, i) => { if (STORIES[i]) STORIES[i].quiz = q; });
+})();
+
+(function addVocabToStories() {
+  const vocabs = [
+    [{emoji:'🦄',word:'UNICORN',es:'Unicornio'},{emoji:'🌸',word:'FLOWER',es:'Flor'},{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},{emoji:'🎈',word:'BALLOON',es:'Globo'}],
+    [{emoji:'🐉',word:'DRAGON',es:'Dragón'},{emoji:'🍪',word:'COOKIE',es:'Galleta'},{emoji:'🔥',word:'FIRE',es:'Fuego'},{emoji:'🏔️',word:'HILL',es:'Colina'}],
+    [{emoji:'🧜',word:'MERMAID',es:'Sirena'},{emoji:'🌊',word:'OCEAN',es:'Océano'},{emoji:'🦀',word:'CRAB',es:'Cangrejo'},{emoji:'🌿',word:'CORAL',es:'Coral'}],
+    [{emoji:'🧚',word:'FAIRY',es:'Hada'},{emoji:'🍄',word:'MUSHROOM',es:'Hongo'},{emoji:'🌳',word:'OAK TREE',es:'Roble'},{emoji:'🪽',word:'WING',es:'Ala'}],
+    [{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},{emoji:'🐱',word:'CAT',es:'Gato'},{emoji:'🎂',word:'BIRTHDAY',es:'Cumpleaños'},{emoji:'🌧️',word:'RAIN',es:'Lluvia'}],
+    [{emoji:'🐛',word:'CATERPILLAR',es:'Oruga'},{emoji:'🦋',word:'BUTTERFLY',es:'Mariposa'},{emoji:'🫙',word:'JAR',es:'Frasco'},{emoji:'🌸',word:'GARDEN',es:'Jardín'}],
+    [{emoji:'🐝',word:'BEE',es:'Abeja'},{emoji:'🍯',word:'HONEY',es:'Miel'},{emoji:'🌻',word:'NECTAR',es:'Néctar'},{emoji:'⛈️',word:'STORM',es:'Tormenta'}],
+    [{emoji:'⭐',word:'STAR',es:'Estrella'},{emoji:'🌙',word:'NIGHT',es:'Noche'},{emoji:'👶',word:'BABY',es:'Bebé'},{emoji:'🪟',word:'WINDOW',es:'Ventana'}],
+    [{emoji:'🌸',word:'GARDEN',es:'Jardín'},{emoji:'🚪',word:'DOOR',es:'Puerta'},{emoji:'✨',word:'MAGIC',es:'Magia'},{emoji:'💧',word:'WATER',es:'Agua'}],
+    [{emoji:'🦕',word:'DINOSAUR',es:'Dinosaurio'},{emoji:'💃',word:'DANCE',es:'Bailar'},{emoji:'⛈️',word:'STORM',es:'Tormenta'},{emoji:'🌧️',word:'RAIN',es:'Lluvia'}],
+  ];
+  vocabs.forEach((v, i) => { if (STORIES[i]) STORIES[i].vocab = v; });
+})();
+
+window.abrirStoryQuiz = function(storyIdx) {
+  const s = STORIES[storyIdx];
+  if (!s || !s.quiz || !s.quiz.length) { volverListaStories(); return; }
+  window._quizStory = storyIdx;
+  window._quizIdx = 0;
+  window._quizScore = 0;
+  const el = document.getElementById('story-quiz-overlay');
+  if (!el) { volverListaStories(); return; }
+  el.style.display = 'flex';
+  renderQuizQ();
+};
+
+function renderQuizQ() {
+  const s = STORIES[window._quizStory];
+  const q = s.quiz[window._quizIdx];
+  document.getElementById('quiz-question').textContent = q.q;
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  document.getElementById('quiz-options').innerHTML = q.opts.map((opt, i) =>
+    `<button onclick="quizAnswer(${i})" style="background:rgba(255,255,255,0.1);color:#fff;border:2px solid rgba(255,255,255,0.2);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%;">${opt}</button>`
+  ).join('');
+}
+
+window.quizAnswer = function(idx) {
+  const q = STORIES[window._quizStory].quiz[window._quizIdx];
+  document.querySelectorAll('#quiz-options button').forEach(b => b.disabled = true);
+  const correct = idx === q.ans;
+  document.querySelectorAll('#quiz-options button')[idx].style.background = correct ? '#10b981' : '#ef4444';
+  document.querySelectorAll('#quiz-options button')[q.ans].style.background = '#10b981';
+  document.getElementById('quiz-feedback').textContent = correct ? '✅ ¡Correcto!' : '❌ ¡Casi!';
+  if (correct) { window._quizScore++; playFX && playFX('correct'); }
+  document.getElementById('quiz-next-btn').style.display = 'block';
+};
+
+window.quizNext = function() {
+  const s = STORIES[window._quizStory];
+  window._quizIdx++;
+  if (window._quizIdx < s.quiz.length) { renderQuizQ(); return; }
+  // Quiz done — show results
+  const xpBonus = window._quizScore * 10;
+  const p = window.familia && window.familia[window.perfilActualId];
+  if (p && xpBonus > 0) { p.xp = (p.xp||0) + xpBonus; p.score = (p.score||0) + xpBonus; guardarEstado && guardarEstado(); }
+  if (window._quizScore === s.quiz.length) lanzarEstrellas && lanzarEstrellas();
+  document.getElementById('quiz-question').textContent = window._quizScore === s.quiz.length ? '🎉 ¡Perfecto!' : `${window._quizScore}/${s.quiz.length} correctas`;
+  document.getElementById('quiz-options').innerHTML = '';
+  document.getElementById('quiz-feedback').textContent = xpBonus > 0 ? `+${xpBonus} XP ganado` : 'Seguí practicando';
+  const nextBtn = document.getElementById('quiz-next-btn');
+  nextBtn.textContent = '📚 Volver a cuentos';
+  nextBtn.style.display = 'block';
+  nextBtn.onclick = function() {
+    document.getElementById('story-quiz-overlay').style.display = 'none';
+    logroCheck(p);
+    volverListaStories();
+  };
+  if (s.vocab) {
+    const vBtn = document.getElementById('quiz-vocab-btn');
+    if (vBtn) {
+      vBtn.style.display = 'block';
+      vBtn.onclick = function() {
+        document.getElementById('story-quiz-overlay').style.display = 'none';
+        window._customDeck = s.vocab;
+        window.mostrarFlipCards && window.mostrarFlipCards('_custom');
+      };
+    }
+  }
+};
+
+// ===== PARENT DASHBOARD =====
+window.abrirDashboardPadres = function() {
+  const pwd = prompt('Contraseña:');
+  if (pwd !== '1234') { if(pwd!==null) alert('Contraseña incorrecta'); return; }
+  const el = document.getElementById('dashboard-padres-overlay');
+  if (!el) return;
+  el.style.display = 'flex';
+  document.body.classList.add('game-active');
+  const familia = window.familia || {};
+  const weekAgo = new Date(Date.now()-7*86400000).toISOString().split('T')[0];
+  document.getElementById('dashboard-content').innerHTML = Object.values(familia).map(p => {
+    const storiesDone = p.storyProgress ? Object.values(p.storyProgress).filter(v=>v.done).length : 0;
+    const racha = p.racha || 0;
+    const xp = p.xp || p.score || 0;
+    const missions = p.misiones ? Object.keys(p.misiones).filter(k => {
+      const parts = k.split('_'); // mision_YYYY_M_D
+      if (parts.length < 4) return false;
+      const d = `${parts[1]}-${String(parts[2]).padStart(2,'0')}-${String(parts[3]).padStart(2,'0')}`;
+      return d >= weekAgo;
+    }).length : 0;
+    const logrosCount = p.logros ? p.logros.length : 0;
+    return `<div style="background:rgba(255,255,255,0.07);border-radius:20px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:30px;">${p.avatar||'🧒'}</span>
+        <div><div style="color:#fff;font-weight:900;font-size:15px;">${p.nombre||'Perfil'}</div>
+        <div style="color:#a78bfa;font-size:12px;">${p.nivel||'Starter'} · ${xp} XP total</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;">📚</div><div style="color:#fff;font-weight:700;font-size:18px;">${storiesDone}</div><div style="color:rgba(255,255,255,0.5);font-size:10px;">Cuentos leídos</div></div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;">🔥</div><div style="color:#fff;font-weight:700;font-size:18px;">${racha}</div><div style="color:rgba(255,255,255,0.5);font-size:10px;">Días seguidos</div></div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;">🎯</div><div style="color:#fff;font-weight:700;font-size:18px;">${missions}</div><div style="color:rgba(255,255,255,0.5);font-size:10px;">Misiones (7 días)</div></div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;">🏆</div><div style="color:#fff;font-weight:700;font-size:18px;">${logrosCount}</div><div style="color:rgba(255,255,255,0.5);font-size:10px;">Logros</div></div>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">No hay perfiles</p>';
+};
+
+window.cerrarDashboard = function() {
+  document.getElementById('dashboard-padres-overlay').style.display = 'none';
+  document.body.classList.remove('game-active');
 };
 
 // PWA install prompt
@@ -8596,6 +8829,43 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="btn-story-next" onclick="storyNext()" style="flex:2;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;cursor:pointer;font-weight:700;">Siguiente ▶</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- LOGRO TOAST -->
+<div id="logro-toast" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:12px 18px;border-radius:20px;z-index:10001;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(79,70,229,0.5);max-width:320px;width:90%;"></div>
+
+<!-- LOGROS OVERLAY -->
+<div id="logros-overlay" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);z-index:9999;flex-direction:column;align-items:center;overflow-y:auto;">
+  <div style="width:100%;max-width:480px;padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="color:#fff;font-size:20px;margin:0;">🏆 Mis Logros</h2>
+      <button onclick="cerrarLogros()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div id="logros-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"></div>
+  </div>
+</div>
+
+<!-- STORY QUIZ OVERLAY -->
+<div id="story-quiz-overlay" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);z-index:10000;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="width:100%;max-width:400px;">
+    <h2 style="color:#fbbf24;font-size:18px;text-align:center;margin:0 0 20px;">🧠 Quick Quiz!</h2>
+    <p id="quiz-question" style="color:#fff;font-size:17px;font-weight:700;text-align:center;margin:0 0 20px;line-height:1.5;"></p>
+    <div id="quiz-options" style="display:flex;flex-direction:column;gap:10px;"></div>
+    <p id="quiz-feedback" style="text-align:center;font-size:20px;font-weight:900;margin-top:16px;min-height:28px;color:#fff;"></p>
+    <button id="quiz-next-btn" onclick="quizNext()" style="display:none;width:100%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;cursor:pointer;font-weight:700;margin-top:12px;">Siguiente ▶</button>
+    <button id="quiz-vocab-btn" style="display:none;width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:14px;padding:14px;font-size:14px;cursor:pointer;font-weight:700;margin-top:8px;">🃏 Practicar palabras del cuento</button>
+  </div>
+</div>
+
+<!-- PARENT DASHBOARD OVERLAY -->
+<div id="dashboard-padres-overlay" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e1b4b);z-index:9999;flex-direction:column;align-items:center;overflow-y:auto;">
+  <div style="width:100%;max-width:480px;padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="color:#fff;font-size:20px;margin:0;">📊 Panel de Padres</h2>
+      <button onclick="cerrarDashboard()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div id="dashboard-content"></div>
   </div>
 </div>
 
