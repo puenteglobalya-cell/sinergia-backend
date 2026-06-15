@@ -6401,9 +6401,26 @@ window.cerrarStories = function() {
   document.body.classList.remove('game-active');
 };
 
+// --- Story progress helpers ---
+function storyGetProgress() {
+  const p = window.familia && window.familia[window.perfilActualId];
+  return (p && p.storyProgress) || {};
+}
+
+function storySaveScene(storyId, sceneIdx, done) {
+  const p = window.familia && window.familia[window.perfilActualId];
+  if (!p) return;
+  if (!p.storyProgress) p.storyProgress = {};
+  p.storyProgress[storyId] = { scene: sceneIdx, done: !!done };
+  guardarEstado && guardarEstado();
+}
+
 window.abrirStory = function(idx) {
   window._storyIdx = idx;
-  window._storyScene = 0;
+  const s = STORIES[idx];
+  const prog = storyGetProgress()[s.id];
+  // Resume from last unfinished scene, or restart if completed
+  window._storyScene = (prog && !prog.done && prog.scene > 0) ? prog.scene : 0;
   renderScene();
   document.getElementById('story-list-view').style.display = 'none';
   document.getElementById('story-reader-view').style.display = 'flex';
@@ -6411,18 +6428,39 @@ window.abrirStory = function(idx) {
 
 window.volverListaStories = function() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  // Save current position when going back
+  const s = STORIES[window._storyIdx];
+  if (s) storySaveScene(s.id, window._storyScene, false);
+  renderStoryList();
   document.getElementById('story-list-view').style.display = 'grid';
   document.getElementById('story-reader-view').style.display = 'none';
 };
 
 function renderStoryList() {
   const grid = document.getElementById('story-grid');
-  grid.innerHTML = STORIES.map((s,i) => `
-    <button onclick="abrirStory(${i})" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:16px;padding:16px 10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:80px;">
+  const prog = storyGetProgress();
+  const readCount = Object.values(prog).filter(v => v.done).length;
+  // Header with stats
+  const statsEl = document.getElementById('story-stats');
+  if (statsEl) statsEl.textContent = readCount > 0 ? `✅ ${readCount} de ${STORIES.length} leídos` : `${STORIES.length} cuentos disponibles`;
+
+  grid.innerHTML = STORIES.map((s,i) => {
+    const p = prog[s.id];
+    const done = p && p.done;
+    const inProgress = p && !p.done && p.scene > 0;
+    const sceneLabel = inProgress ? `Escena ${p.scene+1}/${s.scenes.length}` : '';
+    const badge = done
+      ? `<span style="position:absolute;top:6px;right:6px;background:#10b981;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;">✅</span>`
+      : inProgress
+        ? `<span style="position:absolute;top:6px;right:6px;background:#f59e0b;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:900;color:#1a1a2e;">${sceneLabel}</span>`
+        : '';
+    const bg = done ? 'linear-gradient(135deg,#065f46,#059669)' : 'linear-gradient(135deg,#667eea,#764ba2)';
+    return `<button onclick="abrirStory(${i})" style="position:relative;background:${bg};color:#fff;border:none;border-radius:16px;padding:16px 10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:80px;">
+      ${badge}
       <span style="font-size:28px;">${s.emoji}</span>
-      <span style="text-align:center;line-height:1.2;">${s.title}</span>
-    </button>
-  `).join('');
+      <span style="text-align:center;line-height:1.2;font-size:11px;">${s.title}</span>
+    </button>`;
+  }).join('');
 }
 
 window._storyLang = 'en'; // 'en' or 'es'
@@ -6481,9 +6519,11 @@ window.storyNext = function() {
   const s = STORIES[window._storyIdx];
   if (window._storyScene < s.scenes.length - 1) {
     window._storyScene++;
+    storySaveScene(s.id, window._storyScene, false);
     renderScene();
   } else {
-    // finished
+    // finished — mark done
+    storySaveScene(s.id, s.scenes.length - 1, true);
     lanzarEstrellas && lanzarEstrellas();
     window.speechSynthesis && window.speechSynthesis.cancel();
     const p = window.familia && window.familia[window.perfilActualId];
@@ -8520,10 +8560,11 @@ document.addEventListener('DOMContentLoaded', () => {
   <div style="width:100%;max-width:480px;padding:16px;">
     <!-- Story List View -->
     <div id="story-list-view" style="display:grid;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h2 style="color:#fff;font-size:20px;margin:0;">📚 Stories</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <h2 style="color:#fff;font-size:20px;margin:0;">📚 Cuentos</h2>
         <button onclick="cerrarStories()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
       </div>
+      <p id="story-stats" style="color:#a78bfa;font-size:12px;margin:0 0 14px;font-weight:700;"></p>
       <div id="story-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"></div>
     </div>
     <!-- Story Reader View -->
