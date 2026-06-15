@@ -1350,6 +1350,11 @@
                 <span class="text-white font-extrabold text-sm">Frase</span>
                 <span class="text-white/50 text-xs text-center">Fill the Gap</span>
             </button>
+            <button onclick="cerrarGamePicker();window.abrirStories()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                <span class="text-4xl">📚</span>
+                <span class="text-white font-extrabold text-sm">Stories</span>
+                <span class="text-white/50 text-xs text-center">Read &amp; Listen</span>
+            </button>
         </div>
     </div>
 </div>
@@ -2200,6 +2205,130 @@ const SENTENCE_BANK = [
     { words:['I','do','not','understand.'],                 sentence:'I do not understand.',               distractor:'know' },
     { words:['Can','you','speak','slowly','please?'],       sentence:'Can you speak slowly please?',       distractor:'quickly' },
     { words:['I','love','cats','and','dogs!'],              sentence:'I love cats and dogs!',              distractor:'hate' },
+];
+
+// ── Stories ───────────────────────────────────────────────────────────────────
+const STORIES = [
+  { id:'s1', emoji:'🦄', title:'The Magic Unicorn', scenes:[
+    "Once upon a time, there was a beautiful unicorn named Luna. She lived in a colorful forest full of flowers. Luna had a shiny horn that could make wishes come true. Every morning she danced in the golden sunlight.",
+    "One day, Luna found a little girl crying near a river. The girl's name was Lily. She had lost her favorite red balloon. Luna touched the sky with her magic horn.",
+    "A new balloon appeared — bigger and more beautiful than before! It was pink and covered in stars. Lily smiled and hugged Luna tight. They became the best of friends.",
+    "From that day on, Luna and Lily played together every afternoon. They ran through meadows and jumped over rainbows. True friendship is the best kind of magic."
+  ]},
+  { id:'s2', emoji:'🐉', title:'The Friendly Dragon', scenes:[
+    "Everyone in the village was afraid of the dragon on the hill. But little Sofia was not scared at all. She baked some cookies and climbed up the hill. She knocked on the big cave door.",
+    "The dragon opened the door slowly. His name was Pip, and he had big green eyes. He had never had a visitor before. He was actually very lonely.",
+    "Sofia gave Pip the cookies and they sat and talked all afternoon. Pip showed her how he could blow little fire bubbles. Sofia laughed and clapped her hands. The bubbles looked like tiny orange balloons.",
+    "Sofia told the village that Pip was kind and gentle. Soon everyone came to visit him. Pip was no longer lonely. Being brave enough to say hello changes everything."
+  ]},
+  { id:'s3', emoji:'🧜', title:"The Little Mermaid's Garden", scenes:[
+    "Deep under the ocean there was a mermaid named Pearl. She had a garden full of colorful coral and sea flowers. Every day she watered her garden with a magic shell. The fish came to play among the flowers.",
+    "One morning Pearl noticed her favorite pink flower was gone. She looked everywhere — behind the rocks, under the sand, near the big shipwreck. But she could not find it.",
+    "A little crab named Clicky came running. He held the flower in his claws! He had moved it to a sunnier spot so it would grow bigger. Pearl smiled with relief.",
+    "Together Pearl and Clicky planted even more flowers. The garden became the most beautiful place in the ocean. Helping each other makes everything grow."
+  ]},
+  { id:'s4', emoji:'🧚', title:"A Fairy's First Day", scenes:[
+    "Bella was a brand new fairy. Her wings were tiny and she had never flown before. She lived in a mushroom house near a pond. Today was her first day of Fairy School.",
+    "She tried to fly but fell into a pile of soft leaves. Then she tried again and bumped into a flower. The other fairies giggled but kindly showed her how to flap her wings gently.",
+    "By lunchtime Bella could fly in a small circle. By afternoon she flew all the way to the top of the tallest oak tree! She looked at the whole forest from above.",
+    "Bella learned that trying again is the secret to success. Every fairy fell down before they could fly high. Now she helps new fairies learn to fly too."
+  ]},
+  { id:'s5', emoji:'🌈', title:'The Rainbow Cat', scenes:[
+    "Iris was a very special cat with fur the color of a rainbow. When she was happy her colors were bright and vivid. When she was sad her colors turned gray. She lived with a girl named Mia.",
+    "One rainy afternoon Mia felt sad because her birthday party was canceled. Iris jumped onto her lap and purred softly. But even Iris felt a little gray that day.",
+    "Then Mia had an idea. She invited her three friends to come inside for a cozy party! They made sandwiches and drew pictures and told funny stories. Iris began to glow with color again.",
+    "By evening the rain stopped and a real rainbow appeared in the sky. Iris sat in the window and her colors matched perfectly. Joy can always be found if you look for it."
+  ]},
+  { id:'s6', emoji:'🦋', title:'My Best Friend Butterfly', scenes:[
+    "Emma found a caterpillar in the garden and named her Coco. She made Coco a cozy home in a jar with leaves and sticks. Every day Emma talked to Coco and told her about school.",
+    "One morning Coco made a chrysalis. Emma was worried — Coco was so still and quiet! Her mom explained that Coco was transforming into something wonderful.",
+    "Two weeks later a beautiful butterfly emerged! Her wings were orange and black with tiny white dots. Emma opened the jar and Coco landed on her finger.",
+    "Emma let Coco fly free into the garden. But every day Coco came back to visit her. True friendship means letting others grow and fly."
+  ]},
+  { id:'s7', emoji:'🐝', title:'The Brave Little Bee', scenes:[
+    "Bea was the smallest bee in the whole hive. The other bees could carry big drops of nectar. Bea could only carry tiny drops. She felt small and unimportant.",
+    "One day a storm was coming. The bees were flying home as fast as they could. Bea noticed that baby bee Buzz had fallen asleep on a flower far from the hive.",
+    "Bea flew straight into the wind. It was very hard but she kept going. She gently woke up Buzz and guided him safely home. They arrived just before the storm began.",
+    "The whole hive celebrated Bea as a hero. The queen said size does not matter — what matters is a brave heart. Bea felt proud and tall for the first time."
+  ]},
+  { id:'s8', emoji:'⭐', title:'Stars and Wishes', scenes:[
+    "Every night before bed, little Clara looked out her window at the stars. She always picked the brightest star and made a wish. Her biggest wish was to have a baby sister.",
+    "Months later her parents had wonderful news — a baby was coming! Clara could not believe the star had heard her wish. She drew a picture for her new sister.",
+    "When baby Rose arrived she was tiny and soft and smelled like flowers. Clara sang songs and made funny faces to make Rose smile. Rose always looked for Clara's voice.",
+    "Clara learned that wishes come true when you believe and wait patiently. She still looks at the stars every night — but now she says thank you instead of wishing."
+  ]},
+  { id:'s9', emoji:'🌸', title:'The Magic Garden', scenes:[
+    "Nora discovered a hidden garden behind an old wooden door in the park wall. Inside everything was magical — flowers sang quiet melodies and trees had golden leaves. A sign said: Whoever cares for this garden keeps its magic alive.",
+    "Nora came every day after school. She watered the flowers and pulled out the weeds and sang to the trees. The garden grew more and more beautiful each week.",
+    "One autumn she noticed the magic was fading — the flowers were quiet and the leaves turned brown. She read the sign again: Whoever CARES. She understood.",
+    "She invited her whole class to help. Together they cleaned and planted and watered and sang. The garden bloomed brighter than ever before. Magic grows when it is shared."
+  ]},
+  { id:'s10', emoji:'🦕', title:'The Dancing Dinosaur', scenes:[
+    "Rex was a dinosaur who lived sixty five million years ago — but he was very different from the others. While the other dinosaurs roared, Rex loved to dance. He wiggled and stomped and spun in circles.",
+    "The other dinosaurs laughed at him. Dancing was not what dinosaurs did! But Rex kept dancing every single day because it made him feel happy and free.",
+    "One evening dark clouds filled the sky. Rex danced an amazing rain dance — jumping and swirling with all his might. And it worked! Cool rain fell on the dry land.",
+    "The other dinosaurs danced beside him and together they made rain for their whole valley. From that day on dancing was a dinosaur tradition. Always be brave enough to be different."
+  ]},
+  { id:'s11', emoji:'🐘', title:'The Helpful Elephant', scenes:[
+    "Ella the elephant had the biggest ears in the jungle. She could hear things no one else could hear — a bird crying far away, a lost baby deer, a friend in need.",
+    "One morning she heard a soft sound — someone was stuck! She followed the sound deep into the thick mud. It was a baby hippo sinking slowly.",
+    "Ella used her long trunk to pull and pull. Pop! The hippo came out of the mud covered in brown splashes. He coughed and blinked and said thank you in a tiny voice.",
+    "Ella washed him in the river and walked him home. After that day all the jungle animals knew — if you are in trouble just make a sound and Ella will hear you."
+  ]},
+  { id:'s12', emoji:'🌳', title:'The Cozy Treehouse', scenes:[
+    "Three best friends — Anna, Zoe, and Maya — built a treehouse in the big oak tree at the end of their street. It took them all of summer with hammers and wood and lots of laughter.",
+    "The treehouse had a window with a view of the whole neighborhood, a rope ladder, and a shelf for their favorite books. They painted it yellow with green stripes.",
+    "One rainy Saturday they sat together in the treehouse drinking hot chocolate and reading stories. Lightning flashed but they felt safe and warm in their little house.",
+    "The treehouse became their special place for secrets and dreams and plans. It reminded them that the best things in life are the ones you build together."
+  ]},
+  { id:'s13', emoji:'🎒', title:'The Magic Backpack', scenes:[
+    "On the first day of school, Lila found a small purple backpack on her chair. No one knew where it came from. When she opened it she gasped — whatever she needed most appeared inside.",
+    "On math test day she found a pencil sharpener and an eraser. When she was hungry at recess a shiny apple appeared. When she felt lonely a little note said: You are wonderful.",
+    "Lila realized the backpack was magic but she wanted to share it. She let her friend use the eraser and gave the apple to a girl who had no snack.",
+    "The next morning the backpack was gone. But Lila noticed she already had everything she needed inside herself — kindness, confidence, and generosity. That is the real magic."
+  ]},
+  { id:'s14', emoji:'🐦', title:'The Singing Bird', scenes:[
+    "In a city apartment on the fourteenth floor lived a canary named Goldie. She loved to sing but the city was so noisy no one could hear her little voice. She felt invisible.",
+    "One quiet Sunday morning Goldie sang her most beautiful song. A little girl in the next apartment heard it through the open window. She pressed her ear to the wall and listened.",
+    "The girl started recording Goldie's songs and shared them with her grandma who lived far away. The grandma listened every night and it helped her feel less lonely.",
+    "Goldie never knew her tiny voice traveled so far. Even a small voice can reach someone's heart from miles away. Always keep singing."
+  ]},
+  { id:'s15', emoji:'🐶', title:'The Lost Puppy', scenes:[
+    "One cold afternoon Isabella found a shivering brown puppy under a bench in the park. He had no collar and no name. His big eyes were full of worry.",
+    "Isabella brought him home wrapped in her scarf. She gave him warm milk and a soft blanket. He wagged his tiny tail and licked her nose.",
+    "They made flyers and put them up all around the neighborhood. Three days passed. Then a little old woman knocked on the door — the puppy was hers! His name was Biscuit.",
+    "Isabella cried a little but she knew Biscuit belonged with someone who loved him. The old woman gave Isabella a photo of Biscuit to keep forever. Love means putting others first."
+  ]},
+  { id:'s16', emoji:'☁️', title:'The Cloud Princess', scenes:[
+    "High above the mountains there was a princess named Sky who lived on a fluffy white cloud. Her job was to shape the clouds into animals and flowers for the people below.",
+    "Every day she sculpted lions and dolphins and roses from the soft white mist. The people below would stop and point and smile up at the sky.",
+    "One day a huge gray storm cloud came and covered her beautiful shapes. Sky felt frustrated. But then she had an idea — she shaped the gray cloud into a giant elephant!",
+    "The people laughed and pointed at the elephant cloud with delight. Sky learned that challenges can become something creative. Every cloud can be shaped into something wonderful."
+  ]},
+  { id:'s17', emoji:'🍪', title:'The Cookie Kingdom', scenes:[
+    "In the land of Sweetshire everything was made of baked goods. The castle was made of gingerbread, the roads were made of chocolate, and the flowers were made of icing.",
+    "Princess Cinnamon ruled Sweetshire with kindness. One morning she discovered someone had eaten all the cookie bricks from the castle wall! There was a big hole in the side.",
+    "She called all the bakers together. In one afternoon they mixed and rolled and baked and decorated hundreds of new cookie bricks. Everyone sang while they worked.",
+    "The wall was rebuilt even stronger and prettier than before. Princess Cinnamon made a new rule: sharing makes everything sweeter. Every Friday was Cookie Sharing Day in Sweetshire."
+  ]},
+  { id:'s18', emoji:'🚀', title:'The Little Astronaut', scenes:[
+    "Valentina was seven years old and she already knew exactly what she wanted to be — an astronaut. Her room was covered in stars and planets and pictures of rockets.",
+    "She studied hard every day: math, science, geography, and English. She exercised and ate vegetables even when she did not feel like it. Her dream kept her going.",
+    "One day a real astronaut visited her school. Valentina raised her hand and asked: How do you get to space? The astronaut smiled and said: You start right where you are.",
+    "That night Valentina looked at the stars from her window. She was not on the moon yet. But she was already on her way. Big dreams begin with small determined steps."
+  ]},
+  { id:'s19', emoji:'🪆', title:'My Doll Comes Alive', scenes:[
+    "Sophie had a wooden doll named Rosa that had belonged to her grandmother. Rosa had painted red cheeks and a tiny blue dress. Sophie kept her on a special shelf.",
+    "One quiet night Sophie woke up and heard a small voice. It was Rosa! But Rosa only spoke when no one else could hear. She told stories of when Sophie's grandmother was young.",
+    "Rosa described picnics in the countryside and first days of school and birthdays with candles on cakes. Sophie listened wide-eyed in the dark room.",
+    "In the morning Rosa was silent and still again. But Sophie understood her grandmother better now. Objects carry memories and love inside them — if you listen quietly enough."
+  ]},
+  { id:'s20', emoji:'🎨', title:'The Magic Paintbrush', scenes:[
+    "Maya found a golden paintbrush in the attic. Whatever she painted with it became real. She painted a butterfly and it flew out the window. She painted a cupcake and it appeared on the table.",
+    "At first she painted everything she wanted — toys and sweets and beautiful dresses. But soon her room was too full and she could not move around.",
+    "She thought carefully and painted something different: a garden for her school, new books for the library, warm coats for children who were cold. Each painting helped someone.",
+    "The paintbrush glowed brighter each time she painted for others. Maya learned that the most powerful creativity is the kind that makes the world better for everyone."
+  ]}
 ];
 
 // ── Flip Cards Game ───────────────────────────────────────────────────────────
@@ -5814,6 +5943,84 @@ function fraseNext() {
     });
     hablarNativo&&hablarNativo(item.sentence.replace('___','...'),0.85);
 }
+
+// ===== STORY READER =====
+window._storyIdx = 0;
+window._storyScene = 0;
+window._storyPlaying = false;
+window._storyUtter = null;
+
+window.abrirStories = function() {
+  document.getElementById('stories-overlay').style.display = 'flex';
+  document.body.classList.add('game-active');
+  renderStoryList();
+};
+
+window.cerrarStories = function() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('stories-overlay').style.display = 'none';
+  document.body.classList.remove('game-active');
+};
+
+window.abrirStory = function(idx) {
+  window._storyIdx = idx;
+  window._storyScene = 0;
+  renderScene();
+  document.getElementById('story-list-view').style.display = 'none';
+  document.getElementById('story-reader-view').style.display = 'flex';
+};
+
+window.volverListaStories = function() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('story-list-view').style.display = 'grid';
+  document.getElementById('story-reader-view').style.display = 'none';
+};
+
+function renderStoryList() {
+  const grid = document.getElementById('story-grid');
+  grid.innerHTML = STORIES.map((s,i) => `
+    <button onclick="abrirStory(${i})" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:16px;padding:16px 10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:80px;">
+      <span style="font-size:28px;">${s.emoji}</span>
+      <span style="text-align:center;line-height:1.2;">${s.title}</span>
+    </button>
+  `).join('');
+}
+
+function renderScene() {
+  const s = STORIES[window._storyIdx];
+  const sc = window._storyScene;
+  document.getElementById('story-title').textContent = s.emoji + ' ' + s.title;
+  document.getElementById('story-scene-text').textContent = s.scenes[sc];
+  document.getElementById('story-scene-num').textContent = 'Scene ' + (sc+1) + ' of ' + s.scenes.length;
+  document.getElementById('btn-story-prev').disabled = sc === 0;
+  document.getElementById('btn-story-next').textContent = sc === s.scenes.length-1 ? '🏁 Finish' : 'Next ▶';
+}
+
+window.storyNarrate = function() {
+  const s = STORIES[window._storyIdx];
+  const text = s.scenes[window._storyScene];
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  hablarNativo && hablarNativo(text, 0.8);
+};
+
+window.storyNext = function() {
+  const s = STORIES[window._storyIdx];
+  if (window._storyScene < s.scenes.length - 1) {
+    window._storyScene++;
+    renderScene();
+  } else {
+    // finished
+    lanzarEstrellas && lanzarEstrellas();
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    const p = window.familia && window.familia[window.perfilActualId];
+    if (p) { p.xp = (p.xp||0) + 20; guardarEstado && guardarEstado(); }
+    volverListaStories();
+  }
+};
+
+window.storyPrev = function() {
+  if (window._storyScene > 0) { window._storyScene--; renderScene(); }
+};
 
 // PWA install prompt
 let _installPrompt = null;
