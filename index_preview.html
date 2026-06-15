@@ -3874,6 +3874,7 @@ window.cambiarPerfil = function(id) {
     }
     p.ultimaActividad = today;
     guardarEstado();
+    setTimeout(() => logroCheck && logroCheck(p), 800);
     document.getElementById('vista-infantil').classList.add('hidden');
     document.getElementById('vista-adultos').classList.add('hidden');
 
@@ -6620,6 +6621,7 @@ window._quizScore = 0;
 
 (function addQuizToStories() {
   const quizzes = [
+    // s1-s10 (already done)
     [{ q:"What is the unicorn's name?", opts:['Luna','Lily','Bella'], ans:0 },
      { q:"What did Lily lose?", opts:['Her cat','Her red balloon','Her book'], ans:1 }],
     [{ q:"What did Sofia bring to the dragon?", opts:['Flowers','Cookies','A book'], ans:1 },
@@ -6637,15 +6639,76 @@ window._quizScore = 0;
     [{ q:"What did Clara wish for?", opts:['A puppy','A baby sister','A new toy'], ans:1 },
      { q:"What was the baby's name?", opts:['Clara','Luna','Rose'], ans:2 }],
     [{ q:"Where was the hidden garden?", opts:['In a forest','Behind a park wall door','Under the sea'], ans:1 },
-     { q:"What did the sign say?", opts:['Keep out!','Whoever cares keeps the magic','Enter if you are brave'], ans:1 }],
+     { q:"What did the sign say?", opts:['Keep out!','Whoever cares keeps the magic','Enter if brave'], ans:1 }],
     [{ q:"What did Rex love to do?", opts:['Roar','Swim','Dance'], ans:2 },
-     { q:"What happened when Rex danced in the storm?", opts:['It rained','He got lost','Others laughed'], ans:0 }],
+     { q:"What happened when Rex danced?", opts:['It rained','He got lost','Others laughed'], ans:0 }],
+    // s11 Helpful Elephant
+    [{ q:"What was Ella's special talent?", opts:['She could run fast','She could hear very well','She could fly'], ans:1 },
+     { q:"Who did Ella rescue?", opts:['A lost deer','A baby hippo','A tiny bird'], ans:1 }],
+    // s12 Cozy Treehouse
+    [{ q:"How many best friends built the treehouse?", opts:['Two','Three','Four'], ans:1 },
+     { q:"What color did they paint the treehouse?", opts:['Blue with red stripes','Yellow with green stripes','Pink with white dots'], ans:1 }],
+    // s13 Magic Backpack
+    [{ q:"What color was the magic backpack?", opts:['Red','Blue','Purple'], ans:2 },
+     { q:"What appeared when Lila felt lonely?", opts:['A cookie','A note saying she was wonderful','A new friend'], ans:1 }],
+    // s14 Singing Bird
+    [{ q:"What type of bird was Goldie?", opts:['A parrot','A canary','A robin'], ans:1 },
+     { q:"Who heard Goldie's song first?", opts:['A little girl next door','An old man','A teacher'], ans:0 }],
+    // s15 Lost Puppy
+    [{ q:"Where did Isabella find the puppy?", opts:['In her garden','Under a park bench','At school'], ans:1 },
+     { q:"What was the puppy's name?", opts:['Cookie','Biscuit','Muffin'], ans:1 }],
+    // s16 Cloud Princess
+    [{ q:"Where did Princess Sky live?", opts:['In a castle','On a cloud','Under the sea'], ans:1 },
+     { q:"What did Sky make from the storm cloud?", opts:['A lion','A dolphin','A giant elephant'], ans:2 }],
+    // s17 Cookie Kingdom
+    [{ q:"What was the castle made of?", opts:['Stone','Gingerbread','Ice'], ans:1 },
+     { q:"What was the princess's name?", opts:['Sugar','Cinnamon','Vanilla'], ans:1 }],
+    // s18 Little Astronaut
+    [{ q:"What did Valentina want to be?", opts:['A teacher','An astronaut','A doctor'], ans:1 },
+     { q:"What did the astronaut say to Valentina?", opts:["You start right where you are","Study harder","Wait until you are older"], ans:0 }],
+    // s19 Doll Comes Alive
+    [{ q:"Who had owned the doll before Sophie?", opts:["Sophie's mother","Sophie's grandmother","Sophie's aunt"], ans:1 },
+     { q:"When did Rosa speak?", opts:['During the day','When no one else could hear','At school'], ans:1 }],
+    // s20 Magic Paintbrush
+    [{ q:"Where did Maya find the paintbrush?", opts:['In the garden','In the attic','At school'], ans:1 },
+     { q:"What happened when Maya painted for others?", opts:['The paintbrush broke','The paintbrush glowed brighter','Nothing changed'], ans:1 }],
+    // s21 Tortoise and the Stars
+    [{ q:"What did the tortoise teach the rabbit?", opts:['How to run faster','To notice the beauty around you','To sleep longer'], ans:1 },
+     { q:"What did the tortoise watch every night?", opts:['The moon','The stars','The river'], ans:1 }],
+    // s22 Lion's Kind Heart
+    [{ q:"What did the lion do for the tiny mouse?", opts:['Gave him food','Set him free','Taught him to roar'], ans:1 },
+     { q:"How did the mouse help the lion later?", opts:['He brought food','He chewed through a net','He called for help'], ans:1 }],
+    // s23 Sunflower's Secret
+    [{ q:"What direction does a sunflower always face?", opts:['The moon','The sun','The rain'], ans:1 },
+     { q:"What did the sunflower teach the girl?", opts:['To grow faster','To follow the light','To stay still'], ans:1 }],
+    // s24 Frog Who Wanted to Sing
+    [{ q:"Why did the frog think her voice was bad?", opts:['It was too loud','She thought it was ugly','No one listened'], ans:1 },
+     { q:"What happened at the concert?", opts:['Everyone laughed','Everyone loved her voice','She forgot the words'], ans:1 }],
+    // s25 Moon and Little Lantern
+    [{ q:"What did the child make?", opts:['A star','A paper lantern','A candle'], ans:1 },
+     { q:"What did the lantern light up?", opts:['Her room','A dark street','The whole city'], ans:1 }],
+    // s26 Parrot Who Learned to Listen
+    [{ q:"What was the parrot's problem?", opts:['He could not fly','He talked too much','He could not eat'], ans:1 },
+     { q:"What did the parrot learn was more powerful?", opts:['Singing','Listening','Flying'], ans:1 }],
+    // s27 Shell's Whisper
+    [{ q:"Where did the girl find the shell?", opts:['In a forest','On the beach','In the garden'], ans:1 },
+     { q:"What did the shell whisper?", opts:['Directions home','Encouraging words','Weather forecasts'], ans:1 }],
+    // s28 Brave Little Wave
+    [{ q:"What was the little wave afraid of?", opts:['The storm','Reaching the shore','Other waves'], ans:1 },
+     { q:"What did the wave realize at the end?", opts:['Waves should stay in the sea','Reaching the shore was her purpose','She was too small'], ans:1 }],
+    // s29 Leaf That Fell Up
+    [{ q:"What made this leaf different?", opts:['It was golden','It floated up instead of down','It never fell'], ans:1 },
+     { q:"What did the leaf teach others?", opts:['To fall faster','That being different is a gift','To hold on to the tree'], ans:1 }],
+    // s30 Flower That Bloomed in Winter
+    [{ q:"When did the flower bloom?", opts:['In spring','In winter','In autumn'], ans:1 },
+     { q:"What did the flower show the village?", opts:['How to stay warm','That joy can exist in hard times','How to grow fast'], ans:1 }],
   ];
   quizzes.forEach((q, i) => { if (STORIES[i]) STORIES[i].quiz = q; });
 })();
 
 (function addVocabToStories() {
   const vocabs = [
+    // s1-s10
     [{emoji:'🦄',word:'UNICORN',es:'Unicornio'},{emoji:'🌸',word:'FLOWER',es:'Flor'},{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},{emoji:'🎈',word:'BALLOON',es:'Globo'}],
     [{emoji:'🐉',word:'DRAGON',es:'Dragón'},{emoji:'🍪',word:'COOKIE',es:'Galleta'},{emoji:'🔥',word:'FIRE',es:'Fuego'},{emoji:'🏔️',word:'HILL',es:'Colina'}],
     [{emoji:'🧜',word:'MERMAID',es:'Sirena'},{emoji:'🌊',word:'OCEAN',es:'Océano'},{emoji:'🦀',word:'CRAB',es:'Cangrejo'},{emoji:'🌿',word:'CORAL',es:'Coral'}],
@@ -6656,6 +6719,28 @@ window._quizScore = 0;
     [{emoji:'⭐',word:'STAR',es:'Estrella'},{emoji:'🌙',word:'NIGHT',es:'Noche'},{emoji:'👶',word:'BABY',es:'Bebé'},{emoji:'🪟',word:'WINDOW',es:'Ventana'}],
     [{emoji:'🌸',word:'GARDEN',es:'Jardín'},{emoji:'🚪',word:'DOOR',es:'Puerta'},{emoji:'✨',word:'MAGIC',es:'Magia'},{emoji:'💧',word:'WATER',es:'Agua'}],
     [{emoji:'🦕',word:'DINOSAUR',es:'Dinosaurio'},{emoji:'💃',word:'DANCE',es:'Bailar'},{emoji:'⛈️',word:'STORM',es:'Tormenta'},{emoji:'🌧️',word:'RAIN',es:'Lluvia'}],
+    // s11-s20
+    [{emoji:'🐘',word:'ELEPHANT',es:'Elefante'},{emoji:'👂',word:'EAR',es:'Oreja'},{emoji:'🦛',word:'HIPPO',es:'Hipopótamo'},{emoji:'🌳',word:'JUNGLE',es:'Selva'}],
+    [{emoji:'🌳',word:'TREE',es:'Árbol'},{emoji:'🔨',word:'HAMMER',es:'Martillo'},{emoji:'🪟',word:'WINDOW',es:'Ventana'},{emoji:'☕',word:'HOT CHOCOLATE',es:'Chocolate caliente'}],
+    [{emoji:'🎒',word:'BACKPACK',es:'Mochila'},{emoji:'✏️',word:'PENCIL',es:'Lápiz'},{emoji:'🍎',word:'APPLE',es:'Manzana'},{emoji:'💌',word:'NOTE',es:'Nota'}],
+    [{emoji:'🐦',word:'BIRD',es:'Pájaro'},{emoji:'🎵',word:'SONG',es:'Canción'},{emoji:'🪟',word:'WINDOW',es:'Ventana'},{emoji:'👵',word:'GRANDMA',es:'Abuela'}],
+    [{emoji:'🐶',word:'PUPPY',es:'Cachorro'},{emoji:'🧣',word:'SCARF',es:'Bufanda'},{emoji:'🥛',word:'MILK',es:'Leche'},{emoji:'📋',word:'FLYER',es:'Volante'}],
+    [{emoji:'☁️',word:'CLOUD',es:'Nube'},{emoji:'👸',word:'PRINCESS',es:'Princesa'},{emoji:'🌤️',word:'SKY',es:'Cielo'},{emoji:'🐘',word:'ELEPHANT',es:'Elefante'}],
+    [{emoji:'🏰',word:'CASTLE',es:'Castillo'},{emoji:'🍪',word:'COOKIE',es:'Galleta'},{emoji:'🍫',word:'CHOCOLATE',es:'Chocolate'},{emoji:'👸',word:'PRINCESS',es:'Princesa'}],
+    [{emoji:'🚀',word:'ROCKET',es:'Cohete'},{emoji:'⭐',word:'STAR',es:'Estrella'},{emoji:'🌙',word:'MOON',es:'Luna'},{emoji:'🔬',word:'SCIENCE',es:'Ciencia'}],
+    [{emoji:'🪆',word:'DOLL',es:'Muñeca'},{emoji:'👵',word:'GRANDMA',es:'Abuela'},{emoji:'🌙',word:'NIGHT',es:'Noche'},{emoji:'💬',word:'VOICE',es:'Voz'}],
+    [{emoji:'🖌️',word:'PAINTBRUSH',es:'Pincel'},{emoji:'🦋',word:'BUTTERFLY',es:'Mariposa'},{emoji:'🧁',word:'CUPCAKE',es:'Cupcake'},{emoji:'✨',word:'MAGIC',es:'Magia'}],
+    // s21-s30
+    [{emoji:'🐢',word:'TORTOISE',es:'Tortuga'},{emoji:'⭐',word:'STAR',es:'Estrella'},{emoji:'🐰',word:'RABBIT',es:'Conejo'},{emoji:'🌙',word:'NIGHT',es:'Noche'}],
+    [{emoji:'🦁',word:'LION',es:'León'},{emoji:'🐭',word:'MOUSE',es:'Ratón'},{emoji:'🌿',word:'NET',es:'Red'},{emoji:'❤️',word:'KINDNESS',es:'Bondad'}],
+    [{emoji:'🌻',word:'SUNFLOWER',es:'Girasol'},{emoji:'☀️',word:'SUN',es:'Sol'},{emoji:'😊',word:'HAPPY',es:'Feliz'},{emoji:'🌱',word:'GROW',es:'Crecer'}],
+    [{emoji:'🐸',word:'FROG',es:'Rana'},{emoji:'🎵',word:'SING',es:'Cantar'},{emoji:'🎤',word:'CONCERT',es:'Concierto'},{emoji:'❤️',word:'VOICE',es:'Voz'}],
+    [{emoji:'🌙',word:'MOON',es:'Luna'},{emoji:'🏮',word:'LANTERN',es:'Linterna'},{emoji:'🌃',word:'STREET',es:'Calle'},{emoji:'💡',word:'LIGHT',es:'Luz'}],
+    [{emoji:'🦜',word:'PARROT',es:'Loro'},{emoji:'👂',word:'LISTEN',es:'Escuchar'},{emoji:'💬',word:'TALK',es:'Hablar'},{emoji:'🤫',word:'QUIET',es:'Silencio'}],
+    [{emoji:'🐚',word:'SHELL',es:'Concha'},{emoji:'🏖️',word:'BEACH',es:'Playa'},{emoji:'💬',word:'WHISPER',es:'Susurro'},{emoji:'💛',word:'COURAGE',es:'Valentía'}],
+    [{emoji:'🌊',word:'WAVE',es:'Ola'},{emoji:'🏖️',word:'SHORE',es:'Orilla'},{emoji:'💙',word:'OCEAN',es:'Océano'},{emoji:'💪',word:'BRAVE',es:'Valiente'}],
+    [{emoji:'🍃',word:'LEAF',es:'Hoja'},{emoji:'🍂',word:'AUTUMN',es:'Otoño'},{emoji:'⬆️',word:'UP',es:'Arriba'},{emoji:'🌟',word:'DIFFERENT',es:'Diferente'}],
+    [{emoji:'🌺',word:'FLOWER',es:'Flor'},{emoji:'❄️',word:'WINTER',es:'Invierno'},{emoji:'😊',word:'JOY',es:'Alegría'},{emoji:'🏘️',word:'VILLAGE',es:'Pueblo'}],
   ];
   vocabs.forEach((v, i) => { if (STORIES[i]) STORIES[i].vocab = v; });
 })();
