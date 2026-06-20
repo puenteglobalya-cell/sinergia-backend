@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    { "source": "/api/gemini", "destination": "/api/gemini.js" },
+    { "source": "/sw.js",      "destination": "/sw.js" },
+    { "source": "/manifest.json", "destination": "/manifest.json" },
+    { "source": "/(.*)",       "destination": "/index_preview.html" }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/index_preview.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
