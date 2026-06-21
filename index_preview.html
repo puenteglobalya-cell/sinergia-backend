@@ -6506,17 +6506,19 @@ window.storySetLang = function(lang) {
   renderScene();
 };
 
+window._storySpeed = 0.8;
+
 window.storyNarrate = function() {
   const s = STORIES[window._storyIdx];
   const sc = window._storyScene;
+  const rate = window._storySpeed || 0.8;
   window.speechSynthesis && window.speechSynthesis.cancel();
   if (window._storyLang === 'es' && s.scenesEs && s.scenesEs[sc]) {
-    // speak in Spanish
     const u = new SpeechSynthesisUtterance(s.scenesEs[sc]);
-    u.lang = 'es-ES'; u.rate = 0.85;
+    u.lang = 'es-ES'; u.rate = rate;
     window.speechSynthesis.speak(u);
   } else {
-    hablarNativo && hablarNativo(s.scenes[sc], 0.8);
+    hablarNativo && hablarNativo(s.scenes[sc], rate);
   }
 };
 
@@ -8898,6 +8900,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="story-lang-en" onclick="storySetLang('en')" style="flex:1;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:900;">🇬🇧 English</button>
         <button id="story-lang-both" onclick="storySetLang('both')" style="flex:1;background:rgba(255,255,255,0.07);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:400;">🌐 Ambos</button>
         <button id="story-lang-es" onclick="storySetLang('es')" style="flex:1;background:rgba(255,255,255,0.07);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:400;">🇦🇷 Español</button>
+      </div>
+      <!-- Speed control -->
+      <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:14px;">🐢</span>
+        <input type="range" id="story-speed" min="0.5" max="1.4" step="0.1" value="0.8"
+          oninput="window._storySpeed=parseFloat(this.value);document.getElementById('story-speed-label').textContent=parseFloat(this.value).toFixed(1)+'x';"
+          style="flex:1;accent-color:#a78bfa;cursor:pointer;">
+        <span style="font-size:14px;">🐇</span>
+        <span id="story-speed-label" style="color:#a78bfa;font-size:12px;font-weight:700;min-width:32px;text-align:right;">0.8x</span>
       </div>
       <!-- Illustration -->
       <div id="story-art" style="display:flex;justify-content:center;gap:10px;padding:18px 0;background:rgba(255,255,255,0.06);border-radius:20px;flex-wrap:wrap;"></div>
