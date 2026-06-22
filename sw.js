@@ -1,5 +1,5 @@
 // Sinergia Familiar — Service Worker
-const CACHE = 'sinergia-v4';
+const CACHE = 'sinergia-v5';
 const OFFLINE_ASSETS = [
   '/',
   '/index_preview.html',
