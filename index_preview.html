@@ -960,6 +960,16 @@
 
     <main class="flex-1 max-w-2xl mx-auto w-full">
 
+        <!-- Morning Routine Banner -->
+        <div id="morning-routine-banner" style="display:none;" class="mb-3 mx-1 rounded-2xl p-3 flex items-center gap-3 shadow-lg cursor-pointer active:scale-95 transition-all" onclick="abrirRutinaManana()" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <div class="text-3xl">☀️</div>
+            <div class="flex-1">
+                <p class="font-extrabold text-white text-sm">¡Rutina de mañana lista!</p>
+                <p class="text-amber-100 text-xs" id="morning-routine-subtitle">1 palabra nueva + 3 repaso</p>
+            </div>
+            <div class="bg-white/20 text-white font-bold text-xs px-3 py-1.5 rounded-xl">¡Empezar! →</div>
+        </div>
+
         <!-- Topic selector -->
         <div id="panel-tematicas" class="space-y-4">
             <div class="text-center">
@@ -1121,6 +1131,13 @@
                             <button onclick="mostrarFlipCards('Body')"      class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">💪</button>
                             <button onclick="mostrarFlipCards('Colors')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🎨</button>
                             <button onclick="mostrarFlipCards('Travel')"    class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">✈️</button>
+                            <button onclick="mostrarFlipCards('Verbs')"       class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🏃</button>
+                            <button onclick="mostrarFlipCards('Opposites')"   class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🔄</button>
+                            <button onclick="mostrarFlipCards('Transport')"   class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🚗</button>
+                            <button onclick="mostrarFlipCards('Nature')"      class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🌿</button>
+                            <button onclick="mostrarFlipCards('DailyRoutine')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">☀️</button>
+                            <button onclick="mostrarFlipCards('SightWords')"  class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">👁️</button>
+                            <button onclick="mostrarFlipCards('Phonics')"     class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition-all">🔤</button>
                         </div>
                     </div>
                 </div>
@@ -1136,6 +1153,48 @@
                         <div class="flex items-center gap-2 pt-1">
                             <span class="bg-white/15 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full">20 moves</span>
                             <span class="bg-white/15 text-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full">8 gems</span>
+                        </div>
+                    </div>
+                </button>
+                <!-- Pronunciation Game card -->
+                <button onclick="abrirPronunciacion()" class="relative rounded-3xl overflow-hidden shadow-lg active:scale-95 transition-all text-left" style="background:linear-gradient(135deg,#0f766e 0%,#0d9488 100%);">
+                    <div class="absolute inset-0 opacity-10 text-[80px] flex items-center justify-end pr-3 select-none pointer-events-none">🎙️</div>
+                    <div class="relative p-4 space-y-2 h-full flex flex-col">
+                        <div class="text-2xl">🎙️</div>
+                        <div class="flex-1">
+                            <p class="font-extrabold text-white text-sm leading-tight">Pronuncia<br>con Mic</p>
+                            <p class="text-teal-200 text-[11px] mt-0.5">Hablá en inglés</p>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="bg-white/15 text-teal-100 text-[10px] font-bold px-2 py-0.5 rounded-full">🌟 +15 XP</span>
+                        </div>
+                    </div>
+                </button>
+                <!-- Songs & Chants card -->
+                <button onclick="abrirCanciones()" class="relative rounded-3xl overflow-hidden shadow-lg active:scale-95 transition-all text-left" style="background:linear-gradient(135deg,#be185d 0%,#db2777 100%);">
+                    <div class="absolute inset-0 opacity-10 text-[80px] flex items-center justify-end pr-3 select-none pointer-events-none">🎵</div>
+                    <div class="relative p-4 space-y-2 h-full flex flex-col">
+                        <div class="text-2xl">🎵</div>
+                        <div class="flex-1">
+                            <p class="font-extrabold text-white text-sm leading-tight">Canciones<br>& Chants</p>
+                            <p class="text-pink-200 text-[11px] mt-0.5">Cantá en inglés</p>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="bg-white/15 text-pink-100 text-[10px] font-bold px-2 py-0.5 rounded-full">10 canciones</span>
+                        </div>
+                    </div>
+                </button>
+                <!-- Grammar Patterns card -->
+                <button onclick="abrirGramatica()" class="relative rounded-3xl overflow-hidden shadow-lg active:scale-95 transition-all text-left" style="background:linear-gradient(135deg,#92400e 0%,#d97706 100%);">
+                    <div class="absolute inset-0 opacity-10 text-[80px] flex items-center justify-end pr-3 select-none pointer-events-none">📝</div>
+                    <div class="relative p-4 space-y-2 h-full flex flex-col">
+                        <div class="text-2xl">📝</div>
+                        <div class="flex-1">
+                            <p class="font-extrabold text-white text-sm leading-tight">Frases<br>Mágicas</p>
+                            <p class="text-amber-200 text-[11px] mt-0.5">Patrones de gramática</p>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="bg-white/15 text-amber-100 text-[10px] font-bold px-2 py-0.5 rounded-full">+20 XP</span>
                         </div>
                     </div>
                 </button>
@@ -2788,6 +2847,88 @@ const FLIP_DECKS = {
         {emoji:'🦱',word:'HAIR',es:'Cabello'},{emoji:'🫦',word:'LIPS',es:'Labios'},
         {emoji:'🤲',word:'PALMS',es:'Palmas'},{emoji:'🫸',word:'SHOULDER',es:'Hombro'},
     ],
+    Verbs: [
+        {emoji:'🏃',word:'RUN',es:'Correr'},{emoji:'🦘',word:'JUMP',es:'Saltar'},
+        {emoji:'🏊',word:'SWIM',es:'Nadar'},{emoji:'🍽️',word:'EAT',es:'Comer'},
+        {emoji:'😴',word:'SLEEP',es:'Dormir'},{emoji:'🎵',word:'SING',es:'Cantar'},
+        {emoji:'🎨',word:'DRAW',es:'Dibujar'},{emoji:'✈️',word:'FLY',es:'Volar'},
+        {emoji:'📖',word:'READ',es:'Leer'},{emoji:'✏️',word:'WRITE',es:'Escribir'},
+        {emoji:'⚽',word:'PLAY',es:'Jugar'},{emoji:'🍳',word:'COOK',es:'Cocinar'},
+        {emoji:'💃',word:'DANCE',es:'Bailar'},{emoji:'😢',word:'CRY',es:'Llorar'},
+        {emoji:'😂',word:'LAUGH',es:'Reír'},{emoji:'🤗',word:'HUG',es:'Abrazar'},
+        {emoji:'🗣️',word:'TALK',es:'Hablar'},{emoji:'👂',word:'LISTEN',es:'Escuchar'},
+        {emoji:'👀',word:'LOOK',es:'Mirar'},{emoji:'🤔',word:'THINK',es:'Pensar'},
+    ],
+    Opposites: [
+        {emoji:'🐘',word:'BIG',es:'Grande'},{emoji:'🐭',word:'SMALL',es:'Pequeño'},
+        {emoji:'🔥',word:'HOT',es:'Caliente'},{emoji:'🧊',word:'COLD',es:'Frío'},
+        {emoji:'⚡',word:'FAST',es:'Rápido'},{emoji:'🐢',word:'SLOW',es:'Lento'},
+        {emoji:'😊',word:'HAPPY',es:'Feliz'},{emoji:'😢',word:'SAD',es:'Triste'},
+        {emoji:'🌞',word:'DAY',es:'Día'},{emoji:'🌙',word:'NIGHT',es:'Noche'},
+        {emoji:'⬆️',word:'UP',es:'Arriba'},{emoji:'⬇️',word:'DOWN',es:'Abajo'},
+        {emoji:'🆕',word:'NEW',es:'Nuevo'},{emoji:'📦',word:'OLD',es:'Viejo'},
+        {emoji:'🔊',word:'LOUD',es:'Ruidoso'},{emoji:'🤫',word:'QUIET',es:'Silencioso'},
+        {emoji:'💡',word:'LIGHT',es:'Claro'},{emoji:'🌑',word:'DARK',es:'Oscuro'},
+        {emoji:'🫙',word:'FULL',es:'Lleno'},{emoji:'🈳',word:'EMPTY',es:'Vacío'},
+    ],
+    Transport: [
+        {emoji:'🚗',word:'CAR',es:'Auto'},{emoji:'🚌',word:'BUS',es:'Colectivo'},
+        {emoji:'✈️',word:'PLANE',es:'Avión'},{emoji:'🚲',word:'BIKE',es:'Bicicleta'},
+        {emoji:'⛵',word:'BOAT',es:'Barco'},{emoji:'🚂',word:'TRAIN',es:'Tren'},
+        {emoji:'🚕',word:'TAXI',es:'Taxi'},{emoji:'🚁',word:'HELICOPTER',es:'Helicóptero'},
+        {emoji:'🚢',word:'SHIP',es:'Crucero'},{emoji:'🏍️',word:'MOTORBIKE',es:'Moto'},
+        {emoji:'🚑',word:'AMBULANCE',es:'Ambulancia'},{emoji:'🚒',word:'FIRE TRUCK',es:'Camión de bomberos'},
+        {emoji:'🚀',word:'ROCKET',es:'Cohete'},{emoji:'🛸',word:'UFO',es:'OVNI'},
+        {emoji:'🛶',word:'CANOE',es:'Canoa'},{emoji:'🚠',word:'CABLE CAR',es:'Teleférico'},
+    ],
+    Nature: [
+        {emoji:'☀️',word:'SUN',es:'Sol'},{emoji:'🌙',word:'MOON',es:'Luna'},
+        {emoji:'⭐',word:'STAR',es:'Estrella'},{emoji:'🌊',word:'RIVER',es:'Río'},
+        {emoji:'⛰️',word:'MOUNTAIN',es:'Montaña'},{emoji:'🌲',word:'FOREST',es:'Bosque'},
+        {emoji:'☁️',word:'CLOUD',es:'Nube'},{emoji:'🌧️',word:'RAIN',es:'Lluvia'},
+        {emoji:'❄️',word:'SNOW',es:'Nieve'},{emoji:'🌈',word:'RAINBOW',es:'Arcoíris'},
+        {emoji:'🌊',word:'OCEAN',es:'Océano'},{emoji:'🏖️',word:'BEACH',es:'Playa'},
+        {emoji:'🌋',word:'VOLCANO',es:'Volcán'},{emoji:'🌸',word:'FLOWER',es:'Flor'},
+        {emoji:'🍃',word:'LEAF',es:'Hoja'},{emoji:'🪨',word:'ROCK',es:'Piedra'},
+        {emoji:'💧',word:'WATER',es:'Agua'},{emoji:'🌍',word:'EARTH',es:'Tierra'},
+        {emoji:'🦋',word:'BUTTERFLY',es:'Mariposa'},{emoji:'🐝',word:'BEE',es:'Abeja'},
+    ],
+    DailyRoutine: [
+        {emoji:'🌅',word:'MORNING',es:'Mañana'},{emoji:'🌇',word:'AFTERNOON',es:'Tarde'},
+        {emoji:'🌙',word:'NIGHT',es:'Noche'},{emoji:'🍽️',word:'LUNCH',es:'Almuerzo'},
+        {emoji:'🍳',word:'BREAKFAST',es:'Desayuno'},{emoji:'🛏️',word:'BEDTIME',es:'Hora de dormir'},
+        {emoji:'📅',word:'TODAY',es:'Hoy'},{emoji:'⏮️',word:'YESTERDAY',es:'Ayer'},
+        {emoji:'⏭️',word:'TOMORROW',es:'Mañana'},{emoji:'⏰',word:'ALWAYS',es:'Siempre'},
+        {emoji:'🚿',word:'SHOWER',es:'Ducha'},{emoji:'🪥',word:'BRUSH TEETH',es:'Cepillarse los dientes'},
+        {emoji:'🎒',word:'SCHOOL',es:'Escuela'},{emoji:'🏠',word:'HOME',es:'Casa'},
+        {emoji:'🍕',word:'DINNER',es:'Cena'},{emoji:'📚',word:'HOMEWORK',es:'Tarea'},
+        {emoji:'🎮',word:'PLAY TIME',es:'Tiempo libre'},{emoji:'🛁',word:'BATH',es:'Baño'},
+        {emoji:'👕',word:'GET DRESSED',es:'Vestirse'},{emoji:'😴',word:'DREAM',es:'Soñar'},
+    ],
+    SightWords: [
+        {emoji:'👆',word:'THE',es:'El/La'},{emoji:'✌️',word:'IS',es:'Es/Está'},
+        {emoji:'🤟',word:'ARE',es:'Son/Están'},{emoji:'💪',word:'CAN',es:'Puede/Puedo'},
+        {emoji:'🖐️',word:'HAS',es:'Tiene'},{emoji:'👋',word:'WAS',es:'Era/Estaba'},
+        {emoji:'🤙',word:'HAVE',es:'Tener/Tengo'},{emoji:'☝️',word:'DO',es:'Hacer'},
+        {emoji:'🫵',word:'YOU',es:'Vos/Tú'},{emoji:'🫂',word:'WE',es:'Nosotros'},
+        {emoji:'👧',word:'SHE',es:'Ella'},{emoji:'👦',word:'HE',es:'Él'},
+        {emoji:'🙋',word:'I',es:'Yo'},{emoji:'👥',word:'THEY',es:'Ellos'},
+        {emoji:'❤️',word:'LOVE',es:'Amor/Amar'},{emoji:'🏠',word:'HOUSE',es:'Casa'},
+        {emoji:'🌟',word:'GOOD',es:'Bueno'},{emoji:'🤩',word:'GREAT',es:'Genial'},
+        {emoji:'➕',word:'AND',es:'Y'},{emoji:'⛔',word:'NOT',es:'No'},
+    ],
+    Phonics: [
+        {emoji:'🍎',word:'A — APPLE',es:'A de Manzana'},{emoji:'🐝',word:'B — BEE',es:'B de Abeja'},
+        {emoji:'🐱',word:'C — CAT',es:'C de Gato'},{emoji:'🐶',word:'D — DOG',es:'D de Perro'},
+        {emoji:'🥚',word:'E — EGG',es:'E de Huevo'},{emoji:'🐸',word:'F — FROG',es:'F de Rana'},
+        {emoji:'🦒',word:'G — GIRAFFE',es:'G de Jirafa'},{emoji:'🏠',word:'H — HOUSE',es:'H de Casa'},
+        {emoji:'🍦',word:'I — ICE CREAM',es:'I de Helado'},{emoji:'🃏',word:'J — JAR',es:'J de Frasco'},
+        {emoji:'🪁',word:'K — KITE',es:'K de Cometa'},{emoji:'🦁',word:'L — LION',es:'L de León'},
+        {emoji:'🐭',word:'M — MOUSE',es:'M de Ratón'},{emoji:'🌙',word:'N — NIGHT',es:'N de Noche'},
+        {emoji:'🦉',word:'O — OWL',es:'O de Búho'},{emoji:'🐧',word:'P — PENGUIN',es:'P de Pingüino'},
+        {emoji:'👸',word:'Q — QUEEN',es:'Q de Reina'},{emoji:'🌹',word:'R — ROSE',es:'R de Rosa'},
+        {emoji:'⭐',word:'S — STAR',es:'S de Estrella'},{emoji:'🐢',word:'T — TURTLE',es:'T de Tortuga'},
+    ],
 };
 
 const SENTENCE_GAPS = [
@@ -2820,7 +2961,9 @@ window.mostrarFlipCards = function(tema) {
     document.body.classList.add('game-active');
     const base = tema === '_custom' && window._customDeck
         ? window._customDeck
-        : (FLIP_DECKS[tema] || FLIP_DECKS['Animals']);
+        : (FLIP_DECKS[tema] || FLIP_DECKS[tema.charAt(0).toUpperCase()+tema.slice(1)] ||
+           Object.entries(FLIP_DECKS).find(([k])=>k.toLowerCase()===tema.toLowerCase())?.[1] ||
+           FLIP_DECKS['Animals']);
     fcState.deck    = [...base].sort(() => Math.random() - 0.5).slice(0, Math.min(base.length, 6));
     fcState.idx     = 0;
     fcState.flipped = false;
@@ -4231,6 +4374,13 @@ const MAPA_TEMAS = [
     { id:'feelings',  label:'Feelings',emoji:'😊', color:'#818cf8' },
     { id:'koala',     label:'Koala',   emoji:'🐨', color:'#64748b' },
     { id:'sea',       label:'Sea',     emoji:'🐙', color:'#06b6d4' },
+    { id:'verbs',       label:'Verbs',      emoji:'🏃', color:'#f97316' },
+    { id:'opposites',   label:'Opposites',  emoji:'↔️', color:'#8b5cf6' },
+    { id:'transport',   label:'Transport',  emoji:'🚗', color:'#0ea5e9' },
+    { id:'nature',      label:'Nature',     emoji:'🌿', color:'#22c55e' },
+    { id:'dailyroutine',label:'Routine',    emoji:'⏰', color:'#f59e0b' },
+    { id:'sightwords',  label:'Sight Words',emoji:'👁️', color:'#ec4899' },
+    { id:'phonics',     label:'Phonics',    emoji:'🔤', color:'#06b6d4' },
 ];
 
 window.abrirMapa = function() {
@@ -6506,17 +6656,19 @@ window.storySetLang = function(lang) {
   renderScene();
 };
 
+window._storySpeed = 0.8;
+
 window.storyNarrate = function() {
   const s = STORIES[window._storyIdx];
   const sc = window._storyScene;
+  const rate = window._storySpeed || 0.8;
   window.speechSynthesis && window.speechSynthesis.cancel();
   if (window._storyLang === 'es' && s.scenesEs && s.scenesEs[sc]) {
-    // speak in Spanish
     const u = new SpeechSynthesisUtterance(s.scenesEs[sc]);
-    u.lang = 'es-ES'; u.rate = 0.85;
+    u.lang = 'es-ES'; u.rate = rate;
     window.speechSynthesis.speak(u);
   } else {
-    hablarNativo && hablarNativo(s.scenes[sc], 0.8);
+    hablarNativo && hablarNativo(s.scenes[sc], rate);
   }
 };
 
@@ -6876,6 +7028,361 @@ window.instalarPWA = async function() {
     const { outcome } = await _installPrompt.userChoice;
     if (outcome === 'accepted') document.getElementById('btn-instalar-pwa').classList.add('hidden');
     _installPrompt = null;
+};
+
+// ═══ PRONUNCIATION MIC GAME ═══
+const PRON_DECK = [
+    ...FLIP_DECKS.Animals.slice(0,6),
+    ...FLIP_DECKS.Food.slice(0,6),
+    ...FLIP_DECKS.Verbs.slice(0,6),
+    ...(FLIP_DECKS.Colors||FLIP_DECKS.Colours||[]).slice(0,6),
+];
+let _pronState = { idx: 0, correct: 0, total: 0, deck: [], recognizing: false };
+
+window.abrirPronunciacion = function() {
+    _pronState.deck = [...PRON_DECK].sort(() => Math.random()-0.5).slice(0, 12);
+    _pronState.idx = 0; _pronState.correct = 0; _pronState.total = 0;
+    const el = document.getElementById('pronuncia-overlay');
+    el.style.display = 'flex'; document.body.classList.add('game-active');
+    pronMostrarPalabra();
+};
+window.cerrarPronunciacion = function() {
+    document.getElementById('pronuncia-overlay').style.display = 'none';
+    document.body.classList.remove('game-active');
+    if (_pronState.recognizing) { try { _pronRecog && _pronRecog.stop(); } catch(e){} }
+};
+function pronMostrarPalabra() {
+    const card = _pronState.deck[_pronState.idx];
+    if (!card) return cerrarPronunciacion();
+    document.getElementById('pron-emoji').textContent = card.emoji;
+    document.getElementById('pron-word').textContent = card.word;
+    document.getElementById('pron-es').textContent = card.es;
+    document.getElementById('pron-feedback').innerHTML = '';
+    document.getElementById('pron-score').textContent = `✅ ${_pronState.correct} / ${_pronState.total} correctas`;
+    document.getElementById('pron-mic-btn').style.boxShadow = '0 0 0 0 rgba(244,63,94,0.4)';
+}
+window.pronEscuchar = function() {
+    const card = _pronState.deck[_pronState.idx];
+    hablarNativo && hablarNativo(card.word, 0.75);
+};
+let _pronRecog = null;
+window.pronEmpezarGrabar = function() {
+    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+        document.getElementById('pron-feedback').innerHTML = '<p style="color:#fde68a;font-size:13px;">Tu navegador no soporta micrófono. Usá Chrome.</p>';
+        return;
+    }
+    const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+    _pronRecog = new Recog();
+    _pronRecog.lang = 'en-US'; _pronRecog.interimResults = false; _pronRecog.maxAlternatives = 3;
+    _pronState.recognizing = true;
+    const btn = document.getElementById('pron-mic-btn');
+    btn.textContent = '🔴'; btn.style.boxShadow = '0 0 0 12px rgba(244,63,94,0.3)';
+    _pronRecog.start();
+    _pronRecog.onresult = (e) => {
+        _pronState.recognizing = false; btn.textContent = '🎤'; btn.style.boxShadow = '0 0 0 0 rgba(244,63,94,0.4)';
+        const target = _pronState.deck[_pronState.idx].word.toLowerCase();
+        const alts = Array.from(e.results[0]).map(r => r.transcript.toLowerCase().trim());
+        const ok = alts.some(a => a.includes(target) || target.includes(a.split(' ')[0]));
+        _pronState.total++;
+        if (ok) {
+            _pronState.correct++;
+            document.getElementById('pron-feedback').innerHTML = '<div style="font-size:48px;">🎉</div><p style="color:#86efac;font-size:16px;font-weight:800;">¡Perfecto!</p>';
+            playFX && playFX('correct');
+            const p = window.familia && window.familia[window.perfilActualId];
+            if (p) { p.xp = (p.xp||0)+15; guardarEstado && guardarEstado(); }
+            lanzarEstrellas && lanzarEstrellas();
+            setTimeout(pronSiguiente, 1200);
+        } else {
+            document.getElementById('pron-feedback').innerHTML = `<div style="font-size:36px;">🤔</div><p style="color:#fca5a5;font-size:14px;font-weight:700;">Escuché: "${alts[0]}"<br>Intentá decir: <b style="color:#fff;">${_pronState.deck[_pronState.idx].word}</b></p>`;
+            playFX && playFX('wrong');
+        }
+    };
+    _pronRecog.onerror = () => { _pronState.recognizing = false; btn.textContent = '🎤'; };
+    _pronRecog.onend   = () => { _pronState.recognizing = false; btn.textContent = '🎤'; };
+};
+window.pronSiguiente = function() {
+    _pronState.idx++;
+    if (_pronState.idx >= _pronState.deck.length) {
+        const pct = Math.round((_pronState.correct/_pronState.deck.length)*100);
+        document.getElementById('pron-feedback').innerHTML = `<p style="color:#fbbf24;font-size:18px;font-weight:900;">🏆 ${pct}% correcto!<br>${_pronState.correct}/${_pronState.deck.length} palabras</p>`;
+        document.getElementById('pron-score').textContent = '';
+        if (pct >= 70) lanzarEstrellas && lanzarEstrellas();
+        setTimeout(cerrarPronunciacion, 3000); return;
+    }
+    pronMostrarPalabra();
+};
+window.pronAnterior = function() { if (_pronState.idx > 0) { _pronState.idx--; pronMostrarPalabra(); } };
+
+// ═══ SONGS & CHANTS ═══
+const SONGS = [
+    { id:'hsknt', emoji:'🙋', title:'Head, Shoulders, Knees and Toes', category:'Body', lyrics:[
+        'Head, shoulders, knees and toes, knees and toes,','Head, shoulders, knees and toes, knees and toes,',
+        'And eyes and ears and mouth and nose,','Head, shoulders, knees and toes, knees and toes! 🎶'
+    ]},
+    { id:'abc', emoji:'🔤', title:'The ABC Song', category:'Phonics', lyrics:[
+        'A B C D E F G,','H I J K L M N O P,',
+        'Q R S, T U V,','W X, Y and Z,',
+        'Now I know my ABCs, next time won\'t you sing with me! 🎶'
+    ]},
+    { id:'twinkle', emoji:'⭐', title:'Twinkle Twinkle Little Star', category:'Nature', lyrics:[
+        'Twinkle, twinkle, little star,','How I wonder what you are!',
+        'Up above the world so high,','Like a diamond in the sky.',
+        'Twinkle, twinkle, little star,','How I wonder what you are! 🌟'
+    ]},
+    { id:'colors', emoji:'🌈', title:'I Can See a Rainbow', category:'Colors', lyrics:[
+        'Red and orange and yellow and green,','Blue and indigo and violet too!',
+        'I can see a rainbow, yes I can,','Can you see it? Yes, you can! 🌈'
+    ]},
+    { id:'animals', emoji:'🐾', title:'Old MacDonald Had a Farm', category:'Animals', lyrics:[
+        'Old MacDonald had a farm, E-I-E-I-O!','And on his farm he had a cow, E-I-E-I-O!',
+        'With a moo moo here and a moo moo there,','Here a moo, there a moo, everywhere a moo moo!',
+        'Old MacDonald had a farm, E-I-E-I-O! 🐮'
+    ]},
+    { id:'hello', emoji:'👋', title:'Hello Song', category:'Greetings', lyrics:[
+        'Hello, hello, how are you? How are you today?','I\'m fine, I\'m fine, I\'m very fine, I\'m super duper great!',
+        'Hello my friend, hello to you!','Let\'s learn English every day! 👋'
+    ]},
+    { id:'days', emoji:'📅', title:'Days of the Week', category:'Daily', lyrics:[
+        'Monday, Tuesday, Wednesday, Thursday,','Friday, Saturday, Sunday too!',
+        'Seven days in every week,','Let\'s say them all: how about you?',
+        'Monday Tuesday Wednesday Thursday Friday Saturday Sunday! 🗓️'
+    ]},
+    { id:'numbers', emoji:'🔢', title:'1 2 3 4 5 Count with Me', category:'Numbers', lyrics:[
+        '1 2 3, count with me!','4 5 6, this is it!',
+        '7 8 9, you\'re doing fine!','10! You\'re a superstar today! ⭐',
+        'Let\'s count again from 1 to 10: 1 2 3 4 5 6 7 8 9 10! 🎉'
+    ]},
+    { id:'feelings', emoji:'😊', title:'If You\'re Happy', category:'Feelings', lyrics:[
+        'If you\'re happy and you know it, clap your hands! 👏','If you\'re happy and you know it, clap your hands! 👏',
+        'If you\'re happy and you know it, then your face will surely show it,','If you\'re happy and you know it, clap your hands! 👏'
+    ]},
+    { id:'morning', emoji:'☀️', title:'Good Morning Song', category:'Greetings', lyrics:[
+        'Good morning, good morning, it\'s time to start the day!','Good morning, good morning, let\'s learn and laugh and play!',
+        'Open your eyes, stretch up high,','Good morning world, hello blue sky! ☀️',
+        'Good morning, good morning, we\'ll learn in every way!'
+    ]},
+];
+let _songState = { current: null };
+window.abrirCanciones = function() {
+    const el = document.getElementById('canciones-overlay');
+    el.style.display = 'flex'; document.body.classList.add('game-active');
+    mostrarListaCanciones();
+};
+window.cerrarCanciones = function() {
+    songStop();
+    document.getElementById('canciones-overlay').style.display = 'none';
+    document.body.classList.remove('game-active');
+};
+window.mostrarListaCanciones = function() {
+    document.getElementById('song-player').style.display = 'none';
+    const list = document.getElementById('song-list');
+    list.style.display = 'flex';
+    list.innerHTML = SONGS.map((s,i) => `
+        <button onclick="abrirCancion(${i})" style="background:rgba(255,255,255,0.12);border:none;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;text-align:left;transition:transform 0.15s;active:transform:scale(0.97);">
+            <span style="font-size:32px;">${s.emoji}</span>
+            <div style="flex:1;"><p style="color:#fff;font-size:14px;font-weight:700;margin:0 0 2px;">${s.title}</p><p style="color:#fbcfe8;font-size:11px;margin:0;">${s.category}</p></div>
+            <span style="color:#fbcfe8;font-size:20px;">▶</span>
+        </button>
+    `).join('');
+};
+window.abrirCancion = function(idx) {
+    const s = SONGS[idx];
+    _songState.current = { ...s, idx };
+    document.getElementById('song-list').style.display = 'none';
+    document.getElementById('song-player').style.display = 'flex';
+    document.getElementById('song-emoji-big').textContent = s.emoji;
+    document.getElementById('song-title-big').textContent = s.title;
+    document.getElementById('song-category').textContent = s.category;
+    const lyricsEl = document.getElementById('song-lyrics');
+    lyricsEl.innerHTML = s.lyrics.map((l,i) => `
+        <div id="song-line-${i}" style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;color:#fff;font-size:14px;font-weight:600;transition:background 0.3s;">${l}</div>
+    `).join('');
+};
+window.songPlay = function() {
+    if (!_songState.current) return;
+    songStop();
+    const s = _songState.current;
+    let idx = 0;
+    function playLine() {
+        if (idx >= s.lyrics.length) {
+            const p = window.familia && window.familia[window.perfilActualId];
+            if (p) { p.xp = (p.xp||0)+20; guardarEstado && guardarEstado(); }
+            lanzarEstrellas && lanzarEstrellas();
+            return;
+        }
+        document.querySelectorAll('[id^="song-line-"]').forEach(el => el.style.background = 'rgba(255,255,255,0.1)');
+        const lineEl = document.getElementById('song-line-'+idx);
+        if (lineEl) lineEl.style.background = 'rgba(255,255,255,0.35)';
+        const u = new SpeechSynthesisUtterance(s.lyrics[idx].replace(/[🎶🌟🌈🐮👏⭐🎉☀️🗓️]/g,''));
+        u.lang = 'en-US'; u.rate = 0.7; u.pitch = 1.2;
+        u.onend = () => { idx++; setTimeout(playLine, 300); };
+        window.speechSynthesis.speak(u);
+    }
+    playLine();
+};
+window.songStop = function() { window.speechSynthesis.cancel(); };
+
+// ═══ MORNING ROUTINE ═══
+let _morningState = { words: [], idx: 0 };
+window.abrirRutinaManana = function() {
+    const p = window.familia && window.familia[window.perfilActualId];
+    if (!p) return;
+    const allWords = Object.values(FLIP_DECKS).flat();
+    const due = (typeof srsGetDue === 'function') ? srsGetDue() : [];
+    const reviewWords = due.slice(0,3).map(w => ({ emoji:'🔄', word:w.word||w, es:w.es||'', isReview:true }));
+    const newWords = allWords.filter(w => !reviewWords.find(r => r.word === w.word)).sort(() => Math.random()-0.5).slice(0,4-reviewWords.length);
+    _morningState.words = [
+        { emoji:'☀️', word:'Good Morning!', es:'¡Buenos días!', isMotivation:true, tip:'Decí esto cada mañana para practicar tu inglés.' },
+        ...newWords.map(w => ({ ...w, isNew:true, tip:`¡Palabra nueva! Repetila 3 veces: ${w.word}` })),
+        ...reviewWords.map(w => ({ ...w, tip:`¡Repaso! Recordás esta palabra?` })),
+    ];
+    _morningState.idx = 0;
+    const el = document.getElementById('morning-overlay');
+    el.style.display = 'flex'; document.body.classList.add('game-active');
+    morningMostrar();
+};
+window.cerrarRutina = function() {
+    document.getElementById('morning-overlay').style.display = 'none';
+    document.body.classList.remove('game-active');
+    document.getElementById('morning-routine-banner').style.display = 'none';
+};
+function morningMostrar() {
+    const items = _morningState.words;
+    const cur = items[_morningState.idx];
+    if (!cur) { cerrarRutina(); return; }
+    document.getElementById('morning-emoji').textContent = cur.emoji;
+    document.getElementById('morning-word').textContent = cur.word;
+    document.getElementById('morning-es').textContent = cur.es || '';
+    document.getElementById('morning-tip').textContent = cur.tip || '';
+    document.getElementById('morning-step-label').textContent = cur.isMotivation ? '☀️ ¡Buenos días!' : cur.isNew ? '✨ Palabra nueva' : '🔄 Repaso';
+    const dots = document.getElementById('morning-dots');
+    dots.innerHTML = items.map((_,i) => `<div style="width:10px;height:10px;border-radius:50%;background:${i<_morningState.idx?'#fff':i===_morningState.idx?'#fbbf24':'rgba(255,255,255,0.3)'};transition:background 0.3s;"></div>`).join('');
+    const nextBtn = document.getElementById('morning-next-btn');
+    nextBtn.textContent = _morningState.idx >= items.length-1 ? '✅ Terminar' : 'Siguiente →';
+    if (!cur.isMotivation) setTimeout(() => hablarNativo && hablarNativo(cur.word, 0.75), 400);
+}
+window.morningSpeak = function() {
+    const cur = _morningState.words[_morningState.idx];
+    if (cur) hablarNativo && hablarNativo(cur.word, 0.75);
+};
+window.morningNext = function() {
+    _morningState.idx++;
+    if (_morningState.idx >= _morningState.words.length) {
+        const p = window.familia && window.familia[window.perfilActualId];
+        if (p) { p.xp = (p.xp||0)+25; guardarEstado && guardarEstado(); }
+        lanzarEstrellas && lanzarEstrellas();
+        cerrarRutina(); return;
+    }
+    morningMostrar();
+};
+
+// Show morning banner when kids profile opens
+(function() {
+    const orig = window.seleccionarPerfil;
+    if (orig) window.seleccionarPerfil = function(id) {
+        orig(id);
+        const p = window.familia && window.familia[id];
+        if (p && !p.esAdulto) {
+            const banner = document.getElementById('morning-routine-banner');
+            if (banner) { banner.style.display = 'flex'; }
+        }
+    };
+})();
+
+// ═══ GRAMMAR PATTERNS ═══
+const GRAMMAR_PATTERNS = [
+    { pattern:'I can ___', emoji:'💪', items:[
+        { blank:'swim', es:'nadar', options:['swim','table','purple','quickly'], sentence:'I can swim in the pool.' },
+        { blank:'fly', es:'volar', options:['fly','house','happy','never'], sentence:'I can fly like a bird!' },
+        { blank:'dance', es:'bailar', options:['dance','cloud','heavy','under'], sentence:'I can dance very well.' },
+        { blank:'sing', es:'cantar', options:['sing','street','cold','with'], sentence:'I can sing a beautiful song.' },
+        { blank:'jump', es:'saltar', options:['jump','rock','tall','inside'], sentence:'I can jump very high!' },
+    ]},
+    { pattern:'I have a ___', emoji:'🎒', items:[
+        { blank:'dog', es:'perro', options:['dog','green','fast','never'], sentence:'I have a dog at home.' },
+        { blank:'book', es:'libro', options:['book','blue','quickly','under'], sentence:'I have a book in my bag.' },
+        { blank:'cat', es:'gato', options:['cat','big','slowly','between'], sentence:'I have a cat named Luna.' },
+        { blank:'bike', es:'bici', options:['bike','happy','red','always'], sentence:'I have a bike to ride.' },
+        { blank:'friend', es:'amigo/a', options:['friend','table','loud','without'], sentence:'I have a friend named Sofia.' },
+    ]},
+    { pattern:'She is ___', emoji:'👧', items:[
+        { blank:'happy', es:'feliz', options:['happy','run','school','always'], sentence:'She is happy today.' },
+        { blank:'tall', es:'alta', options:['tall','eat','city','never'], sentence:'She is tall and strong.' },
+        { blank:'smart', es:'inteligente', options:['smart','jump','river','under'], sentence:'She is very smart.' },
+        { blank:'kind', es:'amable', options:['kind','sleep','mountain','before'], sentence:'She is kind to everyone.' },
+        { blank:'funny', es:'graciosa', options:['funny','walk','ocean','between'], sentence:'She is very funny.' },
+    ]},
+    { pattern:'I like ___', emoji:'❤️', items:[
+        { blank:'cats', es:'gatos', options:['cats','slowly','purple','never'], sentence:'I like cats very much.' },
+        { blank:'pizza', es:'pizza', options:['pizza','run','tall','under'], sentence:'I like pizza for dinner.' },
+        { blank:'dancing', es:'bailar', options:['dancing','table','cold','between'], sentence:'I like dancing in the rain.' },
+        { blank:'reading', es:'leer', options:['reading','loud','house','before'], sentence:'I like reading stories.' },
+        { blank:'music', es:'música', options:['music','walk','big','always'], sentence:'I like music very much.' },
+    ]},
+];
+let _gramState = { patIdx:0, itemIdx:0, correct:0, total:0 };
+window.abrirGramatica = function() {
+    _gramState = { patIdx:0, itemIdx:0, correct:0, total:0 };
+    const el = document.getElementById('gramatica-overlay');
+    el.style.display = 'flex'; document.body.classList.add('game-active');
+    gramMostrar();
+};
+window.cerrarGramatica = function() {
+    document.getElementById('gramatica-overlay').style.display = 'none';
+    document.body.classList.remove('game-active');
+};
+function gramMostrar() {
+    const pat = GRAMMAR_PATTERNS[_gramState.patIdx];
+    if (!pat) {
+        const pct = Math.round((_gramState.correct/_gramState.total)*100);
+        document.getElementById('gram-card').innerHTML = `<div style="font-size:64px;margin-bottom:12px;">${pct>=70?'🏆':'⭐'}</div><h3 style="color:#fff;font-size:24px;font-weight:900;margin:0 0 8px;">${pct}% correcto!</h3><p style="color:#fde68a;font-size:15px;">${_gramState.correct}/${_gramState.total} respuestas</p>`;
+        const p = window.familia && window.familia[window.perfilActualId];
+        if (p) { p.xp = (p.xp||0)+20; guardarEstado && guardarEstado(); }
+        if (pct>=70) lanzarEstrellas && lanzarEstrellas();
+        return;
+    }
+    const item = pat.items[_gramState.itemIdx];
+    document.getElementById('gram-pattern-label').textContent = pat.pattern.replace('___', '?');
+    document.getElementById('gram-emoji').textContent = pat.emoji;
+    document.getElementById('gram-pattern-text').textContent = pat.pattern.replace('___', `___ (${item.es})`);
+    document.getElementById('gram-feedback').textContent = '';
+    document.getElementById('gram-score').textContent = `✅ ${_gramState.correct} / ${_gramState.total}`;
+    const opts = [...item.options].sort(() => Math.random()-0.5);
+    document.getElementById('gram-options').innerHTML = opts.map(o => `
+        <button onclick="gramCheck('${o}','${item.blank}','${item.sentence.replace(/'/g,"\\'")}')" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:700;cursor:pointer;transition:background 0.2s;">${o}</button>
+    `).join('');
+}
+window.gramCheck = function(chosen, correct, sentence) {
+    _gramState.total++;
+    const fb = document.getElementById('gram-feedback');
+    if (chosen === correct) {
+        _gramState.correct++;
+        fb.textContent = '🎉 ¡Perfecto!';
+        playFX && playFX('correct');
+        hablarNativo && hablarNativo(sentence, 0.8);
+        lanzarEstrellas && lanzarEstrellas();
+        setTimeout(gramSiguiente, 1500);
+    } else {
+        fb.textContent = `❌ Era: ${correct}`;
+        playFX && playFX('wrong');
+        document.querySelectorAll('#gram-options button').forEach(btn => {
+            if (btn.textContent === correct) btn.style.background = 'rgba(134,239,172,0.3)';
+        });
+        setTimeout(gramSiguiente, 1500);
+    }
+};
+window.gramSiguiente = function() {
+    const pat = GRAMMAR_PATTERNS[_gramState.patIdx];
+    if (!pat) return;
+    _gramState.itemIdx++;
+    if (_gramState.itemIdx >= pat.items.length) { _gramState.patIdx++; _gramState.itemIdx = 0; }
+    gramMostrar();
+};
+window.gramSpeak = function() {
+    const pat = GRAMMAR_PATTERNS[_gramState.patIdx];
+    if (!pat) return;
+    const item = pat.items[_gramState.itemIdx];
+    if (item) hablarNativo && hablarNativo(pat.pattern.replace('___', item.blank), 0.8);
 };
 </script>
 
@@ -8899,6 +9406,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="story-lang-both" onclick="storySetLang('both')" style="flex:1;background:rgba(255,255,255,0.07);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:400;">🌐 Ambos</button>
         <button id="story-lang-es" onclick="storySetLang('es')" style="flex:1;background:rgba(255,255,255,0.07);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:400;">🇦🇷 Español</button>
       </div>
+      <!-- Speed control -->
+      <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:14px;">🐢</span>
+        <input type="range" id="story-speed" min="0.5" max="1.4" step="0.1" value="0.8"
+          oninput="window._storySpeed=parseFloat(this.value);document.getElementById('story-speed-label').textContent=parseFloat(this.value).toFixed(1)+'x';"
+          style="flex:1;accent-color:#a78bfa;cursor:pointer;">
+        <span style="font-size:14px;">🐇</span>
+        <span id="story-speed-label" style="color:#a78bfa;font-size:12px;font-weight:700;min-width:32px;text-align:right;">0.8x</span>
+      </div>
       <!-- Illustration -->
       <div id="story-art" style="display:flex;justify-content:center;gap:10px;padding:18px 0;background:rgba(255,255,255,0.06);border-radius:20px;flex-wrap:wrap;"></div>
       <!-- Scene card -->
@@ -8951,6 +9467,89 @@ document.addEventListener('DOMContentLoaded', () => {
       <button onclick="cerrarDashboard()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
     </div>
     <div id="dashboard-content"></div>
+  </div>
+</div>
+
+<!-- PRONUNCIATION GAME OVERLAY -->
+<div id="pronuncia-overlay" style="display:none;position:fixed;inset:0;z-index:10000;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#0f766e,#0d9488,#134e4a);">
+  <button onclick="cerrarPronunciacion()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+  <div style="width:100%;max-width:360px;padding:24px;text-align:center;">
+    <p style="color:#99f6e4;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;">🎙️ Pronuncia con Mic</p>
+    <div id="pron-emoji" style="font-size:80px;margin:12px 0;">🐱</div>
+    <h2 id="pron-word" style="color:#fff;font-size:36px;font-weight:900;margin:0 0 6px;letter-spacing:2px;">CAT</h2>
+    <p id="pron-es" style="color:#99f6e4;font-size:14px;margin:0 0 20px;">gato</p>
+    <button onclick="pronEscuchar()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px;">🔊 Escuchar</button>
+    <div id="pron-mic-btn-wrap">
+      <button id="pron-mic-btn" onclick="pronEmpezarGrabar()" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;border:none;font-size:40px;cursor:pointer;box-shadow:0 0 0 0 rgba(244,63,94,0.4);transition:box-shadow 0.3s;">🎤</button>
+      <p style="color:#99f6e4;font-size:12px;margin-top:10px;">Presioná y hablá</p>
+    </div>
+    <div id="pron-feedback" style="margin-top:16px;min-height:60px;display:flex;flex-direction:column;align-items:center;gap:8px;"></div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
+      <button onclick="pronAnterior()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;">← Anterior</button>
+      <button onclick="pronSiguiente()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;">Siguiente →</button>
+    </div>
+    <div id="pron-score" style="margin-top:16px;color:#fbbf24;font-size:13px;font-weight:700;"></div>
+  </div>
+</div>
+
+<!-- SONGS & CHANTS OVERLAY -->
+<div id="canciones-overlay" style="display:none;position:fixed;inset:0;z-index:10000;flex-direction:column;background:linear-gradient(160deg,#831843,#be185d,#db2777);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;">
+    <h2 style="color:#fff;font-size:18px;font-weight:900;margin:0;">🎵 Canciones & Chants</h2>
+    <button onclick="cerrarCanciones()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;">✕</button>
+  </div>
+  <div id="song-list" style="overflow-y:auto;padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;"></div>
+  <div id="song-player" style="display:none;flex-direction:column;flex:1;overflow-y:auto;">
+    <div style="padding:20px;text-align:center;">
+      <div id="song-emoji-big" style="font-size:64px;">🎵</div>
+      <h3 id="song-title-big" style="color:#fff;font-size:22px;font-weight:900;margin:8px 0 4px;"></h3>
+      <p id="song-category" style="color:#fbcfe8;font-size:12px;font-weight:600;margin:0 0 16px;text-transform:uppercase;letter-spacing:1px;"></p>
+    </div>
+    <div id="song-lyrics" style="padding:0 20px;display:flex;flex-direction:column;gap:6px;"></div>
+    <div style="padding:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <button id="song-play-btn" onclick="songPlay()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:14px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;">▶ Cantar todo</button>
+      <button onclick="songStop()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:14px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;">⏹ Parar</button>
+      <button onclick="mostrarListaCanciones()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:14px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;">🎵 Lista</button>
+    </div>
+  </div>
+</div>
+
+<!-- MORNING ROUTINE OVERLAY -->
+<div id="morning-overlay" style="display:none;position:fixed;inset:0;z-index:10000;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#78350f,#d97706,#fbbf24);">
+  <button onclick="cerrarRutina()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+  <div style="width:100%;max-width:360px;padding:24px;text-align:center;">
+    <p id="morning-step-label" style="color:#fff8e1;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px;">Rutina de Mañana ☀️</p>
+    <div id="morning-dots" style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;"></div>
+    <div id="morning-card" style="background:rgba(255,255,255,0.15);border-radius:20px;padding:28px;margin-bottom:20px;">
+      <div id="morning-emoji" style="font-size:64px;">☀️</div>
+      <h2 id="morning-word" style="color:#fff;font-size:32px;font-weight:900;margin:8px 0 4px;"></h2>
+      <p id="morning-es" style="color:#fff8e1;font-size:15px;font-style:italic;margin:0 0 8px;"></p>
+      <p id="morning-tip" style="color:#fff8e1;font-size:13px;line-height:1.5;margin:0;"></p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="morningSpeak()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;">🔊 Escuchar</button>
+      <button id="morning-next-btn" onclick="morningNext()" style="background:#fff;color:#92400e;border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:800;cursor:pointer;">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GRAMMAR PATTERNS OVERLAY -->
+<div id="gramatica-overlay" style="display:none;position:fixed;inset:0;z-index:10000;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#451a03,#92400e,#d97706);">
+  <button onclick="cerrarGramatica()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">✕</button>
+  <div style="width:100%;max-width:380px;padding:24px;">
+    <p style="color:#fde68a;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 4px;text-align:center;">📝 Frases Mágicas</p>
+    <div id="gram-pattern-label" style="color:#fff;font-size:22px;font-weight:900;text-align:center;margin-bottom:16px;"></div>
+    <div id="gram-card" style="background:rgba(255,255,255,0.12);border-radius:20px;padding:24px;text-align:center;margin-bottom:20px;">
+      <div id="gram-emoji" style="font-size:56px;margin-bottom:8px;">🌟</div>
+      <p id="gram-pattern-text" style="color:#fde68a;font-size:18px;font-weight:700;margin:0 0 12px;"></p>
+      <div id="gram-options" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <p id="gram-feedback" style="font-size:22px;font-weight:900;margin:12px 0 0;min-height:30px;color:#fff;"></p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="gramSpeak()" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;">🔊 Escuchar</button>
+      <button onclick="gramSiguiente()" style="background:#fff;color:#92400e;border:none;border-radius:12px;padding:10px 24px;font-size:14px;font-weight:800;cursor:pointer;">Siguiente →</button>
+    </div>
+    <div id="gram-score" style="color:#fde68a;font-size:13px;font-weight:700;text-align:center;margin-top:16px;"></div>
   </div>
 </div>
 
