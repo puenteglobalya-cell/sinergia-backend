@@ -1,0 +1,61 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [main, claude/**]
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit:
+    name: Dependency & Secret Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check for hardcoded secrets
+        run: |
+          # Fail if any API key patterns found in committed JS/HTML
+          if grep -rE "(AIza[0-9A-Za-z\-_]{35}|sk-[a-zA-Z0-9]{40,}|AAAA[A-Za-z0-9_-]{7}:)" \
+            --include="*.js" --include="*.html" --include="*.json" \
+            --exclude-dir=node_modules --exclude-dir=.git .; then
+            echo "::error::Possible hardcoded API key found!"
+            exit 1
+          fi
+          echo "No hardcoded secrets detected."
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript

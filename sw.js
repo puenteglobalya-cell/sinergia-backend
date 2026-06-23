@@ -1,13 +1,12 @@
 // Sinergia Familiar — Service Worker
-const CACHE = 'sinergia-v6';
+const CACHE = 'sinergia-v7';
 const OFFLINE_ASSETS = [
   '/',
   '/index_preview.html',
   '/manifest.json',
-  // Tailwind CDN
-  'https://cdn.tailwindcss.com',
+  '/tailwind.css',
   // Google Fonts
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
 ];
 
 self.addEventListener('install', e => {
@@ -35,7 +34,6 @@ self.addEventListener('fetch', e => {
 
   // Cache-first for same-origin + known CDN assets; network-first for everything else
   const isCacheable = url.startsWith(self.location.origin)
-    || url.includes('cdn.tailwindcss.com')
     || url.includes('fonts.googleapis.com')
     || url.includes('fonts.gstatic.com');
 
@@ -65,10 +63,13 @@ let _reminderMensajes = [];
 let _reminderIdx = 0;
 
 self.addEventListener('message', e => {
+  // Only accept messages from the app's own origin
+  if (e.origin && e.origin !== self.location.origin) return;
   if (e.data && e.data.type === 'SCHEDULE_REMINDER') {
     const { hour, minute, mensajes, nombres } = e.data;
     // Support both new (mensajes array) and legacy (nombres string) format
-    _reminderMensajes = mensajes && mensajes.length ? mensajes : [`${nombres || 'Familia'} — tu sesión diaria te espera en Sinergia`];
+    _reminderMensajes = (mensajes && mensajes.length ? mensajes : [`${nombres || 'Familia'} — tu sesión diaria te espera en Sinergia`])
+      .map(m => String(m).slice(0, 200)); // cap length, ensure string
     _reminderIdx = 0;
 
     const now  = new Date();
