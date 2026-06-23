@@ -6644,8 +6644,8 @@ function renderScene() {
   const showEn = window._storyLang !== 'es';
   const showEs = window._storyLang !== 'en';
   let html = '';
-  if (showEn) html += `<p style="color:#f1f5f9;font-size:16px;line-height:1.7;margin:0 0 ${esText&&showEs?'12px':'0'};">${enText}</p>`;
-  if (showEs && esText) html += `<p style="color:#fde68a;font-size:15px;line-height:1.65;margin:0;font-style:italic;">${esText}</p>`;
+  if (showEn) html += `<p style="color:#f1f5f9;font-size:16px;line-height:1.7;margin:0 0 ${esText&&showEs?'12px':'0'};">${esc(enText)}</p>`;
+  if (showEs && esText) html += `<p style="color:#fde68a;font-size:15px;line-height:1.65;margin:0;font-style:italic;">${esc(esText)}</p>`;
   document.getElementById('story-scene-text').innerHTML = html;
   // Lang toggle buttons
   const btnEn = document.getElementById('story-lang-en');
@@ -7101,7 +7101,7 @@ window.pronEmpezarGrabar = function() {
             lanzarEstrellas && lanzarEstrellas();
             setTimeout(pronSiguiente, 1200);
         } else {
-            document.getElementById('pron-feedback').innerHTML = `<div style="font-size:36px;">🤔</div><p style="color:#fca5a5;font-size:14px;font-weight:700;">Escuché: "${alts[0]}"<br>Intentá decir: <b style="color:#fff;">${_pronState.deck[_pronState.idx].word}</b></p>`;
+            document.getElementById('pron-feedback').innerHTML = `<div style="font-size:36px;">🤔</div><p style="color:#fca5a5;font-size:14px;font-weight:700;">Escuché: "${esc(alts[0])}"<br>Intentá decir: <b style="color:#fff;">${esc(_pronState.deck[_pronState.idx].word)}</b></p>`;
             playFX && playFX('wrong');
         }
     };
@@ -7429,9 +7429,9 @@ function renderShadowLines() {
             <div class="max-w-xs space-y-1">
                 <p class="text-[10px] font-bold uppercase tracking-wide ${isStaff ? 'text-blue-400' : 'text-emerald-400'} ${isStaff ? '' : 'text-right'}">${isStaff ? '💼 Staff' : '🧳 You'}</p>
                 <div class="${isStaff ? 'bg-slate-700 text-white' : 'bg-emerald-900/60 text-emerald-100'} rounded-2xl px-4 py-3 text-sm font-medium" id="shadow-text-${i}">
-                    ${i === 0 ? line.text : '…'}
+                    ${i === 0 ? esc(line.text) : '…'}
                 </div>
-                <p class="text-slate-500 text-xs italic px-1 hidden" id="shadow-trans-${i}">${line.translation}</p>
+                <p class="text-slate-500 text-xs italic px-1 hidden" id="shadow-trans-${i}">${esc(line.translation)}</p>
                 <p class="text-xs font-bold hidden" id="shadow-score-${i}"></p>
             </div>`;
         container.appendChild(div);
@@ -7724,7 +7724,10 @@ function cargarTextoEnStoryteller(text) {
     container.innerHTML = '';
     _storyWords.forEach(d => {
         if (!d.isWord) {
-            container.insertAdjacentHTML('beforeend', d.token.replace(/\n/g, '<br>'));
+            d.token.split('\n').forEach((part, i, arr) => {
+                if (part) container.appendChild(document.createTextNode(part));
+                if (i < arr.length - 1) container.appendChild(document.createElement('br'));
+            });
             return;
         }
         const clean = d.token.replace(/[^a-zA-Z']/g,'');
@@ -7844,8 +7847,8 @@ window.mostrarBiblioteca = function(abrirStoryteller = false) {
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                     <div style="flex:1;min-width:0;">
                         <p style="color:#94a3b8;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">📝 Texto propio · ${story.fecha||''}</p>
-                        <p style="color:#f1f5f9;font-weight:700;font-size:0.95rem;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${story.titulo}</p>
-                        <p style="color:#64748b;font-size:0.72rem;line-height:1.4;">${story.text.slice(0,80)}…</p>
+                        <p style="color:#f1f5f9;font-weight:700;font-size:0.95rem;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(story.titulo)}</p>
+                        <p style="color:#64748b;font-size:0.72rem;line-height:1.4;">${esc(story.text.slice(0,80))}…</p>
                     </div>
                     <button onclick="event.stopPropagation();eliminarTextoCustom(${idx})" style="color:#ef4444;font-size:1.1rem;margin-left:8px;flex-shrink:0;background:none;border:none;cursor:pointer;">✕</button>
                 </div>`;
@@ -8578,7 +8581,7 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
     } catch(e) {
         const fb = OFFLINE_FALLBACKS.evaluate_voice;
         const isTimeout = e.message === 'timeout';
-        evalDiv.innerHTML = `<p class="text-amber-600 text-sm font-semibold">📡 ${isTimeout ? 'Tiempo agotado (10s)' : 'Sin conexión'}</p><p class="text-slate-500 text-xs mt-1">${fb.reply}</p>`;
+        evalDiv.innerHTML = `<p class="text-amber-600 text-sm font-semibold">📡 ${isTimeout ? 'Tiempo agotado (10s)' : 'Sin conexión'}</p><p class="text-slate-500 text-xs mt-1">${esc(fb.reply)}</p>`;
         hablarNativo(fb.reply);
         console.error(e);
     }
