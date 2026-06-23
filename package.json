@@ -2,5 +2,8 @@
   "name": "sinergia-backend",
   "version": "1.0.0",
   "description": "Backend estable para Sinergia Familiar",
-  "main": "api/gemini.js"
+  "main": "api/gemini.js",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
 }

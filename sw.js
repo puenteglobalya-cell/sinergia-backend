@@ -1,13 +1,12 @@
 // Sinergia Familiar — Service Worker
-const CACHE = 'sinergia-v6';
+const CACHE = 'sinergia-v7';
 const OFFLINE_ASSETS = [
   '/',
   '/index_preview.html',
   '/manifest.json',
-  // Tailwind CDN
-  'https://cdn.tailwindcss.com',
+  '/tailwind.css',
   // Google Fonts
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
 ];
 
 self.addEventListener('install', e => {
@@ -35,7 +34,6 @@ self.addEventListener('fetch', e => {
 
   // Cache-first for same-origin + known CDN assets; network-first for everything else
   const isCacheable = url.startsWith(self.location.origin)
-    || url.includes('cdn.tailwindcss.com')
     || url.includes('fonts.googleapis.com')
     || url.includes('fonts.gstatic.com');
 
