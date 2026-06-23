@@ -65,10 +65,13 @@ let _reminderMensajes = [];
 let _reminderIdx = 0;
 
 self.addEventListener('message', e => {
+  // Only accept messages from the app's own origin
+  if (e.origin && e.origin !== self.location.origin) return;
   if (e.data && e.data.type === 'SCHEDULE_REMINDER') {
     const { hour, minute, mensajes, nombres } = e.data;
     // Support both new (mensajes array) and legacy (nombres string) format
-    _reminderMensajes = mensajes && mensajes.length ? mensajes : [`${nombres || 'Familia'} — tu sesión diaria te espera en Sinergia`];
+    _reminderMensajes = (mensajes && mensajes.length ? mensajes : [`${nombres || 'Familia'} — tu sesión diaria te espera en Sinergia`])
+      .map(m => String(m).slice(0, 200)); // cap length, ensure string
     _reminderIdx = 0;
 
     const now  = new Date();

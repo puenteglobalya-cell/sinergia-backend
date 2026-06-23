@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://project-5y7mn.vercel.app https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Sinergia Familiar - Language Hub</title>
     <!-- PWA -->
@@ -1893,6 +1894,7 @@
 
 <!-- ═══ LOGIC ═══ -->
 <script type="text/javascript">
+function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ── UI Language System ─────────────────────────────────────────────────────
 window.UI_LANG = 'es';
@@ -3717,8 +3719,8 @@ function actualizarLeaderboardUI() {
         const ringCls= i === 0 ? 'ring-2 ring-yellow-300' : '';
         return `<li class="flex flex-col items-center gap-1.5 bg-white/70 border border-slate-100 rounded-2xl py-3 px-2 podium-shadow ${i===0?'bg-gradient-to-b from-yellow-50/80 to-white/70 border-yellow-200':''}">
             <span class="text-xl leading-none">${medal}</span>
-            <div class="h-9 w-9 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold ${ringCls}">${p.nombre[0]}</div>
-            <span class="font-bold text-slate-700 text-xs text-center leading-tight">${p.nombre.split(' ')[0]}</span>
+            <div class="h-9 w-9 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold ${ringCls}">${esc(p.nombre[0]||'')}</div>
+            <span class="font-bold text-slate-700 text-xs text-center leading-tight">${esc(p.nombre.split(' ')[0])}</span>
             <span class="font-extrabold text-[11px] ${i===0?'text-yellow-600':'text-slate-400'}">${pts} XP</span>
         </li>`;
     }).join('');
@@ -5841,8 +5843,8 @@ function renderizarConfiguracionPerfiles() {
         card.className = 'bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3';
         card.innerHTML = `
             <div class="flex items-center gap-2">
-                <div class="h-8 w-8 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold flex-shrink-0">${p.nombre[0]}</div>
-                <p class="font-bold text-slate-700 text-sm">${p.nombre}</p>
+                <div class="h-8 w-8 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-sm font-bold flex-shrink-0">${esc(p.nombre[0]||'')}</div>
+                <p class="font-bold text-slate-700 text-sm">${esc(p.nombre)}</p>
             </div>
             <select id="sel-handicap-${p.id}" class="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
                 ${niveles.map(n => `<option value="${n}" ${p.nivel===n?'selected':''}>${n}</option>`).join('')}
@@ -6082,8 +6084,8 @@ function renderizarBotonesPerfil() {
         btn.dataset.id = p.id;
         const av = p.avatar || p.nombre[0];
         btn.innerHTML  = `
-            <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-sm flex-shrink-0 shadow-sm">${av}</div>
-            <span class="text-slate-700 font-semibold text-xs hidden sm:inline">${p.nombre.split(' ')[0]}</span>`;
+            <div class="h-6 w-6 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-sm flex-shrink-0 shadow-sm">${esc(av)}</div>
+            <span class="text-slate-700 font-semibold text-xs hidden sm:inline">${esc(p.nombre.split(' ')[0])}</span>`;
         btn.onclick = () => window.cambiarPerfil(p.id);
         container.appendChild(btn);
     });
@@ -8477,13 +8479,13 @@ window.dispatchGeminiVoz = async function(textoVozReal) {
             <p class="font-medium leading-relaxed cursor-pointer select-none"
                onclick="this.nextElementSibling.classList.toggle('hidden')"
                title="Tap to translate">
-                ${data.reply} <span class="text-blue-300 text-xs">🌐</span>
+                ${esc(data.reply)} <span class="text-blue-300 text-xs">🌐</span>
             </p>
-            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden transition-opacity duration-700 hover:opacity-100" style="opacity:${Math.max(0.1, 1 - ((p.interaccionesEscena||0) * 0.15)).toFixed(2)}">${data.translation || ''}</p>
+            <p class="text-slate-400 text-xs italic mt-1 px-1 hidden transition-opacity duration-700 hover:opacity-100" style="opacity:${Math.max(0.1, 1 - ((p.interaccionesEscena||0) * 0.15)).toFixed(2)}">${esc(data.translation||'')}</p>
             <div class="mt-2 pt-2 border-t border-blue-100 space-y-1.5">
                 <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-start justify-between gap-2">
-                    <p id="${correctionId}" class="text-amber-700 text-xs font-bold flex-1">✏️ ${data.correction}</p>
-                    <button onclick="guardarEnGlosario('${p.id}',\`${(data.correction||'').replace(/`/g,"'")}\`,'${correctionId}')"
+                    <p id="${correctionId}" class="text-amber-700 text-xs font-bold flex-1">✏️ ${esc(data.correction)}</p>
+                    <button id="${correctionId}-save-btn" data-corr="${esc(data.correction||'')}" data-pid="${esc(p.id)}" data-cid="${esc(correctionId)}" onclick="guardarEnGlosario(this.dataset.pid,this.dataset.corr,this.dataset.cid)"
                         class="text-lg leading-none flex-shrink-0 transition-transform active:scale-125" title="Guardar en glosario">⭐</button>
                 </div>
                 <p class="text-emerald-600 text-xs font-bold px-1">🎉 +${data.xp} XP${p.racha >= 2 ? ` · 🔥 ${p.racha} streak!` : ''}</p>
@@ -8626,7 +8628,7 @@ window.actualizarRetoFamiliar = function() {
         const pct = Math.min(100, (pts / maxPerProfile) * 100);
         const colors = PROFILE_COLORS[p.id] || 'from-slate-400 to-slate-600';
         profilesDiv.innerHTML += `<div class="flex flex-col items-center gap-1">
-            <div class="h-8 w-8 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold">${p.nombre[0]}</div>
+            <div class="h-8 w-8 rounded-full bg-gradient-to-br ${colors} flex items-center justify-center text-white text-xs font-bold">${esc(p.nombre[0]||'')}</div>
             <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:${pct}%"></div></div>
             <span class="text-[10px] text-slate-500 font-bold">${pts}/${maxPerProfile}</span>
         </div>`;
@@ -8673,8 +8675,8 @@ function renderDiarioPastEntries(pid) {
             <span class="text-slate-500 text-xs">▼</span>
         </div>
         <div class="diary-body hidden space-y-2">
-            <p class="text-white text-sm leading-relaxed">${entry.text || ''}</p>
-            ${entry.feedback ? `<div class="bg-slate-700 rounded-xl p-3 text-slate-300 text-xs leading-relaxed">${entry.feedback}</div>` : ''}
+            <p class="text-white text-sm leading-relaxed">${esc(entry.text)}</p>
+            ${entry.feedback ? `<div class="bg-slate-700 rounded-xl p-3 text-slate-300 text-xs leading-relaxed">${esc(entry.feedback)}</div>` : ''}
         </div>`;
         container.appendChild(div);
     });
