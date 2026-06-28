@@ -6523,7 +6523,8 @@ function fraseNext() {
     document.getElementById('frase-next-btn').style.display='none';
     const el=document.getElementById('frase-answers');
     el.innerHTML='';
-    item.options.forEach(opt=>{
+    const opts=[...item.options].sort(()=>Math.random()-0.5);
+    opts.forEach(opt=>{
         const btn=document.createElement('button');
         btn.textContent=opt;
         btn.style.cssText='background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-weight:700;padding:12px 8px;border-radius:14px;font-size:13px;cursor:pointer;min-height:44px;';
