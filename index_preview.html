@@ -5151,8 +5151,9 @@ window.abrirGranTesoro = function() {
 };
 
 window.cerrarGranTesoro = function() {
-    wrStop();
-    document.getElementById('gran-tesoro-overlay').classList.add('hidden');
+    if (window.wrStop) wrStop();
+    const overlay = document.getElementById('gran-tesoro-overlay');
+    if (overlay) overlay.classList.add('hidden');
 };
 
 // ─── WORD RUSH GAME ───────────────────────────────────────────────
@@ -5395,11 +5396,16 @@ window.cerrarGranTesoro = function() {
         WR.running = false;
         cancelAnimationFrame(WR.raf);
         const endEl = document.getElementById('wr-end-screen');
-        document.getElementById('wr-question-panel').classList.add('hidden');
-        document.getElementById('wr-end-title').textContent = WR.score >= 5 ? '¡Increíble! 🏆' : WR.score >= 3 ? '¡Muy bien! 🌟' : '¡Sigue practicando!';
-        document.getElementById('wr-end-emoji').textContent = WR.score >= 5 ? '🏆' : WR.score >= 3 ? '⭐' : '💪';
-        document.getElementById('wr-end-score').textContent = WR.score + (WR.score === 1 ? ' estrella' : ' estrellas') + ' · +' + (WR.score * 50) + ' XP';
-        endEl.classList.remove('hidden');
+        const qpEl = document.getElementById('wr-question-panel');
+        const titleEl = document.getElementById('wr-end-title');
+        const emojiEl = document.getElementById('wr-end-emoji');
+        const scoreEl = document.getElementById('wr-end-score');
+
+        if (qpEl) qpEl.classList.add('hidden');
+        if (titleEl) titleEl.textContent = WR.score >= 5 ? '¡Increíble! 🏆' : WR.score >= 3 ? '¡Muy bien! 🌟' : '¡Sigue practicando!';
+        if (emojiEl) emojiEl.textContent = WR.score >= 5 ? '🏆' : WR.score >= 3 ? '⭐' : '💪';
+        if (scoreEl) scoreEl.textContent = WR.score + (WR.score === 1 ? ' estrella' : ' estrellas') + ' · +' + (WR.score * 50) + ' XP';
+        if (endEl) endEl.classList.remove('hidden');
     }
 
     window.wrResetUI = function() {
