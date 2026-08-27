@@ -9876,16 +9876,16 @@ window.pp_adivinarLetra=function(l){
 
 // ═══ Sopa de Letras PP ═══
 const PP_SOPA_COLS=8;
-let pp_sopa_words,pp_sopa_found,pp_sopa_grid,pp_sopa_rows,pp_sopa_sel,pp_sopa_msg;
+let pp_sopa_words,pp_sopa_found,pp_sopa_grid,pp_sopa_rows,pp_sopa_path,pp_sopa_msg,pp_sopa_foundCells;
 window.abrirPP_SopaLetras=function(){
   pp_sopa_words=[...new Set(pp_palabras.slice(0,6).map(w=>w.toUpperCase()))];
   pp_sopa_found=new Set();
-  pp_sopa_sel=null;
+  pp_sopa_foundCells=new Set(); // "r,c" strings belonging to already-found words
+  pp_sopa_path=[]; // sequence of [r,c] cells tapped so far, in order
   pp_sopa_msg='';
   const ABC='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
   // Few extra rows beyond one-per-word so the puzzle isn't just the word
-  // list read top-to-bottom, but still small enough that a 2nd tap can
-  // actually land on the right row on a phone screen.
+  // list read top-to-bottom, but still small enough to tap accurately.
   pp_sopa_rows=Math.min(pp_sopa_words.length+3,10);
   pp_sopa_grid=Array.from({length:pp_sopa_rows},()=>Array(PP_SOPA_COLS).fill(''));
   const usedRows=new Set();
@@ -9903,34 +9903,65 @@ window.abrirPP_SopaLetras=function(){
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPSopa();
 };
+function _pp_sopaCellKey(r,c){ return r+','+c; }
+function _pp_sopaInPath(r,c){ return pp_sopa_path.some(([pr,pc])=>pr===r&&pc===c); }
 function renderPPSopa(){
-  const lista=pp_sopa_words.map(w=>`<button disabled style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;${pp_sopa_found.has(w)?'text-decoration:line-through;opacity:0.55':''}">${w}</button>`).join('');
+  const lista=pp_sopa_words.map(w=>`<button disabled style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;${pp_sopa_found.has(w)?'text-decoration:line-through;opacity:0.55':''}">${pp_sopa_found.has(w)?'✅ ':''}${w}</button>`).join('');
   const win=pp_sopa_found.size===pp_sopa_words.length;
   let feedback=win?'<p style="color:#86efac;font-size:24px;font-weight:900;margin-top:12px;">🎉 ¡Encontraste todas!</p><button onclick="window.abrirPP_SopaLetras()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Nueva →</button>'
     : (pp_sopa_msg?`<p style="color:#fca5a5;font-size:13px;font-weight:800;text-align:center;margin-top:8px;">${pp_sopa_msg}</p>`:'');
-  const gridHtml=pp_sopa_grid.map((row,r)=>`<div style="display:flex;gap:3px;">${row.map((ch,c)=>
-    `<button onclick="pp_sopaTap(${r},${c})" style="width:32px;height:32px;flex-shrink:0;background:${pp_sopa_sel&&pp_sopa_sel[0]===r&&pp_sopa_sel[1]===c?'rgba(96,165,250,0.6)':'rgba(255,255,255,0.12)'};color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;padding:0;">${ch}</button>`
-  ).join('')}</div>`).join('');
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔍 Sopa de Letras</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:8px 0;">Tocá la primera y la última letra de una palabra (misma fila o columna)</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px;align-items:center;margin:12px 0;overflow-x:auto;">${gridHtml}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">${lista}</div>${feedback}`;
+  const gridHtml=pp_sopa_grid.map((row,r)=>`<div style="display:flex;gap:3px;">${row.map((ch,c)=>{
+    const key=_pp_sopaCellKey(r,c);
+    const isFoundCell=pp_sopa_foundCells.has(key);
+    const isPathCell=_pp_sopaInPath(r,c);
+    const bg=isPathCell?'rgba(96,165,250,0.7)':(isFoundCell?'rgba(16,185,129,0.5)':'rgba(255,255,255,0.12)');
+    return `<button onclick="pp_sopaTap(${r},${c})" style="width:32px;height:32px;flex-shrink:0;background:${bg};color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;padding:0;">${ch}</button>`;
+  }).join('')}</div>`).join('');
+  const actionBtns = (!win && pp_sopa_path.length>0)
+    ? `<div style="display:flex;gap:8px;margin-top:10px;"><button onclick="pp_sopaVerificar()" style="flex:1;background:#10b981;color:#fff;border:none;border-radius:10px;padding:10px;font-weight:800;cursor:pointer;font-size:13px;">Verificar ✓</button><button onclick="pp_sopaCancelar()" style="flex:1;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:800;cursor:pointer;font-size:13px;">Cancelar ✕</button></div>`
+    : '';
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔍 Sopa de Letras</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:8px 0;">Tocá las letras de una palabra en orden (misma fila o columna) y tocá Verificar</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px;align-items:center;margin:12px 0;overflow-x:auto;">${gridHtml}</div>${actionBtns}<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:12px;">${lista}</div>${feedback}`;
 }
 window.pp_sopaTap=function(r,c){
-  if(!pp_sopa_sel){ pp_sopa_sel=[r,c]; pp_sopa_msg=''; renderPPSopa(); return; }
-  const [sr,sc]=pp_sopa_sel;
-  pp_sopa_sel=null;
-  if(sr===r && sc===c){ renderPPSopa(); return; } // tapped same cell twice: just clear selection
-  if(sr!==r && sc!==c){
-    pp_sopa_msg='❌ Tenés que tocar la misma fila o columna. ¡Probá otra vez!';
+  pp_sopa_msg='';
+  if(pp_sopa_path.length===0){ pp_sopa_path=[[r,c]]; renderPPSopa(); return; }
+  const [fr,fc]=pp_sopa_path[0];
+  const [lr,lc]=pp_sopa_path[pp_sopa_path.length-1];
+  // Tapping the current last cell again = undo (shrink path by one)
+  if(r===lr && c===lc){ pp_sopa_path.pop(); renderPPSopa(); return; }
+  // Must stay in the same row as the start, or the same column as the start
+  if(fr!==r && fc!==c){
+    pp_sopa_msg='❌ Seguí la misma fila o columna que la primera letra.';
     renderPPSopa();
     return;
   }
-  let cells=[];
-  if(sr===r){ const [c1,c2]=[Math.min(sc,c),Math.max(sc,c)]; for(let cc=c1;cc<=c2;cc++) cells.push([r,cc]); }
-  else { const [r1,r2]=[Math.min(sr,r),Math.max(sr,r)]; for(let rr=r1;rr<=r2;rr++) cells.push([rr,c]); }
-  const attempt=cells.map(([rr,cc])=>pp_sopa_grid[rr][cc]).join('');
+  // Must be the immediate next cell in that direction (no skipping)
+  const dr=Math.sign(r-fr), dc=Math.sign(c-fc);
+  if(pp_sopa_path.length>1){
+    const [pr2,pc2]=pp_sopa_path[1];
+    const estDr=Math.sign(pr2-fr), estDc=Math.sign(pc2-fc);
+    if(dr!==estDr || dc!==estDc){
+      pp_sopa_msg='❌ Seguí tocando en la misma dirección.';
+      renderPPSopa();
+      return;
+    }
+  }
+  const expectedR=lr+dr, expectedC=lc+dc;
+  if(r!==expectedR || c!==expectedC){
+    pp_sopa_msg='❌ Tocá la letra que sigue, sin saltear.';
+    renderPPSopa();
+    return;
+  }
+  pp_sopa_path.push([r,c]);
+  renderPPSopa();
+};
+window.pp_sopaVerificar=function(){
+  const attempt=pp_sopa_path.map(([r,c])=>pp_sopa_grid[r][c]).join('');
   const rev=[...attempt].reverse().join('');
   const match=pp_sopa_words.find(w=>!pp_sopa_found.has(w)&&(w===attempt||w===rev));
   if(match){
     pp_sopa_found.add(match);
+    pp_sopa_path.forEach(([r,c])=>pp_sopa_foundCells.add(_pp_sopaCellKey(r,c)));
     pp_sopa_msg='';
     playFX&&playFX('correct');
     const p=window.familia[window.perfilActualId];
@@ -9938,6 +9969,12 @@ window.pp_sopaTap=function(r,c){
   } else {
     pp_sopa_msg='❌ Esa no es una palabra. ¡Probá otra vez!';
   }
+  pp_sopa_path=[];
+  renderPPSopa();
+};
+window.pp_sopaCancelar=function(){
+  pp_sopa_path=[];
+  pp_sopa_msg='';
   renderPPSopa();
 };
 
