@@ -6515,8 +6515,20 @@ window.mostrarHistorialSesiones = function() {
 
 // ── PWA & Notifications ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
+    // Auto-reload once the new Service Worker takes control, so a deploy
+    // shows up without the user needing to know to clear site data. Without
+    // this, an already-open tab (or an installed PWA reopened from the
+    // home screen) can keep running an old SW indefinitely even though a
+    // newer one has finished installing in the background.
+    let _swRefreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (_swRefreshing) return;
+        _swRefreshing = true;
+        window.location.reload();
+    });
     navigator.serviceWorker.register('./sw.js').then(reg => {
         console.log('SW registered:', reg.scope);
+        reg.update().catch(() => {}); // force an update check beyond the browser's default heuristic timing
     }).catch(e => console.warn('SW registration failed:', e));
 }
 
