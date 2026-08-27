@@ -1,5 +1,5 @@
 // Sinergia Familiar — Service Worker
-const CACHE = 'sinergia-v8';
+const CACHE = 'sinergia-v9';
 const OFFLINE_ASSETS = [
   '/',
   '/index_preview.html',
@@ -32,7 +32,30 @@ self.addEventListener('fetch', e => {
   if (url.includes('generativelanguage.googleapis.com')) return;
   if (url.includes('vercel.app/api')) return;
 
-  // Cache-first for same-origin + known CDN assets; network-first for everything else
+  // HTML/navigation requests: network-first, so a deploy is picked up on
+  // the very next load instead of silently serving a stale cached page
+  // until someone remembers to bump CACHE (what caused old bugs to keep
+  // reappearing even after a hard refresh — the SW intercepts the fetch
+  // before it reaches the network).
+  const isHTML = e.request.mode === 'navigate'
+    || url.endsWith('/index_preview.html')
+    || url === self.location.origin + '/'
+    || url === self.location.origin;
+
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request).then(cached => cached || caches.match('/index_preview.html')))
+    );
+    return;
+  }
+
+  // Cache-first for same-origin static assets + known CDN assets
   const isCacheable = url.startsWith(self.location.origin)
     || url.includes('fonts.googleapis.com')
     || url.includes('fonts.gstatic.com');
