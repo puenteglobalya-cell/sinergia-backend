@@ -9978,6 +9978,81 @@ window.pp_sopaCancelar=function(){
   renderPPSopa();
 };
 
+// ═══ Problemas de Suma y Resta (cuentitos) PP ═══
+const PP_MATH_NAMES=['Juan','Pedro','Ana','Sofía','Lucas','María','Tomás','Valentina','Mateo','Julieta','Emilia','Bruno','Martina','Simón','Renata','Camila','Nico','Zoe'];
+const PP_MATH_ITEMS=[
+  {item:'caramelos',emoji:'🍬',tipo:'comida'},
+  {item:'chocolates',emoji:'🍫',tipo:'comida'},
+  {item:'alfajores',emoji:'🍪',tipo:'comida'},
+  {item:'chupetines',emoji:'🍭',tipo:'comida'},
+  {item:'manzanas',emoji:'🍎',tipo:'comida'},
+  {item:'bananas',emoji:'🍌',tipo:'comida'},
+  {item:'galletitas',emoji:'🍪',tipo:'comida'},
+  {item:'empanadas',emoji:'🥟',tipo:'comida'},
+  {item:'huevitos de chocolate',emoji:'🥚',tipo:'comida'},
+  {item:'fresas',emoji:'🍓',tipo:'comida'},
+  {item:'globos',emoji:'🎈',tipo:'objeto'},
+  {item:'autos de juguete',emoji:'🚗',tipo:'objeto'},
+  {item:'lápices',emoji:'✏️',tipo:'objeto'},
+  {item:'estrellas de papel',emoji:'⭐',tipo:'objeto'},
+  {item:'flores',emoji:'🌸',tipo:'objeto'},
+  {item:'pelotas',emoji:'⚽',tipo:'objeto'},
+  {item:'libros',emoji:'📚',tipo:'objeto'},
+  {item:'muñecos',emoji:'🧸',tipo:'objeto'},
+  {item:'perritos',emoji:'🐶',tipo:'animal'},
+  {item:'gatitos',emoji:'🐱',tipo:'animal'},
+  {item:'pajaritos',emoji:'🐦',tipo:'animal'},
+  {item:'peces',emoji:'🐟',tipo:'animal'},
+  {item:'mariposas',emoji:'🦋',tipo:'animal'},
+  {item:'conejitos',emoji:'🐰',tipo:'animal'},
+];
+const PP_SUMA_TEMPLATES={
+  comida:[
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it}. ${n2} le regaló ${b} más. ¿Cuántos ${it} tiene ahora ${n1}?`,
+    (n1,n2,it,a,b)=>`${n1} compró ${a} ${it} y después compró ${b} más. ¿Cuántos ${it} tiene en total?`,
+    (n1,n2,it,a,b)=>`${n1} tiene ${a} ${it} y ${n2} tiene ${b} ${it}. ¿Cuántos ${it} tienen entre los dos?`,
+  ],
+  objeto:[
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it}. Para su cumpleaños le regalaron ${b} más. ¿Cuántos ${it} tiene ahora?`,
+    (n1,n2,it,a,b)=>`En la caja había ${a} ${it}. ${n1} agregó ${b} más. ¿Cuántos ${it} hay ahora?`,
+    (n1,n2,it,a,b)=>`${n1} tiene ${a} ${it} y ${n2} tiene ${b} ${it}. ¿Cuántos ${it} tienen entre los dos?`,
+  ],
+  animal:[
+    (n1,n2,it,a,b)=>`En la granja había ${a} ${it}. Nacieron ${b} más. ¿Cuántos ${it} hay ahora?`,
+    (n1,n2,it,a,b)=>`${n1} tiene ${a} ${it} en su casa y encontró ${b} más en el parque. ¿Cuántos ${it} tiene ahora?`,
+    (n1,n2,it,a,b)=>`${n1} vio ${a} ${it} y llegaron ${b} más. ¿Cuántos ${it} hay ahora?`,
+  ],
+};
+const PP_RESTA_TEMPLATES={
+  comida:[
+    (n1,n2,it,a,b)=>`${n1} compró ${a} ${it} y ${n2} se comió ${b}. ¿Cuántos ${it} le quedan a ${n1}?`,
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it} y le regaló ${b} a ${n2}. ¿Cuántos ${it} le quedan?`,
+    (n1,n2,it,a,b)=>`Había ${a} ${it} en la mesa y se comieron ${b}. ¿Cuántos ${it} quedan?`,
+  ],
+  objeto:[
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it}, pero perdió ${b}. ¿Cuántos ${it} le quedan?`,
+    (n1,n2,it,a,b)=>`Había ${a} ${it} en la mesa y se cayeron ${b}. ¿Cuántos ${it} quedan?`,
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it} y le regaló ${b} a ${n2}. ¿Cuántos ${it} le quedan?`,
+  ],
+  animal:[
+    (n1,n2,it,a,b)=>`En el jardín había ${a} ${it} y se fueron volando ${b}. ¿Cuántos ${it} quedaron?`,
+    (n1,n2,it,a,b)=>`${n1} tenía ${a} ${it} y regaló ${b} a ${n2}. ¿Cuántos ${it} le quedan?`,
+    (n1,n2,it,a,b)=>`Había ${a} ${it} y se escaparon ${b}. ¿Cuántos ${it} quedaron?`,
+  ],
+};
+function pp_randMathNames(){
+  const n1=PP_MATH_NAMES[Math.floor(Math.random()*PP_MATH_NAMES.length)];
+  let n2; do{ n2=PP_MATH_NAMES[Math.floor(Math.random()*PP_MATH_NAMES.length)]; }while(n2===n1);
+  return [n1,n2];
+}
+function pp_mathProblem(templates,a,b){
+  const it=PP_MATH_ITEMS[Math.floor(Math.random()*PP_MATH_ITEMS.length)];
+  const [n1,n2]=pp_randMathNames();
+  const list=templates[it.tipo];
+  const tpl=list[Math.floor(Math.random()*list.length)];
+  return { text: tpl(n1,n2,it.item,a,b), emoji: it.emoji };
+}
+
 // ═══ Suma PP ═══
 let pp_suma_score,pp_suma_actual;
 window.abrirPP_Suma=function(){
@@ -9985,19 +10060,22 @@ window.abrirPP_Suma=function(){
   pp_siguienteSuma();
 };
 function pp_siguienteSuma(){
-  const a=Math.floor(Math.random()*50)+1;
-  const b=Math.floor(Math.random()*50)+1;
-  pp_suma_actual={a,b,answer:a+b};
+  const a=Math.floor(Math.random()*20)+1;
+  const b=Math.floor(Math.random()*20)+1;
+  const {text,emoji}=pp_mathProblem(PP_SUMA_TEMPLATES,a,b);
+  pp_suma_actual={a,b,answer:a+b,text,emoji};
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPSuma();
 }
 function renderPPSuma(){
-  const opts=[pp_suma_actual.answer,...Array.from({length:3},()=>Math.floor(Math.random()*100)+1)].sort(()=>Math.random()-0.5);
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➕ Suma</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:24px;text-align:center;margin:16px 0;"><p style="color:#fff;font-size:32px;font-weight:900;">${pp_suma_actual.a} + ${pp_suma_actual.b} = ?</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkSuma(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_suma_score}</p>`;
+  const optSet=new Set([pp_suma_actual.answer]);
+  while(optSet.size<4) optSet.add(Math.floor(Math.random()*45)+1);
+  const opts=[...optSet].sort(()=>Math.random()-0.5);
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➕ Problema de Suma</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_suma_actual.emoji}</p><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_suma_actual.text}</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkSuma(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_suma_score}</p>`;
 }
 window.pp_checkSuma=function(ans){
-  if(ans===pp_suma_actual.answer){pp_suma_score+=10;setTimeout(pp_siguienteSuma,500);}
-  else{alert('Incorrecto. Intenta otra vez.');renderPPSuma();}
+  if(ans===pp_suma_actual.answer){pp_suma_score+=10;playFX&&playFX('correct');setTimeout(pp_siguienteSuma,600);}
+  else{playFX&&playFX('wrong');alert('Incorrecto. Intenta otra vez.');renderPPSuma();}
 };
 
 // ═══ Resta PP ═══
@@ -10007,19 +10085,22 @@ window.abrirPP_Resta=function(){
   pp_siguienteResta();
 };
 function pp_siguienteResta(){
-  const a=Math.floor(Math.random()*100)+1;
+  const a=Math.floor(Math.random()*20)+5;
   const b=Math.floor(Math.random()*a)+1;
-  pp_resta_actual={a,b,answer:a-b};
+  const {text,emoji}=pp_mathProblem(PP_RESTA_TEMPLATES,a,b);
+  pp_resta_actual={a,b,answer:a-b,text,emoji};
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPResta();
 }
 function renderPPResta(){
-  const opts=[pp_resta_actual.answer,...Array.from({length:3},()=>Math.floor(Math.random()*100)+1)].sort(()=>Math.random()-0.5);
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➖ Resta</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:24px;text-align:center;margin:16px 0;"><p style="color:#fff;font-size:32px;font-weight:900;">${pp_resta_actual.a} - ${pp_resta_actual.b} = ?</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkResta(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_resta_score}</p>`;
+  const optSet=new Set([pp_resta_actual.answer]);
+  while(optSet.size<4) optSet.add(Math.floor(Math.random()*25));
+  const opts=[...optSet].sort(()=>Math.random()-0.5);
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➖ Problema de Resta</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_resta_actual.emoji}</p><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_resta_actual.text}</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkResta(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_resta_score}</p>`;
 }
 window.pp_checkResta=function(ans){
-  if(ans===pp_resta_actual.answer){pp_resta_score+=10;setTimeout(pp_siguienteResta,500);}
-  else{alert('Incorrecto. Intenta otra vez.');renderPPResta();}
+  if(ans===pp_resta_actual.answer){pp_resta_score+=10;playFX&&playFX('correct');setTimeout(pp_siguienteResta,600);}
+  else{playFX&&playFX('wrong');alert('Incorrecto. Intenta otra vez.');renderPPResta();}
 };
 
 // ═══ Ordenar Números PP ═══
