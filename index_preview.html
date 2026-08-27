@@ -4076,15 +4076,18 @@ function actualizarBadgesTemas(p) {
 }
 
 function actualizarBarraProgreso(p) {
+    if (!p) return;
     const wrapper = document.getElementById('progress-bar-wrapper');
     const fill    = document.getElementById('progress-fill');
     const label   = document.getElementById('progress-label');
     const sinceLastGame = p.misionIndex % 4;
 
-    fill.style.width  = (sinceLastGame / 4 * 100) + '%';
+    if (fill) fill.style.width  = (sinceLastGame / 4 * 100) + '%';
     const remaining = 4 - sinceLastGame;
-    label.textContent = sinceLastGame === 3 ? '🎁!' : '🎁❓';
-    label.title = sinceLastGame === 3 ? '¡Premio listo! Completá una misión más.' : `Faltan ${remaining} misiones para el próximo premio 🎁`;
+    if (label) {
+        label.textContent = sinceLastGame === 3 ? '🎁!' : '🎁❓';
+        label.title = sinceLastGame === 3 ? '¡Premio listo! Completá una misión más.' : `Faltan ${remaining} misiones para el próximo premio 🎁`;
+    }
 }
 
 window.mostrarPrizeTooltip = function() {
@@ -4102,8 +4105,10 @@ window.mostrarPrizeTooltip = function() {
 };
 
 window.cambiarPerfil = function(id) {
+    if (!id || !window.familia || !window.familia[id]) return;
     window.perfilActualId = id;
     const p = window.familia[id];
+    if (!p) return;
     p.scoreInicioSesion = p.score;
     // Streak tracking (#9)
     const today = new Date().toISOString().slice(0,10);
@@ -4120,15 +4125,22 @@ window.cambiarPerfil = function(id) {
     p.ultimaActividad = today;
     guardarEstado();
     setTimeout(() => logroCheck && logroCheck(p), 800);
-    document.getElementById('vista-infantil').classList.add('hidden');
-    document.getElementById('vista-adultos').classList.add('hidden');
+
+    const infantilView = document.getElementById('vista-infantil');
+    const adultosView = document.getElementById('vista-adultos');
+    if (infantilView) infantilView.classList.add('hidden');
+    if (adultosView) adultosView.classList.add('hidden');
 
     if (p.tipo === 'infantil') {
-        document.getElementById('vista-infantil').classList.remove('hidden');
-        document.getElementById('puntos-nena').innerText  = p.score + ' XP';
-        document.getElementById('racha-nena').innerText   = p.racha;
-        document.getElementById('saludo-nena').innerText  = `Hello, ${p.nombre}! 👋`;
-        document.getElementById('nivel-nena-tag').innerText = `Level: ${p.nivel}`;
+        if (infantilView) infantilView.classList.remove('hidden');
+        const ptsEl = document.getElementById('puntos-nena');
+        const rachaEl = document.getElementById('racha-nena');
+        const saludoEl = document.getElementById('saludo-nena');
+        const nivelEl = document.getElementById('nivel-nena-tag');
+        if (ptsEl) ptsEl.innerText = p.score + ' XP';
+        if (rachaEl) rachaEl.innerText = p.racha;
+        if (saludoEl) saludoEl.innerText = `Hello, ${p.nombre}! 👋`;
+        if (nivelEl) nivelEl.innerText = `Level: ${p.nivel}`;
         const kidsAvEl = document.getElementById('kids-avatar-icon');
         if (kidsAvEl) {
             kidsAvEl.textContent = p.avatar || '⭐';
@@ -4138,11 +4150,14 @@ window.cambiarPerfil = function(id) {
         actualizarBadgesTemas(p);
         window.volverATematicas();
     } else {
-        document.getElementById('vista-adultos').classList.remove('hidden');
-        document.getElementById('subtitulo-adulto').innerText = `${p.nombre} · ${p.nivel}`;
-        document.getElementById('zona-conversacion-adulto').classList.add('hidden');
-        actualizarNivelAdulto(p);
-        window.cargarEscenarioFijoAdulto('airport');
+        const adultosViewEl = document.getElementById('vista-adultos');
+        if (adultosViewEl) adultosViewEl.classList.remove('hidden');
+        const subtituloEl = document.getElementById('subtitulo-adulto');
+        if (subtituloEl) subtituloEl.innerText = `${p.nombre} · ${p.nivel}`;
+        const conversacionEl = document.getElementById('zona-conversacion-adulto');
+        if (conversacionEl) conversacionEl.classList.add('hidden');
+        actualizarNivelAdulto && actualizarNivelAdulto(p);
+        window.cargarEscenarioFijoAdulto && window.cargarEscenarioFijoAdulto('airport');
         // Check placement test (#15) and weekly report (#8)
         setTimeout(() => {
             checkPlacementTest && checkPlacementTest(p);
@@ -6546,12 +6561,20 @@ function velAnswer(correct, btn) {
     _velState.current=null;
 }
 function velEnd() {
-    document.getElementById('vel-answers').style.display='none';
-    document.getElementById('vel-emoji').style.display='none';
-    document.getElementById('vel-result').style.display='block';
-    document.getElementById('vel-final-score').textContent=_velState.score+' pts!';
+    const answersEl = document.getElementById('vel-answers');
+    const emojiEl = document.getElementById('vel-emoji');
+    const resultEl = document.getElementById('vel-result');
+    const scoreEl = document.getElementById('vel-final-score');
+    const msgEl = document.getElementById('vel-final-msg');
+
+    if (answersEl) answersEl.style.display='none';
+    if (emojiEl) emojiEl.style.display='none';
+    if (resultEl) resultEl.style.display='block';
+    if (scoreEl) scoreEl.textContent=_velState.score+' pts!';
+
     const accuracy = _velState.total>0?Math.round(_velState.score/_velState.total/10*100):0;
-    document.getElementById('vel-final-msg').textContent=`${_velState.total} words · ${accuracy}% accuracy`;
+    if (msgEl) msgEl.textContent=`${_velState.total} words · ${accuracy}% accuracy`;
+
     const p=window.familia[window.perfilActualId];
     if(p){p.score+=Math.round(_velState.score/2);guardarEstado();}
     lanzarEstrellas&&lanzarEstrellas();
