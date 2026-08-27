@@ -9846,42 +9846,57 @@ window.pp_adivinarLetra=function(l){
 };
 
 // ═══ Sopa de Letras PP ═══
-let pp_sopa_words,pp_sopa_found,pp_sopa_grid;
+const PP_SOPA_COLS=10;
+let pp_sopa_words,pp_sopa_found,pp_sopa_grid,pp_sopa_rows,pp_sopa_sel;
 window.abrirPP_SopaLetras=function(){
-  pp_sopa_words=pp_palabras.slice(0,6).map(w=>w.toUpperCase());
+  pp_sopa_words=[...new Set(pp_palabras.slice(0,6).map(w=>w.toUpperCase()))];
   pp_sopa_found=new Set();
-  let grid='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
-  pp_sopa_grid=[];
-  for(let i=0;i<15;i++){
-    let row='';
-    for(let j=0;j<12;j++){
-      if(Math.random()<0.3&&pp_sopa_words.some(w=>w===row.slice(-w.length)))continue;
-      row+=grid[Math.floor(Math.random()*grid.length)];
-    }
-    pp_sopa_grid.push(row.padEnd(12,'A'));
-  }
-  for(let w of pp_sopa_words){
-    let placed=false;
-    while(!placed){
-      const row=Math.floor(Math.random()*pp_sopa_grid.length);
-      const col=Math.floor(Math.random()*(pp_sopa_grid[row].length-w.length));
-      if(col+w.length<=pp_sopa_grid[row].length){
-        pp_sopa_grid[row]=pp_sopa_grid[row].substring(0,col)+w+pp_sopa_grid[row].substring(col+w.length);
-        placed=true;
-      }
-    }
-  }
+  pp_sopa_sel=null;
+  const ABC='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+  pp_sopa_rows=15;
+  // start with a blank grid, place words horizontally (left-to-right) without overlap
+  pp_sopa_grid=Array.from({length:pp_sopa_rows},()=>Array(PP_SOPA_COLS).fill(''));
+  const usedRows=new Set();
+  pp_sopa_words.forEach(w=>{
+    const len=Math.min(w.length,PP_SOPA_COLS);
+    let row;
+    do{ row=Math.floor(Math.random()*pp_sopa_rows); }while(usedRows.has(row));
+    usedRows.add(row);
+    const maxCol=PP_SOPA_COLS-len;
+    const col=maxCol>0?Math.floor(Math.random()*(maxCol+1)):0;
+    for(let i=0;i<len;i++) pp_sopa_grid[row][col+i]=w[i];
+  });
+  for(let r=0;r<pp_sopa_rows;r++)for(let c=0;c<PP_SOPA_COLS;c++)
+    if(!pp_sopa_grid[r][c]) pp_sopa_grid[r][c]=ABC[Math.floor(Math.random()*ABC.length)];
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPSopa();
 };
 function renderPPSopa(){
-  const lista=pp_sopa_words.map(w=>`<button style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;opacity:${pp_sopa_found.has(w)?0.5:1};">${w}</button>`).join('');
+  const lista=pp_sopa_words.map(w=>`<button disabled style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;${pp_sopa_found.has(w)?'text-decoration:line-through;opacity:0.55':''}">${w}</button>`).join('');
   const win=pp_sopa_found.size===pp_sopa_words.length;
   let feedback=win?'<p style="color:#86efac;font-size:24px;font-weight:900;margin-top:12px;">🎉 ¡Encontraste todas!</p><button onclick="window.abrirPP_SopaLetras()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Nueva →</button>':'';
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔍 Sopa de Letras</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:12px;font-family:monospace;font-size:9px;line-height:1.8;color:#fff;text-align:center;margin:12px 0;white-space:pre-wrap;word-break:break-all;">${pp_sopa_grid.join('\n')}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">${lista}</div>${feedback}`;
+  const gridHtml=pp_sopa_grid.map((row,r)=>`<div style="display:flex;gap:2px;">${row.map((ch,c)=>
+    `<button onclick="pp_sopaTap(${r},${c})" style="width:24px;height:24px;flex-shrink:0;background:${pp_sopa_sel&&pp_sopa_sel[0]===r&&pp_sopa_sel[1]===c?'rgba(96,165,250,0.6)':'rgba(255,255,255,0.12)'};color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;padding:0;">${ch}</button>`
+  ).join('')}</div>`).join('');
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔍 Sopa de Letras</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:8px 0;">Tocá la primera y la última letra de una palabra</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;align-items:center;margin:12px 0;overflow-x:auto;">${gridHtml}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">${lista}</div>${feedback}`;
 }
-window.pp_encontrarPalabra=function(w){
-  pp_sopa_found.add(w);
+window.pp_sopaTap=function(r,c){
+  if(!pp_sopa_sel){ pp_sopa_sel=[r,c]; renderPPSopa(); return; }
+  const [sr,sc]=pp_sopa_sel;
+  pp_sopa_sel=null;
+  if(sr!==r && sc!==c){ renderPPSopa(); return; } // must be straight line (row or col)
+  let cells=[];
+  if(sr===r){ const [c1,c2]=[Math.min(sc,c),Math.max(sc,c)]; for(let cc=c1;cc<=c2;cc++) cells.push([r,cc]); }
+  else { const [r1,r2]=[Math.min(sr,r),Math.max(sr,r)]; for(let rr=r1;rr<=r2;rr++) cells.push([rr,c]); }
+  const attempt=cells.map(([rr,cc])=>pp_sopa_grid[rr][cc]).join('');
+  const rev=[...attempt].reverse().join('');
+  const match=pp_sopa_words.find(w=>!pp_sopa_found.has(w)&&(w===attempt||w===rev));
+  if(match){
+    pp_sopa_found.add(match);
+    playFX&&playFX('correct');
+    const p=window.familia[window.perfilActualId];
+    if(p){p.score+=15;guardarEstado();}
+  }
   renderPPSopa();
 };
 
@@ -9930,17 +9945,40 @@ window.pp_checkResta=function(ans){
 };
 
 // ═══ Ordenar Números PP ═══
-let pp_orden_numbers,pp_orden_correct;
+let pp_orden_numbers,pp_orden_pool,pp_orden_built,pp_orden_score=0;
 window.abrirPP_OrdenarNumeros=function(){
-  pp_orden_numbers=[Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1].sort();
-  pp_orden_correct=false;
-  const shuffled=[...pp_orden_numbers].sort(()=>Math.random()-0.5);
+  pp_orden_numbers=[Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1,Math.floor(Math.random()*100)+1].sort((a,b)=>a-b);
+  pp_orden_pool=[...pp_orden_numbers].sort(()=>Math.random()-0.5);
+  pp_orden_built=[];
   document.getElementById('pp-game-overlay').style.display='flex';
-  renderPPOrden(shuffled);
+  renderPPOrden();
 };
-function renderPPOrden(arr){
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔢 Ordena de menor a mayor</p><p style="color:#fde68a;font-size:14px;text-align:center;margin:12px 0;">Arrastra o click para ordenar</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${arr.map(n=>`<button style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:24px;font-weight:700;cursor:pointer;">${n}</button>`).join('')}</div><p style="color:#fde68a;font-size:12px;text-align:center;margin-top:16px;">Solución: ${pp_orden_numbers.join(', ')}</p><button onclick="window.abrirPP_OrdenarNumeros()" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;">Otra →</button>`;
+function renderPPOrden(){
+  const builtHtml = pp_orden_built.length===0
+    ? '<span style="color:rgba(255,255,255,0.4);font-size:13px;">Tocá los números en orden…</span>'
+    : pp_orden_built.map(n=>`<span style="background:rgba(255,255,255,0.9);color:#c2410c;border-radius:10px;padding:8px 14px;font-size:18px;font-weight:800;">${n}</span>`).join('');
+  const poolHtml = pp_orden_pool.map((n,i)=>`<button onclick="pp_ordenPick(${i})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:24px;font-weight:700;cursor:pointer;">${n}</button>`).join('');
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔢 Ordena de menor a mayor</p><p style="color:#fde68a;font-size:14px;text-align:center;margin:12px 0;">Tocá los números del más chico al más grande</p><div style="background:rgba(0,0,0,0.15);border-radius:12px;padding:12px;min-height:44px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-bottom:12px;">${builtHtml}</div><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${poolHtml}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_orden_score}</p>`;
 }
+window.pp_ordenPick=function(i){
+  const n = pp_orden_pool.splice(i,1)[0];
+  pp_orden_built.push(n);
+  if(pp_orden_pool.length===0){
+    const correct = pp_orden_built.every((n,idx)=>n===pp_orden_numbers[idx]);
+    if(correct){
+      pp_orden_score+=10;
+      renderPPOrden();
+      const el=document.getElementById('pp-game-content');
+      el.insertAdjacentHTML('beforeend','<p style="color:#86efac;font-size:16px;font-weight:900;text-align:center;margin-top:12px;">✅ ¡Correcto!</p><button onclick="window.abrirPP_OrdenarNumeros()" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;">Otra →</button>');
+    } else {
+      renderPPOrden();
+      const el=document.getElementById('pp-game-content');
+      el.insertAdjacentHTML('beforeend',`<p style="color:#fca5a5;font-size:14px;font-weight:800;text-align:center;margin-top:12px;">❌ Era: ${pp_orden_numbers.join(', ')}</p><button onclick="window.abrirPP_OrdenarNumeros()" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;">Intentar de nuevo →</button>`);
+    }
+  } else {
+    renderPPOrden();
+  }
+};
 
 // ═══ Número a Letra PP ═══
 let pp_numletra_numero,pp_numletra_correct;
