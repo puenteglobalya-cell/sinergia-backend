@@ -20,6 +20,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+        /* Force Tailwind's .hidden to win over co-applied display utilities
+           (e.g. class="hidden flex") — without !important, flex overrides
+           hidden and overlays like #gran-tesoro-overlay / #wr-end-screen
+           never actually close. */
+        .hidden { display: none !important; }
+
         * { -webkit-tap-highlight-color: transparent; }
         body { overscroll-behavior: none; }
         body.game-active { overscroll-behavior-y: contain; }
