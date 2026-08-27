@@ -1367,6 +1367,11 @@
                 <span class="text-white font-extrabold text-sm">Frase</span>
                 <span class="text-white/50 text-xs text-center">Fill the Gap</span>
             </button>
+            <button onclick="document.getElementById('adult-gamepicker-overlay').classList.add('hidden');window.abrirEscribiOracion()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#9d174d,#be185d)">
+                <span class="text-4xl">✍️</span>
+                <span class="text-white font-extrabold text-sm">Escribí la Oración</span>
+                <span class="text-white/50 text-xs text-center">Write the full sentence</span>
+            </button>
         </div>
     </div>
 </div>
@@ -1457,6 +1462,11 @@
                 <span class="text-4xl">📚</span>
                 <span class="text-white font-extrabold text-sm">Stories</span>
                 <span class="text-white/50 text-xs text-center">Read &amp; Listen</span>
+            </button>
+            <button onclick="cerrarGamePicker();window.abrirEscribiOracion()" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl" style="background:linear-gradient(135deg,#9d174d,#be185d)">
+                <span class="text-4xl">✍️</span>
+                <span class="text-white font-extrabold text-sm">Escribí</span>
+                <span class="text-white/50 text-xs text-center">Write the Sentence</span>
             </button>
             <button onclick="cerrarGamePicker();document.getElementById('primeros-pasos-overlay').classList.remove('hidden')" class="rounded-3xl p-4 flex flex-col items-center gap-2 active:scale-95 shadow-xl col-span-2" style="background:linear-gradient(135deg,#c2410c,#ea580c)">
                 <span class="text-4xl">🔤</span>
@@ -2331,6 +2341,7 @@ document.addEventListener('keydown', function(e) {
         ['crucigrama-overlay',  () => window.cerrarCrucigrama && window.cerrarCrucigrama()],
         ['storyteller-overlay', () => window.cerrarStoryteller && window.cerrarStoryteller()],
         ['library-overlay',     () => window.cerrarBiblioteca && window.cerrarBiblioteca()],
+        ['escribi-overlay',     () => window.cerrarEscribiOracion && window.cerrarEscribiOracion()],
         ['historial-overlay',   () => { document.getElementById('historial-overlay').style.display='none'; }],
         ['glosario-overlay',    () => { document.getElementById('glosario-overlay').style.display='none'; }],
     ];
@@ -6676,6 +6687,69 @@ function fraseNext() {
     hablarNativo&&hablarNativo(item.sentence.replace('___','...'),0.85);
 }
 
+// ── ESCRIBÍ LA ORACIÓN (Write the Sentence) ──────────────────────
+let _escribiState = { pool:[], idx:0, score:0, current:null };
+function _escribiNormalize(str) {
+    return String(str||'')
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g,'')
+        .replace(/[.,!?¿¡'"]/g,'')
+        .replace(/\s+/g,' ')
+        .trim();
+}
+window.abrirEscribiOracion = function() {
+    _escribiState = { pool:[...SENTENCE_BANK].sort(()=>Math.random()-0.5), idx:0, score:0, current:null };
+    const scoreEl = document.getElementById('escribi-score');
+    if (scoreEl) scoreEl.textContent = '0 XP';
+    document.getElementById('escribi-overlay').style.display='flex';
+    escribiNext();
+};
+window.cerrarEscribiOracion = function() {
+    const overlay = document.getElementById('escribi-overlay');
+    if (overlay) overlay.style.display='none';
+};
+window.escribiNext = function() {
+    if (_escribiState.idx >= _escribiState.pool.length) {
+        _escribiState.idx = 0;
+        _escribiState.pool.sort(()=>Math.random()-0.5);
+    }
+    _escribiState.current = _escribiState.pool[_escribiState.idx++];
+    const input = document.getElementById('escribi-input');
+    const feedback = document.getElementById('escribi-feedback');
+    const nextBtn = document.getElementById('escribi-next-btn');
+    if (input) { input.value=''; input.disabled=false; input.focus(); }
+    if (feedback) feedback.textContent='';
+    if (nextBtn) nextBtn.style.display='none';
+    window.escribiRepetir();
+};
+window.escribiRepetir = function() {
+    if (_escribiState.current) hablarNativo && hablarNativo(_escribiState.current.sentence, 0.8);
+};
+window.escribiCheck = function() {
+    const input = document.getElementById('escribi-input');
+    const feedback = document.getElementById('escribi-feedback');
+    if (!input || !_escribiState.current) return;
+    const correct = _escribiNormalize(input.value) === _escribiNormalize(_escribiState.current.sentence);
+    input.disabled = true;
+    if (feedback) {
+        feedback.textContent = correct
+            ? '✅ ¡Perfecto! +30 XP'
+            : `❌ Era: "${_escribiState.current.sentence}"`;
+    }
+    if (correct) {
+        _escribiState.score += 30;
+        const scoreEl = document.getElementById('escribi-score');
+        if (scoreEl) scoreEl.textContent = _escribiState.score + ' XP';
+        const p = window.familia[window.perfilActualId];
+        if (p) { p.score += 30; guardarEstado(); }
+        playFX && playFX('correct');
+    } else {
+        playFX && playFX('wrong');
+    }
+    const nextBtn = document.getElementById('escribi-next-btn');
+    if (nextBtn) nextBtn.style.display='block';
+};
+
 // ===== STORY READER =====
 window._storyIdx = 0;
 window._storyScene = 0;
@@ -9503,6 +9577,23 @@ document.addEventListener('DOMContentLoaded', () => {
         <div id="frase-answers" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;"></div>
         <div id="frase-feedback" style="font-weight:900;font-size:16px;text-align:center;min-height:24px;color:#fff;"></div>
         <button id="frase-next-btn" onclick="fraseNext()" style="display:none;background:#fbbf24;color:#064e3b;font-weight:900;padding:14px 32px;border-radius:20px;border:none;cursor:pointer;font-size:14px;">Next ▶</button>
+    </div>
+</div>
+
+<!-- ═══ ESCRIBÍ LA ORACIÓN OVERLAY ═══ -->
+<div id="escribi-overlay" class="fixed inset-0 z-[200] flex flex-col" style="background:linear-gradient(160deg,#831843,#9d174d,#be185d);display:none;">
+    <div class="flex items-center justify-between px-4 pt-4 pb-2">
+        <button onclick="window.cerrarEscribiOracion()" style="color:rgba(255,255,255,0.5);font-weight:700;font-size:14px;background:none;border:none;cursor:pointer;">✕ Cerrar</button>
+        <h2 style="color:#fff;font-weight:900;font-size:16px;">✍️ Escribí la Oración</h2>
+        <span id="escribi-score" style="color:#fbbf24;font-weight:700;font-size:13px;">0 XP</span>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center px-4 gap-4 max-w-sm mx-auto w-full">
+        <p style="color:rgba(255,255,255,0.7);font-size:12px;text-align:center;font-weight:600;">ESCUCHÁ Y ESCRIBÍ LA ORACIÓN EN INGLÉS</p>
+        <button onclick="window.escribiRepetir()" style="font-size:3rem;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.3);border-radius:50%;width:84px;height:84px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
+        <textarea id="escribi-input" rows="2" placeholder="Escribí acá lo que escuchaste…" style="width:100%;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px;color:#fff;font-size:1rem;font-weight:600;resize:none;outline:none;" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.escribiCheck();}"></textarea>
+        <button onclick="window.escribiCheck()" style="background:#fbbf24;color:#831843;font-weight:900;padding:14px 32px;border-radius:20px;border:none;cursor:pointer;font-size:14px;width:100%;">Corregir ✓</button>
+        <div id="escribi-feedback" style="font-weight:800;font-size:14px;text-align:center;min-height:24px;color:#fff;line-height:1.5;"></div>
+        <button id="escribi-next-btn" onclick="window.escribiNext()" style="display:none;background:rgba(255,255,255,0.2);color:#fff;font-weight:900;padding:12px 28px;border-radius:18px;border:none;cursor:pointer;font-size:13px;">Siguiente ▶</button>
     </div>
 </div>
 
