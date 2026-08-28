@@ -5803,6 +5803,25 @@ function hablarNativo(texto, rate = null) {
     }, 120);
 }
 
+// Spanish TTS — used across Primeros Pasos (word problems, hangman word,
+// word-search words, etc.) so a child who can't read yet can still hear
+// the content read aloud, not just English vocabulary via hablarNativo().
+function hablarEspanol(texto, rate = 0.85) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(texto);
+    const voces = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+    // Prefer a known-good Spanish voice, same idea as elegirMejorVoz() for English
+    const preferred = ['Google español', 'Microsoft Elvira Online (Natural)', 'Microsoft Sabina', 'Paulina', 'Mónica', 'Helena'];
+    let voice = null;
+    for (const name of preferred) { voice = voces.find(v => v.name.includes(name)); if (voice) break; }
+    if (!voice) voice = voces.find(v => v.lang.startsWith('es-AR')) || voces[0];
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : 'es-ES';
+    u.rate = rate;
+    window.speechSynthesis.speak(u);
+}
+
 function playFX(tipo) {
     try {
         const ctx  = new (window.AudioContext || window.webkitAudioContext)();
@@ -9870,18 +9889,41 @@ window.abrirPP_Ahorcado=function(){
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPAhorcado();
 };
+// Simple gallows + stick-figure SVG that builds up one body part per wrong
+// guess (0=empty gallows … 6=full figure), so a child who can't read the
+// "Errores: x/6" text yet can still see visually how many tries are left.
+function pp_ahorcadoSVG(wrong){
+  const parts=[
+    wrong>=1?'<circle cx="70" cy="35" r="12" stroke="#fff" stroke-width="3" fill="none"/>':'',
+    wrong>=2?'<line x1="70" y1="47" x2="70" y2="80" stroke="#fff" stroke-width="3"/>':'',
+    wrong>=3?'<line x1="70" y1="55" x2="52" y2="70" stroke="#fff" stroke-width="3"/>':'',
+    wrong>=4?'<line x1="70" y1="55" x2="88" y2="70" stroke="#fff" stroke-width="3"/>':'',
+    wrong>=5?'<line x1="70" y1="80" x2="55" y2="105" stroke="#fff" stroke-width="3"/>':'',
+    wrong>=6?'<line x1="70" y1="80" x2="85" y2="105" stroke="#fff" stroke-width="3"/>':'',
+  ].join('');
+  return `<svg viewBox="0 0 110 115" style="width:90px;height:95px;">
+    <line x1="10" y1="110" x2="90" y2="110" stroke="#fbbf24" stroke-width="4"/>
+    <line x1="25" y1="110" x2="25" y2="10" stroke="#fbbf24" stroke-width="4"/>
+    <line x1="25" y1="10" x2="70" y2="10" stroke="#fbbf24" stroke-width="4"/>
+    <line x1="70" y1="10" x2="70" y2="23" stroke="#fbbf24" stroke-width="4"/>
+    ${parts}
+  </svg>`;
+}
 function renderPPAhorcado(){
   const display=pp_ahorcado_word.split('').map(l=>pp_ahorcado_guessed.has(l)?l:'_').join(' ');
   const letras='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').map(l=>`<button onclick="pp_adivinarLetra('${l}')" style="background:${pp_ahorcado_guessed.has(l)?'rgba(0,0,0,0.3)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;opacity:${pp_ahorcado_guessed.has(l)?0.5:1};" ${pp_ahorcado_guessed.has(l)?'disabled':''}>${l}</button>`).join('');
   const won=pp_ahorcado_word.split('').every(l=>pp_ahorcado_guessed.has(l));
   const lost=pp_ahorcado_wrong>=6;
   let feedback='';
-  if(won)feedback='<p style="color:#86efac;font-size:24px;font-weight:900;">🎉 ¡Ganaste!</p><button onclick="window.abrirPP_Ahorcado()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Otra →</button>';
-  else if(lost)feedback=`<p style="color:#fca5a5;font-size:24px;font-weight:900;">😢 Era: ${pp_ahorcado_word}</p><button onclick="window.abrirPP_Ahorcado()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Otra →</button>`;
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🎮 Ahorcado</p><p style="color:#fff;font-size:24px;font-weight:900;text-align:center;margin:16px 0;">${display}</p><p style="color:#fca5a5;text-align:center;font-weight:700;">Errores: ${pp_ahorcado_wrong}/6</p><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 0;">${letras}</div>${feedback}`;
+  // Only speak the full word once the round is over (won or lost) — reading
+  // it aloud mid-game would just give the answer away.
+  if(won){feedback='<p style="color:#86efac;font-size:24px;font-weight:900;">🎉 ¡Ganaste!</p><button onclick="window.abrirPP_Ahorcado()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Otra →</button>';hablarEspanol('¡Muy bien! La palabra era '+pp_ahorcado_word);}
+  else if(lost){feedback=`<p style="color:#fca5a5;font-size:24px;font-weight:900;">😢 Era: ${pp_ahorcado_word}</p><button onclick="window.abrirPP_Ahorcado()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Otra →</button>`;hablarEspanol('La palabra era '+pp_ahorcado_word);}
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🎮 Ahorcado</p><div style="display:flex;justify-content:center;">${pp_ahorcadoSVG(pp_ahorcado_wrong)}</div><p style="color:#fff;font-size:24px;font-weight:900;letter-spacing:2px;text-align:center;margin:12px 0;">${display}</p><p style="color:#fca5a5;text-align:center;font-weight:700;">Errores: ${pp_ahorcado_wrong}/6</p><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 0;">${letras}</div>${feedback}`;
 }
 window.pp_adivinarLetra=function(l){
   pp_ahorcado_guessed.add(l);
+  hablarEspanol(l); // read the tapped letter aloud so a non-reader can recognize it
   if(!pp_ahorcado_word.includes(l))pp_ahorcado_wrong++;
   renderPPAhorcado();
 };
@@ -9918,7 +9960,7 @@ window.abrirPP_SopaLetras=function(){
 function _pp_sopaCellKey(r,c){ return r+','+c; }
 function _pp_sopaInPath(r,c){ return pp_sopa_path.some(([pr,pc])=>pr===r&&pc===c); }
 function renderPPSopa(){
-  const lista=pp_sopa_words.map(w=>`<button disabled style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;${pp_sopa_found.has(w)?'text-decoration:line-through;opacity:0.55':''}">${pp_sopa_found.has(w)?'✅ ':''}${w}</button>`).join('');
+  const lista=pp_sopa_words.map(w=>`<button onclick="hablarEspanol('${w}')" style="background:${pp_sopa_found.has(w)?'rgba(16,185,129,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;${pp_sopa_found.has(w)?'text-decoration:line-through;opacity:0.55':''}">🔊 ${pp_sopa_found.has(w)?'✅ ':''}${w}</button>`).join('');
   const win=pp_sopa_found.size===pp_sopa_words.length;
   let feedback=win?'<p style="color:#86efac;font-size:24px;font-weight:900;margin-top:12px;">🎉 ¡Encontraste todas!</p><button onclick="window.abrirPP_SopaLetras()" style="background:#fff;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:700;cursor:pointer;">Nueva →</button>'
     : (pp_sopa_msg?`<p style="color:#fca5a5;font-size:13px;font-weight:800;text-align:center;margin-top:8px;">${pp_sopa_msg}</p>`:'');
@@ -9976,10 +10018,12 @@ window.pp_sopaVerificar=function(){
     pp_sopa_path.forEach(([r,c])=>pp_sopa_foundCells.add(_pp_sopaCellKey(r,c)));
     pp_sopa_msg='';
     playFX&&playFX('correct');
+    hablarEspanol('¡Encontraste '+match+'!');
     const p=window.familia[window.perfilActualId];
     if(p){p.score+=15;guardarEstado();}
   } else {
     pp_sopa_msg='❌ Esa no es una palabra. ¡Probá otra vez!';
+    hablarEspanol('Esa no es una palabra, ¡probá otra vez!');
   }
   pp_sopa_path=[];
   renderPPSopa();
@@ -10078,16 +10122,17 @@ function pp_siguienteSuma(){
   pp_suma_actual={a,b,answer:a+b,text,emoji};
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPSuma();
+  setTimeout(()=>hablarEspanol(pp_suma_actual.text),300);
 }
 function renderPPSuma(){
   const optSet=new Set([pp_suma_actual.answer]);
   while(optSet.size<4) optSet.add(Math.floor(Math.random()*45)+1);
   const opts=[...optSet].sort(()=>Math.random()-0.5);
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➕ Problema de Suma</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_suma_actual.emoji}</p><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_suma_actual.text}</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkSuma(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_suma_score}</p>`;
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➕ Problema de Suma</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_suma_actual.emoji}</p><div style="display:flex;align-items:center;justify-content:center;gap:8px;"><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_suma_actual.text}</p><button onclick="hablarEspanol(pp_suma_actual.text)" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;flex-shrink:0;">🔊</button></div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkSuma(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_suma_score}</p>`;
 }
 window.pp_checkSuma=function(ans){
-  if(ans===pp_suma_actual.answer){pp_suma_score+=10;playFX&&playFX('correct');setTimeout(pp_siguienteSuma,600);}
-  else{playFX&&playFX('wrong');alert('Incorrecto. Intenta otra vez.');renderPPSuma();}
+  if(ans===pp_suma_actual.answer){pp_suma_score+=10;playFX&&playFX('correct');hablarEspanol('¡Correcto!');setTimeout(pp_siguienteSuma,600);}
+  else{playFX&&playFX('wrong');hablarEspanol('Incorrecto, ¡probá de nuevo!');}
 };
 
 // ═══ Resta PP ═══
@@ -10103,16 +10148,17 @@ function pp_siguienteResta(){
   pp_resta_actual={a,b,answer:a-b,text,emoji};
   document.getElementById('pp-game-overlay').style.display='flex';
   renderPPResta();
+  setTimeout(()=>hablarEspanol(pp_resta_actual.text),300);
 }
 function renderPPResta(){
   const optSet=new Set([pp_resta_actual.answer]);
   while(optSet.size<4) optSet.add(Math.floor(Math.random()*25));
   const opts=[...optSet].sort(()=>Math.random()-0.5);
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➖ Problema de Resta</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_resta_actual.emoji}</p><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_resta_actual.text}</p></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkResta(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_resta_score}</p>`;
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">➖ Problema de Resta</p><div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:20px;text-align:center;margin:16px 0;"><p style="font-size:2rem;">${pp_resta_actual.emoji}</p><div style="display:flex;align-items:center;justify-content:center;gap:8px;"><p style="color:#fff;font-size:16px;font-weight:700;line-height:1.5;">${pp_resta_actual.text}</p><button onclick="hablarEspanol(pp_resta_actual.text)" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;flex-shrink:0;">🔊</button></div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${opts.map(o=>`<button onclick="pp_checkResta(${o})" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:700;cursor:pointer;">${o}</button>`).join('')}</div><p style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;">Score: ${pp_resta_score}</p>`;
 }
 window.pp_checkResta=function(ans){
-  if(ans===pp_resta_actual.answer){pp_resta_score+=10;playFX&&playFX('correct');setTimeout(pp_siguienteResta,600);}
-  else{playFX&&playFX('wrong');alert('Incorrecto. Intenta otra vez.');renderPPResta();}
+  if(ans===pp_resta_actual.answer){pp_resta_score+=10;playFX&&playFX('correct');hablarEspanol('¡Correcto!');setTimeout(pp_siguienteResta,600);}
+  else{playFX&&playFX('wrong');hablarEspanol('Incorrecto, ¡probá de nuevo!');}
 };
 
 // ═══ Ordenar Números PP ═══
@@ -10178,26 +10224,32 @@ window.abrirPP_DictadoNumeros=function(){
   const num=Math.floor(Math.random()*101);
   document.getElementById('pp-game-overlay').style.display='flex';
   const word=numToWord(num);
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔊 Dictado de Números</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:12px 0;">Escucha y escribe el número</p><button onclick="hablarNativo&&hablarNativo('${word}',0.8)" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:16px 24px;font-weight:700;font-size:18px;cursor:pointer;width:100%;margin:16px 0;">🔊 Escuchar</button><input id="pp-dict-num" type="text" placeholder="Escribe el número..." style="width:100%;padding:12px;border-radius:12px;border:none;font-size:16px;font-weight:700;margin:12px 0;"/><button onclick="pp_checkDictNum('${num}')" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:16px;">Verificar ✓</button>`;
+  window._ppDictNumWord=word;
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🔊 Dictado de Números</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:12px 0;">Escucha y escribe el número</p><button onclick="hablarEspanol(window._ppDictNumWord,0.8)" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:16px 24px;font-weight:700;font-size:18px;cursor:pointer;width:100%;margin:16px 0;">🔊 Escuchar</button><input id="pp-dict-num" type="text" placeholder="Escribe el número..." style="width:100%;padding:12px;border-radius:12px;border:none;font-size:16px;font-weight:700;margin:12px 0;"/><button onclick="pp_checkDictNum('${num}')" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:16px;">Verificar ✓</button><p id="pp-dict-num-fb" style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;"></p>`;
   document.getElementById('pp-dict-num').focus();
+  setTimeout(()=>hablarEspanol(word,0.8),300);
 };
 window.pp_checkDictNum=function(correct){
   const inp=document.getElementById('pp-dict-num').value.trim();
-  if(inp==correct){alert('✅ ¡Correcto!');window.abrirPP_DictadoNumeros();}
-  else alert(`❌ Era: ${correct}`);
+  const fb=document.getElementById('pp-dict-num-fb');
+  if(inp==correct){fb.textContent='✅ ¡Correcto!';fb.style.color='#86efac';hablarEspanol('¡Correcto!');setTimeout(window.abrirPP_DictadoNumeros,1200);}
+  else{fb.textContent=`❌ Era: ${correct}`;fb.style.color='#fca5a5';hablarEspanol('Incorrecto, ¡probá de nuevo!');}
 };
 
 // ═══ Dictado Letras PP ═══
 window.abrirPP_DictadoLetras=function(){
   const palabra=pp_palabras[Math.floor(Math.random()*pp_palabras.length)];
   document.getElementById('pp-game-overlay').style.display='flex';
-  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🎤 Dictado de Letras</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:12px 0;">Escucha y escribe la palabra</p><button onclick="hablarNativo&&hablarNativo('${palabra}',0.8)" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:16px 24px;font-weight:700;font-size:18px;cursor:pointer;width:100%;margin:16px 0;">🔊 Escuchar</button><input id="pp-dict-pal" type="text" placeholder="Escribe la palabra..." style="width:100%;padding:12px;border-radius:12px;border:none;font-size:16px;font-weight:700;margin:12px 0;"/><button onclick="pp_checkDictPal('${palabra}')" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:16px;">Verificar ✓</button>`;
+  window._ppDictPalabra=palabra;
+  document.getElementById('pp-game-content').innerHTML=`<p style="color:#fef08a;font-size:12px;font-weight:700;text-align:center;">🎤 Dictado de Letras</p><p style="color:#fde68a;font-size:12px;text-align:center;margin:12px 0;">Escucha y escribe la palabra</p><button onclick="hablarEspanol(window._ppDictPalabra,0.8)" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:16px 24px;font-weight:700;font-size:18px;cursor:pointer;width:100%;margin:16px 0;">🔊 Escuchar</button><input id="pp-dict-pal" type="text" placeholder="Escribe la palabra..." style="width:100%;padding:12px;border-radius:12px;border:none;font-size:16px;font-weight:700;margin:12px 0;"/><button onclick="pp_checkDictPal('${palabra}')" style="background:#fff;color:#c2410c;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:16px;">Verificar ✓</button><p id="pp-dict-pal-fb" style="color:#86efac;font-size:14px;font-weight:700;text-align:center;margin-top:12px;"></p>`;
   document.getElementById('pp-dict-pal').focus();
+  setTimeout(()=>hablarEspanol(palabra,0.8),300);
 };
 window.pp_checkDictPal=function(correct){
   const inp=document.getElementById('pp-dict-pal').value.toLowerCase().trim();
-  if(inp===correct.toLowerCase()){alert('✅ ¡Correcto!');window.abrirPP_DictadoLetras();}
-  else alert(`❌ Era: ${correct}`);
+  const fb=document.getElementById('pp-dict-pal-fb');
+  if(inp===correct.toLowerCase()){fb.textContent='✅ ¡Correcto!';fb.style.color='#86efac';hablarEspanol('¡Correcto!');setTimeout(window.abrirPP_DictadoLetras,1200);}
+  else{fb.textContent=`❌ Era: ${correct}`;fb.style.color='#fca5a5';hablarEspanol('Incorrecto, ¡probá de nuevo!');}
 };
 
 // ═══ Cerrar PP Game ═══
